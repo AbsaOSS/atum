@@ -58,9 +58,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/AbsaOSS/atum.git</connection>
-        <developerConnection>scm:git:ssh://github.com:AbsaOSS/atum.git</developerConnection>
-        <url>http://github.com/AbsaOSS/atum/tree/master</url>
+        <connection>${scm.connection}</connection>
+        <developerConnection>${scm.developerConnection}</developerConnection>
+        <url>${scm.url}</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -93,6 +93,9 @@
         <spark.version>2.2.1</spark.version>
         <specs.version>2.4.16</specs.version>
         <timestamp>${maven.build.timestamp}</timestamp>
+        <scm.connection>scm:git:git://github.com/AbsaOSS/atum.git</scm.connection>
+        <scm.developerConnection>scm:git:ssh://github.com:AbsaOSS/atum.git</scm.developerConnection>
+        <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
     </properties>
 
     <dependencies>
