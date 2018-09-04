@@ -32,6 +32,7 @@
 
     <name>Atum</name>
     <description>Dynamic data completeness and accuracy at enterprise scale in Apache Spark</description>
+    <url>https://github.com/AbsaOSS/atum</url>
     <inceptionYear>2018</inceptionYear>
 
     <licenses>
@@ -44,7 +45,7 @@
 
     <organization>
         <name>ABSA Group Limited</name>
-        <url>https://www.barclaysafrica.com</url>
+        <url>https://www.absa.africa</url>
     </organization>
 
     <developers>
@@ -75,8 +76,11 @@
     </distributionManagement>
 
     <properties>
+        <!-- Common project properties -->
         <encoding>UTF-8</encoding>
-        <json4s.version>3.2.11</json4s.version> <!-- This version is set to be compatible with Spark 2.2.0 -->
+        <timestamp>${maven.build.timestamp}</timestamp>
+
+        <!-- Build and plugins properties -->
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssX</maven.build.timestamp.format>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -84,6 +88,17 @@
         <maven.shade.version>2.3</maven.shade.version>
         <maven.sources.version>3.0.1</maven.sources.version>
         <maven.surefire.version>2.18.1</maven.surefire.version>
+
+        <!-- This is server id for configuring access credentials via settings.xml-->
+        <project.scm.id>atum-scm-server</project.scm.id>
+
+        <!-- Overridable SCM properties to support multiple SCM URLs-->
+        <scm.connection>scm:git:git://github.com/AbsaOSS/atum.git</scm.connection>
+        <scm.developerConnection>scm:git:ssh://github.com:AbsaOSS/atum.git</scm.developerConnection>
+        <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
+
+        <!-- Frameworks and libraries -->
+        <json4s.version>3.2.11</json4s.version> <!-- This version is set to be compatible with Spark 2.2.0 -->
         <scala.compat.version>2.11</scala.compat.version>
         <scala.version>2.11.8</scala.version>
         <scalatest.maven.version>1.0</scalatest.maven.version>
@@ -91,10 +106,6 @@
         <slf4j.version>1.7.25</slf4j.version>
         <spark.version>2.2.1</spark.version>
         <specs.version>2.4.16</specs.version>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <scm.connection>scm:git:git://github.com/AbsaOSS/atum.git</scm.connection>
-        <scm.developerConnection>scm:git:ssh://github.com:AbsaOSS/atum.git</scm.developerConnection>
-        <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
     </properties>
 
     <dependencies>
