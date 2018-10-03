@@ -342,4 +342,45 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
     assert(newMeasurements == measurementsWithHash)
   }
 
+  val measurementsAggregationShort = List(
+    Measurement(
+      controlName = "RecordCount",
+      controlType = "count",
+      controlCol = "*",
+      controlValue = 2
+    ),
+    Measurement(
+      controlName = "pvControlTotal1",
+      controlType = "aggregatedTotal",
+      controlCol = "id",
+      controlValue = -1
+    ),
+    Measurement(
+      controlName = "pvControlTotal1",
+      controlType = "absAggregatedTotal",
+      controlCol = "id",
+      controlValue = BigDecimal("18446744073709551615")
+    ),
+    Measurement(
+      controlName = "pvControlTotal2",
+      controlType = "hashCrc32",
+      controlCol = "id",
+      controlValue = 3993968105L
+    )
+  )
+
+  "measurement types" should "be recognized without 'controlType' prefix" in {
+    val inputDataJson = spark.sparkContext.parallelize(
+      s"""{"id": ${Long.MaxValue}, "price": -1000.0, "order": { "orderid": 1, "items": 1 } } """ ::
+        s"""{"id": ${Long.MinValue}, "price": 1000.1, "order": { "orderid": -1, "items": -1 } } """ :: Nil)
+    val df = spark.read
+      .schema(schema)
+      .json(inputDataJson.toDS)
+
+    val processor = new MeasurementProcessor(measurementsAggregationShort)
+    val newMeasurements = processor.measureDataset(df)
+
+    assert(newMeasurements == measurementsAggregationShort)
+  }
+
 }

@@ -64,24 +64,19 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
   /** The method maps string representation of control type to measurement function.  */
   private def getMeasurementFunction(measurement: Measurement): MeasurementFunction = {
 
-    val controlTypeRecordCountLc = Constants.controlTypeRecordCount.toLowerCase
-    val controlTypeAggregatedTotalLc = Constants.controlTypeAggregatedTotal.toLowerCase
-    val controlTypeAbsAggregatedTotalLc = Constants.controlTypeAbsAggregatedTotal.toLowerCase
-    val controlTypeHashLc = Constants.controlTypeHashCrc32.toLowerCase
-
     measurement.controlType.toLowerCase match {
-      case `controlTypeRecordCountLc` => (ds: Dataset[Row]) => ds.count()
-      case `controlTypeAggregatedTotalLc` =>
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeRecordCount) => (ds: Dataset[Row]) => ds.count()
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeAggregatedTotal) =>
         (ds: Dataset[Row]) => {
           val aggCol = sum(col(valueColumnName))
           aggregateColumn(ds, measurement.controlCol, aggCol)
         }
-      case `controlTypeAbsAggregatedTotalLc` =>
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeAbsAggregatedTotal) =>
         (ds: Dataset[Row]) => {
           val aggCol = sum(abs(col(valueColumnName)))
           aggregateColumn(ds, measurement.controlCol, aggCol)
         }
-      case `controlTypeHashLc` =>
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeHashCrc32) =>
         (ds: Dataset[Row]) => {
           val aggColName = ControlUtils.getTemporaryColumnName(ds)
           ds.withColumn(aggColName, crc32(col(measurement.controlCol).cast("String")))
@@ -92,6 +87,17 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
         Atum.log.error(s"Unrecognized control measurement type '${measurement.controlType}'. Available control measurement types are: " +
           s"${getListOfControlMeasurementTypes.mkString(",")}.")
         (_: Dataset[Row]) => "N/A"
+    }
+  }
+
+  /* Compares control measurement types. Ignores case and supports measurement types without the prefix, e.g. "count" instead of "controlType.Count" */
+  private def isControlMeasureTypeEqual(controlMeasureTypeA: String, controlMeasureTypeB: String): Boolean = {
+    if (controlMeasureTypeA.toLowerCase == controlMeasureTypeB.toLowerCase) {
+      true
+    } else {
+      val strippedMeasureTypeA = if (controlMeasureTypeA.contains('.')) controlMeasureTypeA.split('.').last.toLowerCase else controlMeasureTypeA.toLowerCase
+      val strippedMeasureTypeB = if (controlMeasureTypeB.contains('.')) controlMeasureTypeB.split('.').last.toLowerCase else controlMeasureTypeB.toLowerCase
+      strippedMeasureTypeA == strippedMeasureTypeB
     }
   }
 
