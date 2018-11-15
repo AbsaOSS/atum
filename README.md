@@ -220,10 +220,11 @@ The summary of common control framework routines you can use as Spark and Datafr
 The control measurement of a column is a hash sum. It can be calculated differently depending on the column's data type and
 on business requirements. This table represents all currently supported measurement types:
 
-| Type                           | Description                                     |
-| ------------------------------ |:----------------------------------------------- |
-| controlType.Count	             | Calculates the number of rows in the dataset    |
-| controlType.aggregatedTotal	 | Calculates SUM() of the specified column        |
-| controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column   |
-| controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column |
+| Type                           | Description                                           |
+| ------------------------------ |:----------------------------------------------------- |
+| controlType.Count	             | Calculates the number of rows in the dataset          |
+| controlType.distinctCount 	 | Calculates DISTINCT(COUNT(()) of the specified column |
+| controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
+| controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
+| controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
 

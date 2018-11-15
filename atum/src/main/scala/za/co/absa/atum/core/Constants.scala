@@ -31,6 +31,7 @@ object Constants {
   val DefaultInfoFileName = "_INFO"
 
   val controlTypeRecordCount = "controlType.Count"
+  val controlTypeDistinctCount = "controlType.distinctCount"
   val controlTypeAggregatedTotal = "controlType.aggregatedTotal"
   val controlTypeAbsAggregatedTotal = "controlType.absAggregatedTotal"
   val controlTypeHashCrc32 = "controlType.HashCrc32"

@@ -75,6 +75,9 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
 
     measurement.controlType.toLowerCase match {
       case a if isControlMeasureTypeEqual(a, Constants.controlTypeRecordCount) => (ds: Dataset[Row]) => ds.count()
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeDistinctCount) => (ds: Dataset[Row]) => {
+          ds.select(col(measurement.controlCol)).distinct().count()
+      }
       case a if isControlMeasureTypeEqual(a, Constants.controlTypeAggregatedTotal) =>
         (ds: Dataset[Row]) => {
           val aggCol = sum(col(valueColumnName))
@@ -111,8 +114,11 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
   }
 
   def getListOfControlMeasurementTypes: Seq[String] = {
-    List(Constants.controlTypeRecordCount, Constants.controlTypeAggregatedTotal, Constants.controlTypeAbsAggregatedTotal, Constants
-      .controlTypeHashCrc32)
+    List(Constants.controlTypeRecordCount,
+      Constants.controlTypeDistinctCount,
+      Constants.controlTypeAggregatedTotal,
+      Constants.controlTypeAbsAggregatedTotal,
+      Constants.controlTypeHashCrc32)
   }
 
   private def workaroundBigDecimalIssues(value: Any) = {

@@ -182,7 +182,8 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
   "MeasurementProcessor" should "support numeric data stored in string" in {
     val inputDataJson = spark.sparkContext.parallelize(
       s"""{"id": "100", "price": "-1000.0", "amount": "-10000.100000" } """ ::
-        s"""{"id": "-50", "price": "1000.1", "amount": "10000.1000" } """ :: Nil)
+        s"""{"id": "-50", "price": "1000.1", "amount": "10000.1000" } """ ::
+        s"""{"id": "-50", "price": "0", "amount": "0" } """ :: Nil)
 
     val schema2 = StructType(
       Array(
@@ -196,16 +197,22 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
         controlName = "t1",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "id",
-        controlValue = 50
+        controlValue = 0
       ),
       Measurement(
         controlName = "t2",
+        controlType = Constants.controlTypeDistinctCount,
+        controlCol = "id",
+        controlValue = 2
+      ),
+      Measurement(
+        controlName = "t3",
         controlType = Constants.controlTypeAbsAggregatedTotal,
         controlCol = "price",
         controlValue = 2000.1
       ),
       Measurement(
-        controlName = "t3",
+        controlName = "t4",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "amount",
         controlValue = 0
