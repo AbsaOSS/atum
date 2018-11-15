@@ -91,6 +91,14 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     processor.registerColumnRename(oldName, newName)
   }
 
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String): Unit = {
+    initializeControlInfo(dataset)
+    if (processor == null) {
+      initializeProcessor(dataset.sparkSession)
+    }
+    processor.registerColumnDrop(columnName)
+  }
+
   private[atum] def calculateCheckpoint(dataset: Dataset[Row], name: String, delayCheckpointPersistence: Boolean): Dataset[Row] = {
     initializeControlInfo(dataset)
     if (processor == null) {

@@ -209,6 +209,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | setCheckpoint(name: *String*) | Calculates the control measurements and appends a new checkpoint. | df.setCheckpoint("Conformance Started") |
 | writeInfoFile(outputFileName: *String*) | Write only an info file to a given HDFS location (could be a directory of a file). | df.writeInfoFile("/project/test/_INFO") |
 | registerColumnRename(oldName: *String*, newName: *String*) | Register that a column which is part of control measurements is renamed. | df.registerColumnRename("tradeNumber", "tradeId") |
+| registerColumnDrop(columnName: *String*) | Register that a column which is part of control measurements is dropped. | df.registerColumnDrop("personId") |
 | setControlMeasuresFileName(fileName: *String*) | Use a specific name for info files instead of deafult '_INFO'. | spark.setControlMeasuresFileName("_EXAMPLE_INFO") |
 | setControlMeasuresWorkflow(workflowName: *String*) | Sets workflow name for the set of checkpoints that will follow. | spark.setControlMeasuresWorkflow("Conformance") |
 | setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job.	| setControlMeasurementError("Conformance", "Validation error", stackTrace) |

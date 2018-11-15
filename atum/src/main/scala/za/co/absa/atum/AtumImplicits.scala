@@ -260,6 +260,18 @@ object AtumImplicits {
     }
 
     /**
+      * The method registers a column drop when it is no longer needed for the column to calculate control measurements
+      *
+      * @param columnName A column to be dropped from measurements
+      */
+    def registerColumnDrop(columnName: String): Dataset[Row] = {
+      if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
+        throw new IllegalStateException("Control framework tracking is not initialized.")
+      controlFrameworkState.registerColumnDrop(dataset, columnName)
+      dataset
+    }
+
+    /**
       * The method fetches the initial control measurements and puts version from info file
       * to ControlFrameworkKeys.InfoFileVersionKey Spark Session Key
       *

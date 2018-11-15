@@ -61,6 +61,15 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
     measurements = newMeasurements
   }
 
+  /** Register a column drop so no measurements tracking is necessary.  */
+  private[atum] def registerColumnDrop(columnName: String): Unit = {
+    val oldLowercaseName = columnName.trim.toLowerCase
+    val newMeasurements = measurements.filter(measure => measure.controlCol.trim.toLowerCase != oldLowercaseName)
+
+    processors = newMeasurements.map(m => (m, getMeasurementFunction(m)))
+    measurements = newMeasurements
+  }
+
   /** The method maps string representation of control type to measurement function.  */
   private def getMeasurementFunction(measurement: Measurement): MeasurementFunction = {
 

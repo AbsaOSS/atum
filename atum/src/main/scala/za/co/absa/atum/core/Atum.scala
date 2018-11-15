@@ -128,6 +128,11 @@ object Atum {
     controlFrameworkState.registerColumnRename(dataset, oldName, newName)
   }
 
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String): Unit = {
+    preventNotInitialized()
+    controlFrameworkState.registerColumnDrop(dataset, columnName)
+  }
+
   private[atum] def setControlFrameworkError(sparkSession: SparkSession, jobStep: String, errorDescription: String, techDetails: String): Unit = {
     preventNotInitialized()
     controlFrameworkState.updateStatusFailure(sparkSession.sparkContext.appName, jobStep, errorDescription, techDetails)
