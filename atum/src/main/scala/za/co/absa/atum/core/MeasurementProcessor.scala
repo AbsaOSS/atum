@@ -37,7 +37,7 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
 
   /** The method calculates measurements for each control.  */
   private[atum] def measureDataset(ds: Dataset[Row]): Seq[Measurement] = {
-    Atum.log.info(s"Schema: ${ds.schema.treeString}")
+    Atum.log.debug(s"Schema: ${ds.schema.treeString}")
     processors.map(p => Measurement(controlName = p._1.controlName,
       controlType = p._1.controlType,
       controlCol = p._1.controlCol,
