@@ -106,7 +106,7 @@ indepedently.
 <dependency>
       <groupId>za.co.absa</groupId>
       <artifactId>atum</artifactId>
-      <version>0.1.2</version>
+      <version>0.1.4</version>
 </dependency>
 ```
 
