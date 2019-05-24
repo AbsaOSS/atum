@@ -125,9 +125,14 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
     // If aggregated value is java.math.BigDecimal, convert it to scala.math.BigDecimal
     value match {
       case v: java.math.BigDecimal =>
-        val valueInScala = scala.math.BigDecimal(v)
-        // If it is zero, return zero instead of BigDecimal which can be something like 0E-18
-        if (valueInScala == 0) 0 else valueInScala
+        // Convert the value to string to workaround different serializers generate different JSONs for BigDecimal
+        v.stripTrailingZeros    // removes trailing zeros (2001.500000 -> 2001.5, but can introduce scientific notation (600.000 -> 6E+2)
+         .toPlainString         // converts to normal string (6E+2 -> "600")
+      case v: BigDecimal =>
+        // Convert the value to string to workaround different serializers generate different JSONs for BigDecimal
+        new java.math.BigDecimal(v.toString())
+          .stripTrailingZeros    // removes trailing zeros (2001.500000 -> 2001.5, but can introduce scientific notation (600.000 -> 6E+2)
+          .toPlainString         // converts to normal string (6E+2 -> "600")
       case a => a
     }
   }
