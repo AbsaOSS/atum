@@ -169,9 +169,11 @@ object ControlUtils {
       }
 
       // Despite aggregated value is Any in Measurement object it should be either a primitive type or Scala's BigDecimal
+      // * null values are now empty strings
       // * If the result of the aggregation is java.math.BigDecimal, it is converted to Scala one
       // * If the output is a BigDecimal zero value it is converted to Int(0) so it would not serialize as something like "0+e18"
       val aggregatedValueFixed = aggregatedValue match {
+        case null => ""
         case v: java.math.BigDecimal =>
           val valueInScala = scala.math.BigDecimal(v)
           // If it is zero, return zero instead of BigDecimal which can be something like 0E-18
@@ -182,7 +184,7 @@ object ControlUtils {
         controlName = columnName + "ControlTotal",
         controlType = controlType,
         controlCol = columnName,
-        controlValue = aggregatedValueFixed)
+        controlValue = aggregatedValueFixed.toString)
     }
     val timeFinish = getTimestampAsString
 
@@ -207,7 +209,7 @@ object ControlUtils {
           controlName = "recordCount",
           controlType = Constants.controlTypeRecordCount,
           controlCol = "*",
-          controlValue = rowCount
+          controlValue = rowCount.toString
         ) :: aggegatedMeasurements.toList
       ) :: Nil )
 

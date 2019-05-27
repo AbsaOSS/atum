@@ -42,7 +42,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "RecordCount",
       controlType = Constants.controlTypeRecordCount,
       controlCol = "*",
-      controlValue = 2
+      controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
@@ -84,13 +84,13 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "pvControlTotal4",
       controlType = Constants.controlTypeAggregatedTotal,
       controlCol = "order.items",
-      controlValue = 2147483648L
+      controlValue = "2147483648"
     ),
     Measurement(
       controlName = "pvControlTotal4",
       controlType = Constants.controlTypeAbsAggregatedTotal,
       controlCol = "order.items",
-      controlValue = 2147483648L
+      controlValue = "2147483648"
     )
   )
 
@@ -117,7 +117,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "RecordCount",
       controlType = Constants.controlTypeRecordCount,
       controlCol = "*",
-      controlValue = 2L
+      controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
@@ -159,13 +159,13 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "pvControlTotal4",
       controlType = Constants.controlTypeAggregatedTotal,
       controlCol = "order.items",
-      controlValue = 0L
+      controlValue = "0"
     ),
     Measurement(
       controlName = "pvControlTotal4",
       controlType = Constants.controlTypeAbsAggregatedTotal,
       controlCol = "order.items",
-      controlValue = 2L
+      controlValue = "2"
     )
   )
 
@@ -207,7 +207,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
         controlName = "t2",
         controlType = Constants.controlTypeDistinctCount,
         controlCol = "id",
-        controlValue = 2L
+        controlValue = "2"
       ),
       Measurement(
         controlName = "t3",
@@ -254,7 +254,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
         controlName = "pvControlTotal0",
         controlType = Constants.controlTypeHashCrc32,
         controlCol = "h1",
-        controlValue = null
+        controlValue = ""
       ),
       Measurement(
         controlName = "pvControlTotal1",
@@ -272,25 +272,25 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
         controlName = "pvControlTotal3",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "h3",
-        controlValue = 0
+        controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal4",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "h4",
-        controlValue = 0
+        controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal5",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "h5",
-        controlValue = 0
+        controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal6",
         controlType = Constants.controlTypeAggregatedTotal,
         controlCol = "h6",
-        controlValue = 0
+        controlValue = "0"
       )
     )
 
@@ -309,25 +309,25 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "RecordCount",
       controlType = Constants.controlTypeRecordCount,
       controlCol = "*",
-      controlValue = 2
+      controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
       controlType = Constants.controlTypeHashCrc32,
       controlCol = "id",
-      controlValue = 2662510020L
+      controlValue = "2662510020"
     ),
     Measurement(
       controlName = "pvControlTotal1",
       controlType = Constants.controlTypeHashCrc32,
       controlCol = "name",
-      controlValue = 7205431484L
+      controlValue = "7205431484"
     ),
     Measurement(
       controlName = "pvControlTotal1",
       controlType = Constants.controlTypeHashCrc32,
       controlCol = "price",
-      controlValue = 4651009593L
+      controlValue = "4651009593"
     )
   )
 
@@ -358,7 +358,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "RecordCount",
       controlType = "count",
       controlCol = "*",
-      controlValue = 2L
+      controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
@@ -376,7 +376,7 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
       controlName = "pvControlTotal2",
       controlType = "hashCrc32",
       controlCol = "id",
-      controlValue = 3993968105L
+      controlValue = "3993968105"
     )
   )
 

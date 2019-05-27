@@ -47,13 +47,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
           controlName = "pvControlTotal",
           controlType = "type.aggregatedTotal",
           controlCol = "pv",
-          controlValue = BigDecimal("32847283324.324324")
+          controlValue = "32847283324.324324"
         ),
         Measurement(
           controlName = "recordCount",
           controlType = "type.Count",
           controlCol = "id",
-          controlValue = 243
+          controlValue = "243"
         ))
     ), Checkpoint(
       name = "Raw",
@@ -66,13 +66,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
           controlName = "pvControlTotal",
           controlType = "type.aggregatedTotal",
           controlCol = "pv",
-          controlValue = BigDecimal("32847283324.324324")
+          controlValue = "32847283324.324324"
         ),
         Measurement(
           controlName = "recordCount",
           controlType = "type.Count",
           controlCol = "id",
-          controlValue = 243
+          controlValue = "243"
         )
       )
     )
@@ -85,13 +85,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
     "\"checkpoints\":[{\"name\":\"Source\",\"processStartTime\":\"01-01-2017 08:00:00\"," +
     "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
     "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"type.aggregatedTotal\"," +
-    "\"controlCol\":\"pv\",\"controlValue\":32847283324.324324},{\"controlName\":\"recordCount\"," +
-    "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":243}]},{\"name\":\"Raw\"," +
+    "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
+    "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
     "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
-    "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":32847283324.324324}," +
+    "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
     "{\"controlName\":\"recordCount\",\"controlType\":\"type.Count\",\"controlCol\":\"id\"," +
-    "\"controlValue\":243}]}]}"
+    "\"controlValue\":\"243\"}]}]}"
 
   "toJson" should "serialize a ControlInfo object" in
   {

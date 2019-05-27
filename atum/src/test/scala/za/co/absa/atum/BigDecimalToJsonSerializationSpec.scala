@@ -60,17 +60,17 @@ class BigDecimalToJsonSerializationSpec extends FlatSpec with Matchers {
         controlName = "pvControlTotal",
         controlType = "controlType.aggregatedTotal",
         controlCol = "pv",
-        controlValue = BigDecimal("32847283324.324324")
+        controlValue = "32847283324.324324"
       ),
       Measurement(
         controlName = "recordCount",
         controlType = "controlType.Count",
         controlCol = "id",
-        controlValue = 243
+        controlValue = "243"
       )
     )
     val s = write(mearurements)
-    s shouldEqual "[{\"controlName\":\"pvControlTotal\",\"controlType\":\"controlType.aggregatedTotal\"," + "\"controlCol\":\"pv\",\"controlValue\":32847283324.324324}," +
-                   "{\"controlName\":\"recordCount\",\"controlType\":\"controlType.Count\",\"controlCol\":\"id\",\"controlValue\":243}]"
+    s shouldEqual "[{\"controlName\":\"pvControlTotal\",\"controlType\":\"controlType.aggregatedTotal\"," + "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
+                   "{\"controlName\":\"recordCount\",\"controlType\":\"controlType.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]"
   }
 }

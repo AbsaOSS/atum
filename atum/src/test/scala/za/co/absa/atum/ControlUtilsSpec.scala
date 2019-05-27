@@ -32,7 +32,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
   private val singleIntColumnDF2 = spark.sparkContext.parallelize(List(100, 999)).toDF
 
   "createInfoFile" should "handle integer columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":21099}]}]}"
+    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
     val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 
@@ -43,7 +43,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
     // This test handles cases when wrong aggregator is used for numeric values.
     // For example, if SUM() is used as an aggregator opposite values will cancel each other and
     // the final control value will be the same for datasets containing two values and for a dataset containing none at all
-    val matcher = ".*\"controlValue\":(\\d+).*".r
+    val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
     val json1 = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
     val json2 = ControlUtils.createInfoFile(singleIntColumnDF2, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 
@@ -55,7 +55,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
   }
 
   "createInfoFile" should "handle string columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.HashCrc32\",\"controlCol\":\"value\",\"controlValue\":9483370936}]}]}"
+    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.HashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
     val actual = ControlUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 
@@ -67,7 +67,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
     // For example, if XOR is used as an aggregator duplicate strings will cancel each other and
     // the final hash will be the same for datasets containing a duplicate values and containing no such values at all
 
-    val matcher = ".*\"controlValue\":(\\d+).*".r
+    val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
     val json1 = ControlUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
     val json2 = ControlUtils.createInfoFile(singleStringColumnDF2, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 

@@ -26,7 +26,7 @@ import za.co.absa.atum.utils.ControlUtils
   * This class is used for processing Spark Dataset to calculate aggregates / control measures
   */
 class MeasurementProcessor(private var measurements: Seq[Measurement]) {
-  type MeasurementFunction = Dataset[Row] => Any
+  type MeasurementFunction = Dataset[Row] => String
   type MeasurementProcessor = (Measurement, MeasurementFunction)
 
   // Assigning measurement function to each measurement
@@ -74,9 +74,9 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
   private def getMeasurementFunction(measurement: Measurement): MeasurementFunction = {
 
     measurement.controlType.toLowerCase match {
-      case a if isControlMeasureTypeEqual(a, Constants.controlTypeRecordCount) => (ds: Dataset[Row]) => ds.count()
+      case a if isControlMeasureTypeEqual(a, Constants.controlTypeRecordCount) => (ds: Dataset[Row]) => ds.count().toString
       case a if isControlMeasureTypeEqual(a, Constants.controlTypeDistinctCount) => (ds: Dataset[Row]) => {
-          ds.select(col(measurement.controlCol)).distinct().count()
+          ds.select(col(measurement.controlCol)).distinct().count().toString
       }
       case a if isControlMeasureTypeEqual(a, Constants.controlTypeAggregatedTotal) =>
         (ds: Dataset[Row]) => {
@@ -91,9 +91,9 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
       case a if isControlMeasureTypeEqual(a, Constants.controlTypeHashCrc32) =>
         (ds: Dataset[Row]) => {
           val aggColName = ControlUtils.getTemporaryColumnName(ds)
-          ds.withColumn(aggColName, crc32(col(measurement.controlCol).cast("String")))
-            .agg(sum(col(aggColName)))
-            .collect()(0)(0)
+          val v = ds.withColumn(aggColName, crc32(col(measurement.controlCol).cast("String")))
+            .agg(sum(col(aggColName))).collect()(0)(0)
+          if (v == null) "" else v.toString
         }
       case _ =>
         Atum.log.error(s"Unrecognized control measurement type '${measurement.controlType}'. Available control measurement types are: " +
@@ -121,7 +121,7 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
       Constants.controlTypeHashCrc32)
   }
 
-  private def workaroundBigDecimalIssues(value: Any) = {
+  private def workaroundBigDecimalIssues(value: Any): String = {
     // If aggregated value is java.math.BigDecimal, convert it to scala.math.BigDecimal
     value match {
       case v: java.math.BigDecimal =>
@@ -133,11 +133,11 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
         new java.math.BigDecimal(v.toString())
           .stripTrailingZeros    // removes trailing zeros (2001.500000 -> 2001.5, but can introduce scientific notation (600.000 -> 6E+2)
           .toPlainString         // converts to normal string (6E+2 -> "600")
-      case a => a
+      case a => a.toString
     }
   }
 
-  private def aggregateColumn(ds: Dataset[Row], measureColumn: String, aggExpression: Column) = {
+  private def aggregateColumn(ds: Dataset[Row], measureColumn: String, aggExpression: Column): String = {
     val dataType = ds.select(measureColumn).schema.fields(0).dataType
     val aggregatedValue = dataType match {
       case _: LongType =>
@@ -155,10 +155,9 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
         val ds2 = ds.select(col(measureColumn).cast(DecimalType(38, 18)).as(valueColumnName))
         val collected = ds2.agg(aggExpression).collect()(0)(0)
         val value = if (collected==null) new java.math.BigDecimal(0) else collected.asInstanceOf[java.math.BigDecimal]
-        val stringResult = value
+        value
           .stripTrailingZeros    // removes trailing zeros (2001.500000 -> 2001.5, but can introduce scientific notation (600.000 -> 6E+2)
           .toPlainString         // converts to normal string (6E+2 -> "600")
-        BigDecimal(stringResult) // converts back to BigDecimal
       case _ =>
         val ds2 = ds.select(col(measureColumn).as(valueColumnName))
         val collected = ds2.agg(aggExpression).collect()(0)(0)
