@@ -21,7 +21,7 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.3-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
