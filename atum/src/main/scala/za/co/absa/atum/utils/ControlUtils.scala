@@ -244,4 +244,23 @@ object ControlUtils {
     controlMeasuresJson
   }
 
+
+  /**
+    * Converts all measurements in an instance of [[ControlMeasure]] object into stings so it won't cause
+    * confusion when deserialized downstream.
+    *
+    * @param controlMeasure A control measures.
+    *
+    * @return The converted control measurements.
+    */
+  def convertControlValuesToStrings(controlMeasure: ControlMeasure): ControlMeasure = {
+    val newCheckpoints = controlMeasure.checkpoints.map(checkpoint => {
+      val newControls = checkpoint.controls.map(measurement => {
+        measurement.copy(controlValue = measurement.controlValue.toString)
+      })
+      checkpoint.copy(controls = newControls)
+    })
+    controlMeasure.copy(checkpoints = newCheckpoints)
+  }
+
 }

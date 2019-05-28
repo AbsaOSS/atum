@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
+import za.co.absa.atum.utils.ControlUtils
 
 import scala.collection.JavaConverters._
 
@@ -31,7 +32,7 @@ class ControlMeasuresLoaderJsonFile(hadoopConfiguration: Configuration, path: Pa
     val stream = fs.open(path)
     val controlInfoJson = try IOUtils.readLines(stream).asScala.mkString("\n") finally stream.close()
 
-    ControlMeasuresParser fromJson controlInfoJson
+    ControlUtils.convertControlValuesToStrings(ControlMeasuresParser fromJson controlInfoJson)
   }
   override def getInfo: String = {
     s"JSON deserializer from ${path.toUri}"
