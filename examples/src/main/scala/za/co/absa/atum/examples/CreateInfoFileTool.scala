@@ -28,7 +28,7 @@ import za.co.absa.atum.utils.{ARMImplicits, ControlUtils}
   * spark-submit --master yarn \
   *     --deploy-mode client \
   *     --class za.co.absa.atum.examples.CreateInfoFileTool \
-  *     atum-examples-0.0.7-SNAPSHOT.jar \
+  *     atum-examples-0.2.3-SNAPSHOT.jar \
   *     SampleDataSet /user/data/input 3 2017-11-07 parquet employeeId address dealId
   * }}}
   *
