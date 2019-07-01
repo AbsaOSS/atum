@@ -20,6 +20,7 @@ import org.apache.log4j.LogManager
 import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.sql.util.QueryExecutionListener
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer}
 import za.co.absa.atum.plugins.EventListener
 
@@ -60,6 +61,15 @@ object Atum {
   def setAllowUnpersistOldDatasets(allowUnpersist: Boolean): Unit = {
     preventNotInitialized()
     controlFrameworkState.setAllowUnpersistOldDatasets(allowUnpersist)
+  }
+
+
+  /**
+    * Returns the current control measures object containing all the checkpoints up to the current point.
+    */
+  def getControMeasure: ControlMeasure = {
+    preventNotInitialized()
+    controlFrameworkState.getControlMeasure
   }
 
   private[atum] def init(sparkSession: SparkSession): Unit = {

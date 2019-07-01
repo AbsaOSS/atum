@@ -135,6 +135,10 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     cachedDS
   }
 
+  private[atum] def getControlMeasure: ControlMeasure = {
+    accumulator.getControlMeasure
+  }
+
   private[atum] def getRowCountOfLastCheckpoint: Option[Long] = {
     if (!accumulator.isControlMeasuresLoaded) {
       None
