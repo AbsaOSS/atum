@@ -216,8 +216,9 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     if (accumulator.isControlMeasuresLoaded) {
       if (processor == null) {
         initializeProcessor(sparkSession)
+      } else {
+        eventListener.onLoad(sparkSession.sparkContext.applicationId, inputInfoFileName, accumulator.getControlMeasure)
       }
-      eventListener.onLoad(sparkSession.sparkContext.applicationId, inputInfoFileName, accumulator.getControlMeasure)
     }
   }
 
