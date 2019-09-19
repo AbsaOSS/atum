@@ -65,8 +65,19 @@ object Atum {
 
   /**
     * Returns the current control measures object containing all the checkpoints up to the current point.
+    *
+    * @deprecated This method is deprecated. Please use getControlMeasure
     */
+  @Deprecated
   def getControMeasure: ControlMeasure = {
+    preventNotInitialized()
+    controlFrameworkState.getControlMeasure
+  }
+
+  /**
+    * Returns the current control measures object containing all the checkpoints up to the current point.
+    */
+  def getControlMeasure: ControlMeasure = {
     preventNotInitialized()
     controlFrameworkState.getControlMeasure
   }
