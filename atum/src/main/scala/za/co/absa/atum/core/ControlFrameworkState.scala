@@ -18,6 +18,7 @@ package za.co.absa.atum.core
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.storage.StorageLevel
 import za.co.absa.atum.AtumImplicits.DefaultControlInfoLoader
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.model.{RunError, RunState, _}
@@ -39,6 +40,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
   private[atum] var workflowName: String = ""
   private[atum] var havePendingCheckpoints: Boolean = false
   private[atum] var allowUnpersistOldDatasets: Boolean = false
+  private[atum] var cacheStorageLevel: Option[StorageLevel] = Some(StorageLevel.MEMORY_AND_DISK)
   private[atum] var lastCachedDS: Dataset[Row] = _
 
   private[atum] def setLoader(loader: ControlMeasuresLoader, sparkSession: SparkSession): Unit = {
@@ -82,6 +84,18 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     havePendingCheckpoints = true
   }
 
+  private[atum] def enableCaching(cacheStorageLevel: StorageLevel): Unit = {
+    this.cacheStorageLevel = Option(cacheStorageLevel)
+  }
+
+  private[atum] def enableCaching(cacheStorageLevelStr: String): Unit = {
+    cacheStorageLevel = Option(StorageLevel.fromString(cacheStorageLevelStr))
+  }
+
+  private[atum] def disableCaching(): Unit = {
+    cacheStorageLevel = None
+  }
+
   private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String): Unit = {
     initializeControlInfo(dataset)
     if (processor == null) {
@@ -108,7 +122,10 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     updateRunCheckpoints(saveInfoFile = false)
 
     // Caching the current dataset. Do not unpersist lastCachedDS yet as the current dataset may depend on it
-    val cachedDS = dataset.cache()
+    val cachedDS = cacheStorageLevel match {
+      case Some(storageLevel) => dataset.persist(storageLevel)
+      case None => dataset
+    }
 
     val measurements = processor.measureDataset(cachedDS.as("checkpoint_" + name))
     val checkpoint = accumulator.addCheckpoint(name, workflowName, measurements)
@@ -120,7 +137,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
 
 
-    if (allowUnpersistOldDatasets) {
+    if (allowUnpersistOldDatasets && cacheStorageLevel.isDefined) {
       // Explicitly mark the dataset of the previous checkpoint as no longer needed.
       // This way we are releasing resources for the future computations.
       if (lastCachedDS != null) {

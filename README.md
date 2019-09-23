@@ -213,7 +213,10 @@ The summary of common control framework routines you can use as Spark and Datafr
 | setControlMeasuresFileName(fileName: *String*) | Use a specific name for info files instead of deafult '_INFO'. | spark.setControlMeasuresFileName("_EXAMPLE_INFO") |
 | setControlMeasuresWorkflow(workflowName: *String*) | Sets workflow name for the set of checkpoints that will follow. | spark.setControlMeasuresWorkflow("Conformance") |
 | setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job.	| setControlMeasurementError("Conformance", "Validation error", stackTrace) |
-| setAllowUnpersistOldDatasets(allowUnpersist: *Boolean)* | (Experimental) Turns on a performance optimization that unpersists old checkpoints after new onces are materialized. | Atum.setAllowUnpersistOldDatasets(true) |
+| setAllowUnpersistOldDatasets(allowUnpersist: *Boolean)* | Turns on a performance optimization that unpersists old checkpoints after new onces are materialized. | Atum.setAllowUnpersistOldDatasets(true) |
+| enableCaching(cacheStorageLevel: *StorageLevel*) | Turns on caching that happens every time a checkpoint is generated (default behavior). A specific storagle level can be set as well (see `setCachingStorageLevel()`) | enableCaching() |
+| disableCaching() | Turns off caching that happens every time a checkpoint is generated. | disableCaching() |
+| setCachingStorageLevel(cacheStorageLevel: *StorageLevel*) | Specifies a Spark storage level to use for caching. Can be one of following: `NONE`, `DISK_ONLY`, `DISK_ONLY_2`, `MEMORY_ONLY`, `MEMORY_ONLY_2`, `MEMORY_ONLY_SER`, `MEMORY_ONLY_SER_2`, `MEMORY_AND_DISK`, `MEMORY_AND_DISK_2`, `MEMORY_AND_DISK_SER`, `MEMORY_AND_DISK_SER_2`, `MEMORY_AND_DISK_SER_2`, `OFF_HEAP`. | setCachingStorageLevel(StorageLevel.MEMORY_AND_DISK) |
 
 ### Control measurement types
 
