@@ -19,6 +19,7 @@ import org.apache.log4j.LogManager
 import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.sql.util.QueryExecutionListener
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.storage.StorageLevel
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer}
 import za.co.absa.atum.plugins.EventListener
@@ -49,6 +50,66 @@ object Atum {
   def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean = false): Unit = {
     preventNotInitialized()
     controlFrameworkState.setAdditionalInfo(kv, replaceIfExists)
+  }
+
+
+  /**
+    * Turns on caching that happens every time a checkpoint is generated (default behavior).
+    *
+    * Atum uses the default storage level for Spark 2.4 and later. But you can
+    * specify a different Spark storage level to use for caching.
+    * (See the definition of [[org.apache.spark.storage.StorageLevel]] for the details).
+    *
+    * It can be one of the following:
+    * NONE, DISK_ONLY, DISK_ONLY_2, MEMORY_ONLY, MEMORY_ONLY_2, MEMORY_ONLY_SER,
+    * MEMORY_ONLY_SER_2, MEMORY_AND_DISK, MEMORY_AND_DISK_2, MEMORY_AND_DISK_SER,
+    * MEMORY_AND_DISK_SER_2, MEMORY_AND_DISK_SER_2, OFF_HEAP.
+    *
+    * @param cacheStorageLevel A caching storage level.
+    */
+  def enableCaching(cacheStorageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK): Unit = {
+    preventNotInitialized()
+    controlFrameworkState.enableCaching(cacheStorageLevel)
+    logCachingStorageLevel()
+  }
+
+  /**
+    * Same as `enableCaching()` with `cacheStorageLevel` being a mandatory parameter.
+    */
+  def setCachingStorageLevel(cacheStorageLevel: StorageLevel): Unit = {
+    preventNotInitialized()
+    controlFrameworkState.enableCaching(cacheStorageLevel)
+    logCachingStorageLevel()
+  }
+
+  /**
+    * Same as `enableCaching()` with `cacheStorageLevel` being a mandatory parameter.
+    * The storage level is passed as a `String` here for forward compatibility.
+    */
+  def setCachingStorageLevel(cacheStorageLevelStr: String): Unit = {
+    preventNotInitialized()
+    controlFrameworkState.enableCaching(cacheStorageLevelStr)
+    logCachingStorageLevel()
+  }
+
+  /**
+    * Turns off caching that happens every time a checkpoint is generated.
+    */
+  def disableCaching(): Unit = {
+    preventNotInitialized()
+    log.info(s"Caching on checkpoints: DISABLED")
+    controlFrameworkState.disableCaching()
+  }
+
+  /**
+    * Returns the current caching storage level.
+    */
+  def cachingStorageLevel: StorageLevel = {
+    preventNotInitialized()
+    controlFrameworkState.cacheStorageLevel match {
+      case Some(storageLevel) => storageLevel
+      case None => StorageLevel.fromString("NONE")
+    }
   }
 
   /**
@@ -177,6 +238,15 @@ object Atum {
     val sessionConf = sparkSession.sessionState.conf
     if (sessionConf contains Constants.InitFlagKey)
       throw new IllegalStateException("Control framework tracking is already initialized.")
+  }
+
+  private def logCachingStorageLevel(): Unit = {
+    controlFrameworkState.cacheStorageLevel match {
+      case Some(storageLevel) =>
+        log.info(s"Caching on checkpoints: ENABLED ${storageLevel.description}.")
+      case None =>
+        log.info(s"Caching on checkpoints: DISABLED")
+    }
   }
 
 }
