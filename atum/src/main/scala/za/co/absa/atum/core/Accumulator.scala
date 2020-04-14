@@ -118,6 +118,7 @@ class Accumulator() {
       workflowName = workflowName,
       order = order,
       controls = controls.toList)
+      .withBuildProperties
     lastProcessingDate = timestampStr
     controlMeasure = ControlMeasure(controlMeasure.metadata, controlMeasure.runUniqueId, checkpoint :: controlMeasure.checkpoints)
     checkpoint
