@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
-import za.co.absa.atum.utils.ControlUtils
+import za.co.absa.atum.utils.{BuildProperties, ControlUtils}
 import za.co.absa.atum.model._
 
 /**
@@ -35,7 +35,7 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
       informationDate = "01-01-2017",
       additionalInfo = Map("key1" -> "value1", "key2" -> "value2")
     ), None,
-      checkpoints = List(Checkpoint(
+    checkpoints = List(Checkpoint(
       name = "Source",
       processStartTime = "01-01-2017 08:00:00",
       processEndTime = "01-01-2017 08:00:00",
@@ -54,7 +54,7 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
           controlCol = "id",
           controlValue = "243"
         ))
-    ), Checkpoint(
+    ).withBuildProperties, Checkpoint(
       name = "Raw",
       processStartTime = "01-01-2017 08:00:00",
       processEndTime = "01-01-2017 08:00:00",
@@ -74,18 +74,21 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
           controlValue = "243"
         )
       )
-    )
+    ).withBuildProperties
     )
   )
-
+  val version = BuildProperties.buildVersion
   val exampleInputJson: String = "{\"metadata\":{\"sourceApplication\":\"FrontArena\",\"country\":\"ZA\"," +
     "\"historyType\":\"Snapshot\",\"dataFilename\":\"example.dat\",\"sourceType\":\"\"," +
     "\"version\":1,\"informationDate\":\"01-01-2017\",\"additionalInfo\":{\"key1\":\"value1\",\"key2\":\"value2\"}}," +
-    "\"checkpoints\":[{\"name\":\"Source\",\"processStartTime\":\"01-01-2017 08:00:00\"," +
+    "\"checkpoints\":[{\"name\":\"Source\"," +
+    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
+    "\"processStartTime\":\"01-01-2017 08:00:00\"," +
     "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
     "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"type.aggregatedTotal\"," +
     "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
     "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":243}]},{\"name\":\"Raw\"," +
+    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
     "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
     "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
@@ -95,11 +98,14 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
   val exampleOutputJson: String = "{\"metadata\":{\"sourceApplication\":\"FrontArena\",\"country\":\"ZA\"," +
     "\"historyType\":\"Snapshot\",\"dataFilename\":\"example.dat\",\"sourceType\":\"\"," +
     "\"version\":1,\"informationDate\":\"01-01-2017\",\"additionalInfo\":{\"key1\":\"value1\",\"key2\":\"value2\"}}," +
-    "\"checkpoints\":[{\"name\":\"Source\",\"processStartTime\":\"01-01-2017 08:00:00\"," +
+    "\"checkpoints\":[{\"name\":\"Source\"," +
+    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
+    "\"processStartTime\":\"01-01-2017 08:00:00\"," +
     "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
     "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"type.aggregatedTotal\"," +
     "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
     "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
+    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
     "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
     "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +

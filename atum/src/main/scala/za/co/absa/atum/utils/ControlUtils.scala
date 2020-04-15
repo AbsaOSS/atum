@@ -200,6 +200,8 @@ object ControlUtils {
     ), runUniqueId = None,
       Checkpoint(
         name = initialCheckpointName,
+        software = Some(BuildProperties.projectName),
+        version = Some(BuildProperties.buildVersion),
         processStartTime = timeStart,
         processEndTime = timeFinish,
         workflowName = workflowName,
@@ -210,7 +212,7 @@ object ControlUtils {
           controlCol = "*",
           controlValue = rowCount.toString
         ) :: aggegatedMeasurements.toList
-      ) :: Nil )
+      ).withBuildProperties :: Nil )
 
     val controlMeasuresJson = if (prettyJSON) ControlUtils.asJsonPretty(cm) else ControlUtils.asJson(cm)
     log.info("JSON Generated: " + controlMeasuresJson)
