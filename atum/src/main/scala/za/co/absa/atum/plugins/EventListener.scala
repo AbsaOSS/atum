@@ -34,7 +34,7 @@ trait EventListener {
     *
     * @param controlMeasure The new control framework information containing the new checkpoint.
     */
-  def onControlMeasurementsUpdated(controlMeasure: ControlMeasure)
+  def onControlMeasurementsUpdated(controlMeasure: ControlMeasure): Unit
 
   /**
     * Called when job status changes.
@@ -49,6 +49,11 @@ trait EventListener {
     * @param sparkApplicationId An application Id of the Spark job that triggered the event.
     * @param outputPath An path to the file that has been saved.
     */
-  def onSaveOutput(sparkApplicationId: String, outputPath: String)
+  def onSaveOutput(sparkApplicationId: String, outputPath: String): Unit
+
+  /**
+    * Called when the Spark application ends so the plugin can finalize and release resources.
+    */
+  def onApplicationEnd(): Unit
 
 }
