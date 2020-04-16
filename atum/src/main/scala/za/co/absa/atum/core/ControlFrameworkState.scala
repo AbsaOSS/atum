@@ -218,6 +218,12 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
+  private[atum] def onApplicationEnd(): Unit = {
+    for ( listener <- eventListeners ) {
+      listener.onApplicationEnd()
+    }
+  }
+
   private[atum] def initializeControlInfo(dataset: Dataset[Row]): Unit = {
     if (!accumulator.isControlMeasuresLoaded) {
       val s = inferInputInfoFileName(dataset, inputInfoFileName)

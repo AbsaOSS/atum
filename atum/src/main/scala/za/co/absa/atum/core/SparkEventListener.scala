@@ -26,5 +26,6 @@ class SparkEventListener(cf: ControlFrameworkState) extends SparkListener {
       Atum.log.info(s"Saving control framework checkpoints")
       cf.updateRunCheckpoints(saveInfoFile = true)
     }
+    cf.onApplicationEnd()
   }
 }
