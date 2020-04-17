@@ -28,7 +28,7 @@ import org.json4s.{Formats, NoTypeHints, ext}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write, writePretty}
 import za.co.absa.atum.model._
-import za.co.absa.atum.core.Constants
+import za.co.absa.atum.core.{Constants, ControlType}
 import za.co.absa.atum.model._
 
 /**
@@ -146,7 +146,7 @@ object ControlUtils {
       val dataType = ds.select(columnName).schema.fields(0).dataType
 
       // This is the aggregated total calculation block
-      var controlType = Constants.controlTypeAbsAggregatedTotal
+      var controlType = ControlType.AbsAggregatedTotal.value
       var controlName = columnName + "Total"
       val aggregatedValue = dataType match {
         case _: LongType =>
@@ -160,7 +160,7 @@ object ControlUtils {
           ds.agg(sum(abs(col(columnName)))).collect()(0)(0)
         case _ =>
           val aggColName = ControlUtils.getTemporaryColumnName(ds)
-          controlType = Constants.controlTypeHashCrc32
+          controlType = ControlType.HashCrc32.value
           controlName = columnName + "Crc32"
           ds.withColumn(aggColName, crc32(col(columnName).cast("String")))
             .agg(sum(col(aggColName)))
@@ -200,15 +200,13 @@ object ControlUtils {
     ), runUniqueId = None,
       Checkpoint(
         name = initialCheckpointName,
-        software = Some(BuildProperties.projectName),
-        version = Some(BuildProperties.buildVersion),
         processStartTime = timeStart,
         processEndTime = timeFinish,
         workflowName = workflowName,
         order = 1,
         controls = Measurement(
           controlName = "recordCount",
-          controlType = Constants.controlTypeRecordCount,
+          controlType = ControlType.Count.value,
           controlCol = "*",
           controlValue = rowCount.toString
         ) :: aggegatedMeasurements.toList
@@ -245,6 +243,7 @@ object ControlUtils {
     controlMeasuresJson
   }
 
+  def preprocessControlMeasure: ControlMeasure => ControlMeasure = convertControlValuesToStrings _ andThen normalize
 
   /**
     * Converts all measurements in an instance of [[ControlMeasure]] object into stings so it won't cause
@@ -255,13 +254,29 @@ object ControlUtils {
     * @return The converted control measurements.
     */
   def convertControlValuesToStrings(controlMeasure: ControlMeasure): ControlMeasure = {
+    transformMeasurementInControlMeasure(controlMeasure, measurement => {
+      measurement.copy(controlValue = measurement.controlValue.toString)
+    })
+  }
+
+  /**
+   * Normalizes all measurements in an instance of [[ControlMeasure]] object into standard values
+   *
+   * @param controlMeasure A control measures.
+   *
+   * @return The normalized control measurements.
+   */
+  def normalize(controlMeasure: ControlMeasure): ControlMeasure = {
+    transformMeasurementInControlMeasure(controlMeasure, measurement => {
+      measurement.copy(controlType = ControlType.getNormalizedValue(measurement.controlType))
+    })
+  }
+
+  private def transformMeasurementInControlMeasure(controlMeasure: ControlMeasure, transformation: Measurement => Measurement) = {
     val newCheckpoints = controlMeasure.checkpoints.map(checkpoint => {
-      val newControls = checkpoint.controls.map(measurement => {
-        measurement.copy(controlValue = measurement.controlValue.toString)
-      })
+      val newControls = checkpoint.controls.map(transformation)
       checkpoint.copy(controls = newControls)
     })
     controlMeasure.copy(checkpoints = newCheckpoints)
   }
-
 }

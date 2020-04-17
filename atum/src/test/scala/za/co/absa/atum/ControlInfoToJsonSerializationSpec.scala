@@ -44,13 +44,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
       controls = List(
         Measurement(
           controlName = "pvControlTotal",
-          controlType = "type.aggregatedTotal",
+          controlType = "aggregatedTotal",
           controlCol = "pv",
           controlValue = "32847283324.324324"
         ),
         Measurement(
           controlName = "recordCount",
-          controlType = "type.Count",
+          controlType = "count",
           controlCol = "id",
           controlValue = "243"
         ))
@@ -63,13 +63,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
       controls = List(
         Measurement(
           controlName = "pvControlTotal",
-          controlType = "type.aggregatedTotal",
+          controlType = "aggregatedTotal",
           controlCol = "pv",
           controlValue = "32847283324.324324"
         ),
         Measurement(
           controlName = "recordCount",
-          controlType = "type.Count",
+          controlType = "count",
           controlCol = "id",
           controlValue = "243"
         )
@@ -102,14 +102,14 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
     "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\"," +
     "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
-    "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"type.aggregatedTotal\"," +
+    "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"aggregatedTotal\"," +
     "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
-    "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
+    "\"controlType\":\"count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
     "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
     "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
-    "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
-    "{\"controlName\":\"recordCount\",\"controlType\":\"type.Count\",\"controlCol\":\"id\"," +
+    "\"controlType\":\"aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
+    "{\"controlName\":\"recordCount\",\"controlType\":\"count\",\"controlCol\":\"id\"," +
     "\"controlValue\":\"243\"}]}]}"
 
   "toJson" should "serialize a ControlInfo object" in
@@ -120,13 +120,13 @@ class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
 
   "fromJson" should "deserialize a ControlInfo object" in
   {
-    val obj = ControlUtils.convertControlValuesToStrings( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
+    val obj = ControlUtils.preprocessControlMeasure( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
     obj shouldEqual exampleCtrlInfo
   }
 
-  "asJson" should "return the json with control values converted to strings after converted to a ControlInfo object and back" in
+  "asJson" should "return the json with control values converted to strings and normalized control type" in
   {
-    val obj = ControlUtils.convertControlValuesToStrings( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
+    val obj = ControlUtils.preprocessControlMeasure( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
     val str = ControlUtils.asJson(obj)
     str shouldEqual exampleOutputJson
   }

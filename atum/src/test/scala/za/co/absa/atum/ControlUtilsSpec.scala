@@ -31,7 +31,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
   private val singleIntColumnDF2 = spark.sparkContext.parallelize(List(100, 999)).toDF
 
   "createInfoFile" should "handle integer columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
+    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
     val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 
@@ -54,7 +54,7 @@ class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
   }
 
   "createInfoFile" should "handle string columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"controlType.HashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
+    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
     val actual = ControlUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS=false, prettyJSON=false, aggregateColumns = Seq("value"))
 

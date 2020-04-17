@@ -31,7 +31,7 @@ class ControlMeasuresLoaderJsonFile(hadoopConfiguration: Configuration, path: Pa
     val stream = fs.open(path)
     val controlInfoJson = try IOUtils.readLines(stream).asScala.mkString("\n") finally stream.close()
 
-    ControlUtils.convertControlValuesToStrings(ControlMeasuresParser fromJson controlInfoJson)
+    ControlUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
   }
   override def getInfo: String = {
     s"JSON deserializer from ${path.toUri}"
