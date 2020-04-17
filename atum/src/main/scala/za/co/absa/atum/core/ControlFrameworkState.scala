@@ -21,6 +21,7 @@ import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.storage.StorageLevel
 import za.co.absa.atum.AtumImplicits.DefaultControlInfoLoader
 import za.co.absa.atum.core.Atum.log
+import za.co.absa.atum.core.ControlType.Count
 import za.co.absa.atum.model.{RunError, RunState, _}
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, ControlMeasuresStorerJsonFile}
 import za.co.absa.atum.plugins.EventListener
@@ -162,7 +163,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
       val lastChheckpoint = accumulator.getCheckpoints.last
       var recordCount: Option[Long] = None
       lastChheckpoint.controls.foreach(measurement =>
-        if (measurement.controlType.equalsIgnoreCase(Constants.controlTypeRecordCount)) {
+        if (measurement.controlType == Count.value) {
           // controlValue can be Int, Long, BigInt. However we know that the number of records
           // is < 2^64, so it is ok cast it back to Long
           recordCount = Some(measurement.controlValue.toString.toLong)

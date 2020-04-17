@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import org.apache.spark.sql.types._
 import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.atum.core.{Constants, MeasurementProcessor}
+import za.co.absa.atum.core.{Constants, ControlType, MeasurementProcessor}
 import za.co.absa.atum.model.Measurement
 import za.co.absa.atum.utils.SparkTestBase
 
@@ -39,55 +39,55 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
   val measurementsIntOferflow = List(
     Measurement(
       controlName = "RecordCount",
-      controlType = Constants.controlTypeRecordCount,
+      controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "id",
       controlValue = "9223372036854775808"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "id",
       controlValue = "9223372036854775808"
     ),
     Measurement(
       controlName = "pvControlTotal2",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.2"
     ),
     Measurement(
       controlName = "pvControlTotal2",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.2"
     ),
     Measurement(
       controlName = "pvControlTotal3",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "9223372036854775808"
     ),
     Measurement(
       controlName = "pvControlTotal3",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "9223372036854775808"
     ),
     Measurement(
       controlName = "pvControlTotal4",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2147483648"
     ),
     Measurement(
       controlName = "pvControlTotal4",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2147483648"
     )
@@ -114,55 +114,55 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
   val measurementsAggregation = List(
     Measurement(
       controlName = "RecordCount",
-      controlType = Constants.controlTypeRecordCount,
+      controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "id",
       controlValue = "-1"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "id",
       controlValue = "18446744073709551615"
     ),
     Measurement(
       controlName = "pvControlTotal2",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "price",
       controlValue = "0.1"
     ),
     Measurement(
       controlName = "pvControlTotal2",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.1"
     ),
     Measurement(
       controlName = "pvControlTotal3",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "0"
     ),
     Measurement(
       controlName = "pvControlTotal3",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal4",
-      controlType = Constants.controlTypeAggregatedTotal,
+      controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "0"
     ),
     Measurement(
       controlName = "pvControlTotal4",
-      controlType = Constants.controlTypeAbsAggregatedTotal,
+      controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2"
     )
@@ -198,25 +198,25 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
     val measurements2 = List(
       Measurement(
         controlName = "t1",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "id",
         controlValue = "0"
       ),
       Measurement(
         controlName = "t2",
-        controlType = Constants.controlTypeDistinctCount,
+        controlType = ControlType.DistinctCount.value,
         controlCol = "id",
         controlValue = "2"
       ),
       Measurement(
         controlName = "t3",
-        controlType = Constants.controlTypeAbsAggregatedTotal,
+        controlType = ControlType.AbsAggregatedTotal.value,
         controlCol = "price",
         controlValue = "2000.1"
       ),
       Measurement(
         controlName = "t4",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "amount",
         controlValue = "0"
       )
@@ -251,43 +251,43 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
     val measurements3 = List(
       Measurement(
         controlName = "pvControlTotal0",
-        controlType = Constants.controlTypeHashCrc32,
+        controlType = ControlType.HashCrc32.value,
         controlCol = "h1",
         controlValue = ""
       ),
       Measurement(
         controlName = "pvControlTotal1",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h1",
         controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal2",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h2",
         controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal3",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h3",
         controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal4",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h4",
         controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal5",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h5",
         controlValue = "0"
       ),
       Measurement(
         controlName = "pvControlTotal6",
-        controlType = Constants.controlTypeAggregatedTotal,
+        controlType = ControlType.AggregatedTotal.value,
         controlCol = "h6",
         controlValue = "0"
       )
@@ -306,25 +306,25 @@ class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase 
   val measurementsWithHash = List(
     Measurement(
       controlName = "RecordCount",
-      controlType = Constants.controlTypeRecordCount,
+      controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeHashCrc32,
+      controlType = ControlType.HashCrc32.value,
       controlCol = "id",
       controlValue = "2662510020"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeHashCrc32,
+      controlType = ControlType.HashCrc32.value,
       controlCol = "name",
       controlValue = "7205431484"
     ),
     Measurement(
       controlName = "pvControlTotal1",
-      controlType = Constants.controlTypeHashCrc32,
+      controlType = ControlType.HashCrc32.value,
       controlCol = "price",
       controlValue = "4651009593"
     )
