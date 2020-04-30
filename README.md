@@ -113,7 +113,7 @@ are not supoprted.
     val batchDate = "10-10-2017"
     val batchVersion = 1
 
-    SparkSession.builder()
+    val spark = SparkSession.builder()
       .appName("An info file creation job")
       .getOrCreate()
 
