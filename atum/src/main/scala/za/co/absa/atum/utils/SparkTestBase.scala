@@ -30,6 +30,7 @@ trait SparkTestBase {
     .config("spark.driver.bindAddress", "127.0.0.1")
     .config("spark.driver.host", "127.0.0.1")
     .config("spark.ui.enabled", "false")
+    .config("spark.testing.memory", 1024*1024*1024) // otherwise may fail based on local machine settings
     .getOrCreate()
 
 }
