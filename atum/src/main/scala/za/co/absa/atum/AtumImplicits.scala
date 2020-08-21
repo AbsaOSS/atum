@@ -93,6 +93,7 @@ object AtumImplicits {
         new ControlMeasuresS3StorerJsonFile(destLoc, kms)
       }
 
+      Atum.log.info(s"enableControlMeasuresTracking(loader = $loader, storer = $storer)") // TODO remove debug
       enableControlMeasuresTracking(loader, storer)
     }
 

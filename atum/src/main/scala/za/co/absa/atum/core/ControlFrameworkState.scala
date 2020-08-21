@@ -23,7 +23,8 @@ import za.co.absa.atum.AtumImplicits.DefaultControlInfoLoader
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.core.ControlType.Count
 import za.co.absa.atum.model.{RunError, RunState, _}
-import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, ControlMeasuresStorerJsonFile}
+import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
+import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer}
 import za.co.absa.atum.plugins.EventListener
 import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFileName
 
@@ -253,7 +254,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
       outputHDFSPathFileName
     }
 
-    val storer = new ControlMeasuresStorerJsonFile(hadoopConfiguration, outputFilePath)
+    val storer = new ControlMeasuresHdfsStorerJsonFile(hadoopConfiguration, outputFilePath)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${outputFilePath.toUri.toString}")
   }

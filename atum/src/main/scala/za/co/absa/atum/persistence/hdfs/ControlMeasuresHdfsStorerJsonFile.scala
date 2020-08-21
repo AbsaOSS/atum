@@ -13,16 +13,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.persistence
+package za.co.absa.atum.persistence.hdfs
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
+import za.co.absa.atum.persistence.{ControlMeasuresParser, ControlMeasuresStorer}
 import za.co.absa.atum.utils.ARMImplicits
 
 /** A storer of control measurements to HDFS filesystem as a JSON file . */
-class ControlMeasuresStorerJsonFile(hadoopConfiguration: Configuration, path: Path) extends ControlMeasuresStorer {
+class ControlMeasuresHdfsStorerJsonFile(hadoopConfiguration: Configuration, path: Path) extends ControlMeasuresStorer {
   override def store(controlInfo: ControlMeasure): Unit = {
     val serialized =  ControlMeasuresParser asJson controlInfo
     saveDataToFile(serialized)

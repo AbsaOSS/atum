@@ -19,7 +19,7 @@ import java.io.{PrintWriter, StringWriter}
 
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
-import za.co.absa.atum.persistence.ControlMeasuresStorerJsonFile
+import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
 import za.co.absa.atum.utils.ExecutionPlanUtils.{inferOutputFileName, inferOutputInfoFileName}
 
 /**

@@ -18,8 +18,9 @@ package za.co.absa.atum.examples
 import org.scalatest.FunSuite
 import za.co.absa.atum.utils._
 
-class SampleMeasurements2Runner extends FunSuite
+class SampleMeasurementsS3RunnerSpec extends FunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
-  runSparkJobAsTest[SampleMeasurements2.type]
+
+    runSparkJobAsTest[SampleS3Measurements1.type]
 }

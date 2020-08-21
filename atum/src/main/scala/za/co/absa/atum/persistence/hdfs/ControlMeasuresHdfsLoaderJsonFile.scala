@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.persistence
+package za.co.absa.atum.persistence.hdfs
 
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
+import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
 import za.co.absa.atum.utils.ControlUtils
 
 import scala.collection.JavaConverters._
 
 /** A loader of control measurements from a JSON file stored in HDFS filesystem. */
-class ControlMeasuresLoaderJsonFile(hadoopConfiguration: Configuration, path: Path) extends ControlMeasuresLoader {
+class ControlMeasuresHdfsLoaderJsonFile(hadoopConfiguration: Configuration, path: Path) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
 
     val fs = FileSystem.get(hadoopConfiguration)
