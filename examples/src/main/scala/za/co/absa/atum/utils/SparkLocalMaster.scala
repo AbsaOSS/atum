@@ -17,4 +17,8 @@ package za.co.absa.atum.utils
 
 trait SparkLocalMaster {
   System.getProperties.setProperty("spark.master", "local[*]")
+
+  // in order to runSampleMeasuremts as tests, otherwise
+  // java.lang.IllegalArgumentException: System memory 259522560 must be at least 471859200... is thrown
+  System.getProperties.setProperty("spark.testing.memory", (1024*1024*1024).toString) // 1g
 }

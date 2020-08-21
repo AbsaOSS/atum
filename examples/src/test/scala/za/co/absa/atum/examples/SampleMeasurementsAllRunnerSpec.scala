@@ -18,8 +18,11 @@ package za.co.absa.atum.examples
 import org.scalatest.FunSuite
 import za.co.absa.atum.utils._
 
-class SampleMeasurements1Runner extends FunSuite
+class SampleMeasurementsAllRunnerSpec extends FunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
+
+    // SampleMeasurement2 depends on SampleMeasurements1's output, so they must be run in this order
     runSparkJobAsTest[SampleMeasurements1.type]
+    runSparkJobAsTest[SampleMeasurements2.type]
 }

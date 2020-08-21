@@ -47,5 +47,7 @@ object SampleMeasurements2 {
       .setCheckpoint("checkpoint2")
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output/stage2_job_results")
+
+    spark.disableControlMeasuresTracking()
   }
 }
