@@ -23,4 +23,5 @@ class SampleMeasurementsS3RunnerSpec extends FunSuite
   with SparkLocalMaster {
 
     runSparkJobAsTest[SampleS3Measurements1.type]
+    runSparkJobAsTest[SampleS3Measurements2.type]
 }

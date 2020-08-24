@@ -15,6 +15,10 @@
 
 package za.co.absa.atum.persistence.s3
 
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse, ServerSideEncryption}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresParser, ControlMeasuresStorer, S3KmsSettings, S3Location}
 
@@ -26,7 +30,22 @@ class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S
   }
 
   private def saveDataToFile(data: String): Unit = {
-    println(s"TODO writing to $data to $outputLocation")
+    // to run locally, we need credentials:
+    val samlCredentials = ProfileCredentialsProvider.create("saml")
+    println(s"samlCredentials = ${samlCredentials.resolveCredentials().accessKeyId()}, ${samlCredentials.resolveCredentials().secretAccessKey().take(5)}...")
+
+    val s3Client = S3Client.builder()
+      .region(outputLocation.region)
+      .credentialsProvider(samlCredentials) // todo only for local? use default credentials instead?
+      .build()
+
+    val putRequest = PutObjectRequest.builder.bucket(outputLocation.bucketName).key(outputLocation.path)
+      .serverSideEncryption(kmsSettings.serverSideEncryption)
+      .ssekmsKeyId(kmsSettings.kmsKeyId)
+      .build()
+
+    // may throw S3Exception or SdkClientException (base exception class = SdkException)
+    s3Client.putObject(putRequest, RequestBody.fromString(data)) // would throw S3Exception or similar
   }
 
   override def getInfo: String = {
