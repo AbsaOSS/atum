@@ -30,6 +30,13 @@ object ControlMeasuresParser {
   }
 
   /**
+   * The method returns a prettified JSON representation of a [[za.co.absa.atum.model.ControlMeasure]] object
+   */
+  def asJsonPretty(controlMeasure: ControlMeasure): String = {
+    ControlUtils.asJsonPretty[ControlMeasure](controlMeasure)
+  }
+
+  /**
     * The method returns a [[za.co.absa.atum.model.ControlMeasure]] object parsed from JSON string.
     */
   def fromJson(jsonStr: String): ControlMeasure = {
