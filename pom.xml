@@ -106,6 +106,7 @@
         <spark.version>2.4.5</spark.version>
         <specs.version>2.4.16</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
+        <mockito.version>3.5.7</mockito.version>
     </properties>
 
     <dependencyManagement>

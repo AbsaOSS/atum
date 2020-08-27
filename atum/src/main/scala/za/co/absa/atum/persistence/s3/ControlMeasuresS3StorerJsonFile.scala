@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse, ServerSideEncryption}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresParser, ControlMeasuresStorer, S3KmsSettings, S3Location}
+import za.co.absa.atum.utils.S3ClientUtils
 
 /** A storer of control measurements to AWS S3 as a JSON file . */
 class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S3KmsSettings) extends ControlMeasuresStorer {
@@ -30,14 +31,7 @@ class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S
   }
 
   private def saveDataToFile(data: String): Unit = {
-    // to run locally, we need credentials:
-    val samlCredentials = ProfileCredentialsProvider.create("saml")
-    println(s"samlCredentials = ${samlCredentials.resolveCredentials().accessKeyId()}, ${samlCredentials.resolveCredentials().secretAccessKey().take(5)}...")
-
-    val s3Client = S3Client.builder()
-      .region(outputLocation.region)
-      .credentialsProvider(samlCredentials) // todo only for local? use default credentials instead?
-      .build()
+    val s3Client = getS3Client
 
     val putRequest = PutObjectRequest.builder.bucket(outputLocation.bucketName).key(outputLocation.path)
       .serverSideEncryption(kmsSettings.serverSideEncryption)
@@ -51,4 +45,9 @@ class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S
   override def getInfo: String = {
     s"JSON serializer for Storer to ${outputLocation.s3String()}"
   }
+
+  private[s3] def getS3Client: S3Client = S3ClientUtils.getS3Client(outputLocation.region)
+
+  // S3ClientUtils.getS3ClientWithLocalProfile(inputLocation.region, "saml") // TODO remove
+
 }

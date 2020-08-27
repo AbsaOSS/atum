@@ -20,34 +20,27 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, S3Location}
-import za.co.absa.atum.utils.ControlUtils
+import za.co.absa.atum.utils.{ControlUtils, S3ClientUtils}
 
 /** A loader of control measurements from a JSON file stored in AWS S3. */
 class ControlMeasuresS3LoaderJsonFile(inputLocation: S3Location) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
+    val s3Client: S3Client = getS3Client
 
-    println(s"TODO loading from $inputLocation")
-
-    // to run locally, we need credentials:
-    val samlCredentials = ProfileCredentialsProvider.create("saml")
-    println(s"samlCredentials = ${samlCredentials.resolveCredentials().accessKeyId()}, ${samlCredentials.resolveCredentials().secretAccessKey().take(5)}...")
-
-    val s3Client = S3Client.builder()
-      .region(inputLocation.region)
-      .credentialsProvider(samlCredentials) // todo only for local? use default credentials instead?
-      .build()
-
-
-    // read
     val getRequest = GetObjectRequest
       .builder().bucket(inputLocation.bucketName).key(inputLocation.path)
       .build()
 
     val controlInfoJson = s3Client.getObjectAsBytes(getRequest).asUtf8String()
-
     ControlUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
   }
+
   override def getInfo: String = {
     s"JSON deserializer from ${inputLocation.s3String()}"
   }
+
+  private[s3] def getS3Client: S3Client = S3ClientUtils.getS3Client(inputLocation.region)
+
+  // S3ClientUtils.getS3ClientWithLocalProfile(inputLocation.region, "saml") // TODO remove
+
 }
