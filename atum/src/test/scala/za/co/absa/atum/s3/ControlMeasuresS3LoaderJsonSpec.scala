@@ -1,7 +1,8 @@
 package za.co.absa.atum.s3
 
+import org.mockito.captor.{ArgCaptor, Captor}
 import org.mockito.scalatest.IdiomaticMockito
-import org.mockito.{ArgumentMatcher, ArgumentMatchers, Mockito}
+import org.mockito.{ArgumentMatchers, ArgumentMatchersSugar, Mockito}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import software.amazon.awssdk.core.ResponseBytes
@@ -14,7 +15,6 @@ import za.co.absa.atum.utils.FileUtils
 
 class ControlMeasuresS3LoaderJsonSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
-  val inputPath: String = TestResources.InputInfo.localPath
   val expectedInputControlMeasure = TestResources.InputInfo.controlMeasure
 
   "ControlMeasuresS3LoaderJsonFile" should "load json file from (mocked) S3" in {
@@ -23,25 +23,28 @@ class ControlMeasuresS3LoaderJsonSpec extends AnyFlatSpec with Matchers with Idi
     val mockedS3Client = mock[S3Client]
     val mockedRequest: ResponseBytes[GetObjectResponse] = mock[ResponseBytes[GetObjectResponse]]
 
-    val loader = new ControlMeasuresS3LoaderJsonFile(inputLocation){
+    val loader = new ControlMeasuresS3LoaderJsonFile(inputLocation) {
       override def getS3Client: S3Client = mockedS3Client
     }
 
-    val mockedS3Data = FileUtils.readFileToString(inputPath)
+    val inputFilePath: String = TestResources.InputInfo.localPath
+    val mockedS3Data = FileUtils.readFileToString(inputFilePath)
 
+    // mock S3 response
     Mockito.when(mockedS3Client.getObjectAsBytes(ArgumentMatchers.any[GetObjectRequest]())).thenReturn(mockedRequest)
     Mockito.when(mockedRequest.asUtf8String()).thenReturn(mockedS3Data)
-
     val loadedControlMeasure = loader.load()
-    loadedControlMeasure shouldBe expectedInputControlMeasure
-  }
 
-  def argMatch[T](func: T => Boolean): T = {
-    ArgumentMatchers.argThat(new ArgumentMatcher[T] {
-      override def matches(param: T): Boolean = {
-        func(param)
-      }
-    })
+    // verify request content
+    val getRequestCaptor: Captor[GetObjectRequest] = ArgCaptor[GetObjectRequest]
+    Mockito.verify(mockedS3Client).getObjectAsBytes(getRequestCaptor.capture)
+    val capturedGetRequest = getRequestCaptor.value
+
+    capturedGetRequest.bucket shouldBe "bucket1"
+    capturedGetRequest.key shouldBe "path/to/json.info"
+
+    // verify returned value
+    loadedControlMeasure shouldBe expectedInputControlMeasure
   }
 
 }
