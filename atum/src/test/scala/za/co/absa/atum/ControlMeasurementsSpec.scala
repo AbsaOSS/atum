@@ -16,13 +16,14 @@
 package za.co.absa.atum
 
 import org.apache.spark.sql.types._
-import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.atum.core.{Constants, ControlType, MeasurementProcessor}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.core.{ControlType, MeasurementProcessor}
 import za.co.absa.atum.model.Measurement
 import za.co.absa.atum.utils.SparkTestBase
 
 //noinspection ZeroIndexToHead
-class ControlMeasurementsSpec extends FlatSpec with Matchers with SparkTestBase {
+class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
 
   import spark.implicits._
 

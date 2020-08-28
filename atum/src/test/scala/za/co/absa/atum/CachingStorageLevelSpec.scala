@@ -16,11 +16,13 @@
 package za.co.absa.atum
 
 import org.apache.spark.storage.StorageLevel
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.core.Atum
 import za.co.absa.atum.utils.SparkTestBase
 
-class CachingStorageLevelSpec extends FlatSpec with Matchers with SparkTestBase with BeforeAndAfter {
+class CachingStorageLevelSpec extends AnyFlatSpec with Matchers with SparkTestBase with BeforeAndAfter {
 
   before {
     Atum.init(spark)

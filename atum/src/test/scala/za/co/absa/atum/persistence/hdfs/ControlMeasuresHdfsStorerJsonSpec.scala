@@ -2,11 +2,12 @@ package za.co.absa.atum.persistence.hdfs
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.persistence.TestResources
 import za.co.absa.atum.utils.{FileUtils, HdfsFileUtils}
 
-class ControlMeasuresHdfsStorerJsonSpec extends FlatSpec with Matchers {
+class ControlMeasuresHdfsStorerJsonSpec extends AnyFlatSpec with Matchers {
 
   val expectedFilePath: String = TestResources.InputInfo.localPath
   val inputControlMeasure = TestResources.InputInfo.controlMeasure

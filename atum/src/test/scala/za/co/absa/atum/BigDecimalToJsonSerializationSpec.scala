@@ -15,13 +15,14 @@
 
 package za.co.absa.atum
 
-import org.scalatest.{FlatSpec, Matchers}
 import org.json4s._
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.write
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.Measurement
 
-class BigDecimalToJsonSerializationSpec extends FlatSpec with Matchers {
+class BigDecimalToJsonSerializationSpec extends AnyFlatSpec with Matchers {
   implicit val formats: Formats = Serialization.formats(NoTypeHints).withBigDecimal
 
   "write" should "serialize a scala.math.BigDecimal" in
