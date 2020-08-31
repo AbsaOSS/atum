@@ -1,6 +1,5 @@
 package za.co.absa.atum.persistence
 
-import za.co.absa.atum.core.ControlType
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
 
 object TestResources {

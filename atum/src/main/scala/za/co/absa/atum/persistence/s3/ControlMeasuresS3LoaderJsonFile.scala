@@ -15,15 +15,20 @@
 
 package za.co.absa.atum.persistence.s3
 
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider}
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, S3Location}
-import za.co.absa.atum.utils.{ControlUtils, S3ClientUtils}
+import za.co.absa.atum.utils.{ControlUtils, S3Utils}
 
-/** A loader of control measurements from a JSON file stored in AWS S3. */
-class ControlMeasuresS3LoaderJsonFile(inputLocation: S3Location) extends ControlMeasuresLoader {
+/**
+ * A loader of control measurements from a JSON file stored in AWS S3.
+ * @param inputLocation S3 location to read the json measurements from
+ * @param credentialsProvider a specific credentials provider (e.g. SAML profile). use [[DefaultCredentialsProvider]] when in doubt
+ */
+class ControlMeasuresS3LoaderJsonFile(inputLocation: S3Location)
+                                     (implicit credentialsProvider: AwsCredentialsProvider) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
     val s3Client: S3Client = getS3Client
 
@@ -39,8 +44,6 @@ class ControlMeasuresS3LoaderJsonFile(inputLocation: S3Location) extends Control
     s"JSON deserializer from ${inputLocation.s3String()}"
   }
 
-  private[s3] def getS3Client: S3Client = S3ClientUtils.getS3Client(inputLocation.region)
-
-  // S3ClientUtils.getS3ClientWithLocalProfile(inputLocation.region, "saml") // TODO remove
+  private[s3] def getS3Client: S3Client = S3Utils.getS3Client(inputLocation.region, credentialsProvider)
 
 }

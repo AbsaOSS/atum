@@ -16,9 +16,10 @@
 package za.co.absa.atum.examples
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import software.amazon.awssdk.services.s3.S3Configuration
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.core.Atum
 import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
+import za.co.absa.atum.utils.S3Utils
 
 object SampleS3Measurements2 {
   def main(args: Array[String]) {
@@ -30,8 +31,11 @@ object SampleS3Measurements2 {
     val spark = sparkBuilder.getOrCreate()
     import spark.implicits._
 
-    val kmsKeyId = "todo put keyId here" // TODO must be removed/resuplied
-    val s3KmsSettings =
+    // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
+    // AND by having explicitly defined KMS Key ID
+    implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
+    val kmsKeyId = System.getenv("TOOLING_KMS_KEY_ID") // load from an environment property in order not to disclose it here
+    Atum.log.info(s"kmsKeyId from env loaded = ${kmsKeyId.take(10)}...")
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically
@@ -41,8 +45,7 @@ object SampleS3Measurements2 {
         S3Location("euw1-ctodatadev-dev-bigdatarnd-s3-poc", "atum/output/wikidata.csv.info"),
         S3KmsSettings(kmsKeyId)
       )
-    )
-      .setControlMeasuresWorkflow("Job 2")
+    ) .setControlMeasuresWorkflow("Job 2")
 
     val sourceDS = spark.read
       .parquet("data/output_s3/stage1_job_results")

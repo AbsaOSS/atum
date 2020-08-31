@@ -18,7 +18,7 @@ package za.co.absa.atum.examples
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.atum.utils._
 
-class SampleMeasurementsAllRunnerSpec extends AnyFunSuite
+class SampleMeasurementsHdfsRunnerSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
 

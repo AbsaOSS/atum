@@ -22,7 +22,6 @@ class SampleMeasurementsS3RunnerSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
 
-    // todo reenable when s3 mock is ready
-//    runSparkJobAsTest[SampleS3Measurements1.type]
-//    runSparkJobAsTest[SampleS3Measurements2.type]
+    runSparkJobAsTest[SampleS3Measurements1.type]
+    runSparkJobAsTest[SampleS3Measurements2.type]
 }

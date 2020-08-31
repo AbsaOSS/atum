@@ -15,16 +15,23 @@
 
 package za.co.absa.atum.persistence.s3
 
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider}
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse, ServerSideEncryption}
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresParser, ControlMeasuresStorer, S3KmsSettings, S3Location}
-import za.co.absa.atum.utils.S3ClientUtils
+import za.co.absa.atum.utils.S3Utils
 
-/** A storer of control measurements to AWS S3 as a JSON file . */
-class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S3KmsSettings) extends ControlMeasuresStorer {
+/**
+ * A storer of control measurements to a JSON file stored in AWS S3.
+ *
+ * @param outputLocation s3 location to save measurements data to
+ * @param kmsSettings KMS settings - server side encryption configuration
+ * @param credentialsProvider a specific credentials provider (e.g. SAML profile). use [[DefaultCredentialsProvider]] when in doubt
+ */
+class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S3KmsSettings)
+                                     (implicit credentialsProvider: AwsCredentialsProvider) extends ControlMeasuresStorer {
   override def store(controlInfo: ControlMeasure): Unit = {
     val serialized =  ControlMeasuresParser asJson controlInfo
     saveDataToFile(serialized)
@@ -38,16 +45,13 @@ class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S
       .ssekmsKeyId(kmsSettings.kmsKeyId)
       .build()
 
-    // may throw S3Exception or SdkClientException (base exception class = SdkException)
-    s3Client.putObject(putRequest, RequestBody.fromString(data)) // would throw S3Exception or similar
+    // would throw S3Exception or SdkClientException in case of failure (base exception class: SdkException)
+    s3Client.putObject(putRequest, RequestBody.fromString(data))
   }
 
   override def getInfo: String = {
     s"JSON serializer for Storer to ${outputLocation.s3String()}"
   }
 
-  private[s3] def getS3Client: S3Client = S3ClientUtils.getS3Client(outputLocation.region)
-
-  // S3ClientUtils.getS3ClientWithLocalProfile(inputLocation.region, "saml") // TODO remove
-
+  private[s3] def getS3Client: S3Client = S3Utils.getS3Client(outputLocation.region, credentialsProvider)
 }

@@ -15,14 +15,16 @@
 
 package za.co.absa.atum
 
-import scala.language.implicitConversions
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider}
 import za.co.absa.atum.core.Atum.controlFrameworkState
-import za.co.absa.atum.core.{Atum, Constants, SparkEventListener, SparkQueryExecutionListener}
+import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
 import za.co.absa.atum.persistence.s3.{ControlMeasuresS3LoaderJsonFile, ControlMeasuresS3StorerJsonFile}
+
+import scala.language.implicitConversions
 
 /**
  * The object contains implicit methods for Control Framework
@@ -83,17 +85,24 @@ object AtumImplicits {
       enableControlMeasuresTracking(loader, storer)
     }
 
-    // TODO need souceS3Location, dest s3location and possibly some s3 kms:sse, kmskeyId
+    /**
+     * Enable S3-based control measurements tracking.
+     *
+     * @param sourceS3Location s3 location to load info files from in S3
+     * @param destinationS3Config s3 location and kms settings to save the data to in S3
+     * @param credentialsProvider If you do not have a specific Credentials provider, use the default
+     *                            {@link software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider#create()}
+     * @return spark session with atum tracking enabled
+     */
     def enableControlMeasuresTrackingForS3(sourceS3Location: Option[S3Location],
-                                           destinationS3Config: Option[(S3Location, S3KmsSettings)]
-                                          ): SparkSession = {
+                                           destinationS3Config: Option[(S3Location, S3KmsSettings)])
+                                          (implicit credentialsProvider: AwsCredentialsProvider): SparkSession = {
 
       val loader = sourceS3Location.map(new ControlMeasuresS3LoaderJsonFile(_))
       val storer = destinationS3Config.map { case (destLoc, kms) =>
         new ControlMeasuresS3StorerJsonFile(destLoc, kms)
       }
 
-      Atum.log.info(s"enableControlMeasuresTracking(loader = $loader, storer = $storer)") // TODO remove debug
       enableControlMeasuresTracking(loader, storer)
     }
 

@@ -5,6 +5,7 @@ import org.mockito.scalatest.IdiomaticMockito
 import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -24,6 +25,8 @@ class ControlMeasuresS3StorerJsonSpec extends AnyFlatSpec with Matchers with Idi
     val outputLocation = S3Location(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
     val kmsSettigns = S3KmsSettings("testingKeyId123")
     val mockedS3Client = mock[S3Client]
+
+    implicit val credentialsProvider = DefaultCredentialsProvider.create()
 
     val storer = new ControlMeasuresS3StorerJsonFile(outputLocation, kmsSettigns) {
       override def getS3Client: S3Client = mockedS3Client

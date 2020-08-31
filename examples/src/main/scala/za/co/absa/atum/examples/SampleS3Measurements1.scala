@@ -18,22 +18,25 @@ package za.co.absa.atum.examples
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.persistence.S3Location
+import za.co.absa.atum.utils.S3Utils
 
 object SampleS3Measurements1 {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample S3 Measurements 1 Job")
     val spark = sparkBuilder
-//      .master("local")
+      // .master("local")
       .getOrCreate()
 
     import spark.implicits._
+
+    // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
+    implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTrackingForS3(
       sourceS3Location = Some(S3Location("euw1-ctodatadev-dev-bigdatarnd-s3-poc", "atum/input/wikidata.csv.info")),
       destinationS3Config = None
-    )
-      .setControlMeasuresWorkflow("Job 1 S3 ")
+    ).setControlMeasuresWorkflow("Job 1 S3 ")
 
     // A business logic of a spark job ...
 
