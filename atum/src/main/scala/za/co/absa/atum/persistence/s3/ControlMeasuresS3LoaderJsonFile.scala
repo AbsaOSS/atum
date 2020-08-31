@@ -25,7 +25,7 @@ import za.co.absa.atum.utils.{ControlUtils, S3Utils}
 /**
  * A loader of control measurements from a JSON file stored in AWS S3.
  * @param inputLocation S3 location to read the json measurements from
- * @param credentialsProvider a specific credentials provider (e.g. SAML profile). use [[DefaultCredentialsProvider]] when in doubt
+ * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
 class ControlMeasuresS3LoaderJsonFile(inputLocation: S3Location)
                                      (implicit credentialsProvider: AwsCredentialsProvider) extends ControlMeasuresLoader {

@@ -86,17 +86,17 @@ indepedently.
 
 ## Usage
 
-#### Coordinate for Maven POM dependancy
+### Coordinate for Maven POM dependancy
 
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
       <artifactId>atum</artifactId>
-      <version>0.2.6</version>
+      <version>0.3.0</version>
 </dependency>
 ```
 
-#### Initial info file generation example
+### Initial info file generation example
 
 Atum provides a method for initial creation of info files from a Spark dataframe. It can be used as is or can
 serve as a reference implementation for calculating control measurements.
@@ -132,7 +132,7 @@ are not supoprted.
     // The info file contents are available as a String object in strJson.
 ```
 
-#### An ETL job example 
+### An ETL job example 
 
 For the full example please see **SampleMeasurements1** and **SampleMeasurements2** objects from *atum.examples* project.
 It uses made up Wikipedia data for computations. The source data has an info file containing the initial checkpoints,
@@ -183,13 +183,60 @@ In this example the data is read from 'data/input/mydata.csv' file. This data fi
 in 'data/input/_INFO'. Two checkpoints are created. Any business logic can be inserted between reading the source data
 and saving it to Parquet format.  
 
-### Atum library routines
+### Storing Measurements in AWS S3
+Starting with version 0.3.0, persistence support for AWS S3 has been added. 
+AWS S3 can be both used for loading the measurement data from as well as saving the measurements back to.
+
+The following example demonstrates the setup:
+```scala
+import org.apache.spark.sql.SparkSession
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider, ProfileCredentialsProvider}
+import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
+
+object S3Example {
+  def main(args: Array[String]) {
+    val spark = SparkSession
+          .builder()
+          .appName("Example S3 Atum init showcase")
+          .getOrCreate()
+
+    // Here we are using default credentials provider that relies on its default credentials provider chain to obtain the credentials
+    // (e.g. running in EMR/EC2 with correct role assigned)
+    implicit val defaultCredentialsProvider: AwsCredentialsProvider = DefaultCredentialsProvider.create()
+    // Alternatively, one could pass specific credentials provider. An example of using local profile named "saml" can be:
+    // implicit val samlCredentialsProvider = ProfileCredentialsProvider.create("saml")
+    
+    val sourceS3Location: S3Location = S3Location("my-bucket123", "atum/input/my_amazing_measures.csv.info")
+
+    val kmsKeyId: String = "arn:aws:kms:eu-west-1:123456789012:key/12345678-90ab-cdef-1234-567890abcdef" // just example 
+    val destinationS3Config: (S3Location, S3KmsSettings) = (
+      S3Location("my-bucket123", "atum/output/my_amazing_measures2.csv.info"),
+      S3KmsSettings(kmsKeyId)
+    )
+
+    import spark.implicits._
+        
+    // Initializing library to hook up to Apache Spark with S3 persistence
+    spark.enableControlMeasuresTrackingForS3(
+      sourceS3Location = Some(sourceS3Location),
+      destinationS3Config = Some(destinationS3Config)
+    ).setControlMeasuresWorkflow("A job with measurements saved to S3")
+  }
+}
+
+```
+The rest of the processing logic and programatic approach to the library remains unchanged.
+
+
+## Atum library routines
 
 The summary of common control framework routines you can use as Spark and Dataframe implicits are as follows:
 
 | Routine        | Description          | Example usage  |
 | -------------- |:-------------------- |:---------------|
-| enableControlMeasuresTracking(sourceInfoFile: *String*, destinationInfoFile: *String*) | Enable control measurements tracking. Source and destination info file paths can be omitted. If ommited, they will be automatically inferred from the input/output data sources. | spark.enableControlMeasurementsTracking() |
+| enableControlMeasuresTracking(sourceInfoFile: *String*, destinationInfoFile: *String*) | Enable control measurements tracking. Source and destination info file paths can be omitted. If omitted, they will be automatically inferred from the input/output data sources. | spark.enableControlMeasurementsTracking() |
+| enableControlMeasuresTrackingForS3(sourceS3Location: *Option[S3Location]*, destinationS3Config: *Option[(S3Location, S3KmsSettings)]*) | Enable control measurements tracking in S3. Source and destination parameters can be omitted. If omitted, the loading/storing part will not be used | spark.enableControlMeasuresTrackingForS3(optionalSourceS3Location, optionalDestinationS3Config) |
 | isControlMeasuresTrackingEnabled: *Boolean* | Retruns true if control measurements tracking is enabled. |  if (spark.isControlMeasuresTrackingEnabled) {/*do something*/} |
 | disableControlMeasuresTracking() | Explicitly turn off control measurements tracking. | spark.disableControlMeasurementsTracking() |
 | setCheckpoint(name: *String*) | Calculates the control measurements and appends a new checkpoint. | df.setCheckpoint("Conformance Started") |
@@ -204,7 +251,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | disableCaching() | Turns off caching that happens every time a checkpoint is generated. | disableCaching() |
 | setCachingStorageLevel(cacheStorageLevel: *StorageLevel*) | Specifies a Spark storage level to use for caching. Can be one of following: `NONE`, `DISK_ONLY`, `DISK_ONLY_2`, `MEMORY_ONLY`, `MEMORY_ONLY_2`, `MEMORY_ONLY_SER`, `MEMORY_ONLY_SER_2`, `MEMORY_AND_DISK`, `MEMORY_AND_DISK_2`, `MEMORY_AND_DISK_SER`, `MEMORY_AND_DISK_SER_2`, `MEMORY_AND_DISK_SER_2`, `OFF_HEAP`. | setCachingStorageLevel(StorageLevel.MEMORY_AND_DISK) |
 
-### Control measurement types
+## Control measurement types
 
 The control measurement of a column is a hash sum. It can be calculated differently depending on the column's data type and
 on business requirements. This table represents all currently supported measurement types:

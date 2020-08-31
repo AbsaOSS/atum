@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.core.Atum.controlFrameworkState
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._

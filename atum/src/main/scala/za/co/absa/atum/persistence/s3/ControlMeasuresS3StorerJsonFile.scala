@@ -16,6 +16,7 @@
 package za.co.absa.atum.persistence.s3
 
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider}
+import software.amazon.awssdk.core.exception.SdkException
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
@@ -26,14 +27,21 @@ import za.co.absa.atum.utils.S3Utils
 /**
  * A storer of control measurements to a JSON file stored in AWS S3.
  *
- * @param outputLocation s3 location to save measurements data to
- * @param kmsSettings KMS settings - server side encryption configuration
- * @param credentialsProvider a specific credentials provider (e.g. SAML profile). use [[DefaultCredentialsProvider]] when in doubt
+ * @param outputLocation      s3 location to save measurements data to
+ * @param kmsSettings         KMS settings - server side encryption configuration
+ * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
 class ControlMeasuresS3StorerJsonFile(outputLocation: S3Location, kmsSettings: S3KmsSettings)
                                      (implicit credentialsProvider: AwsCredentialsProvider) extends ControlMeasuresStorer {
+
+  /**
+   * Stores the `controlInfo` measurement to an S3 location.
+   *
+   * @param controlInfo measurements to store
+   * @throws SdkException when storing fails.
+   */
   override def store(controlInfo: ControlMeasure): Unit = {
-    val serialized =  ControlMeasuresParser asJson controlInfo
+    val serialized = ControlMeasuresParser asJson controlInfo
     saveDataToFile(serialized)
   }
 

@@ -49,7 +49,7 @@ class ControlMeasuresS3StorerJsonSpec extends AnyFlatSpec with Matchers with Idi
     capturedPutRequest.ssekmsKeyId shouldBe "testingKeyId123"
     capturedPutRequest.serverSideEncryption() shouldBe ServerSideEncryption.AWS_KMS
 
-    // This expected request body content should be the same as content of this file ( ~inputControlMeasure)
+    // This expected request body content should be the same as content of this file (conforms to `inputControlMeasure`)
     val sameContentFile: String = TestResources.InputInfo.localPath
     val expectedContent = FileUtils.readFileToString(sameContentFile)
 
