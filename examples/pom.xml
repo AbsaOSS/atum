@@ -75,7 +75,7 @@
 				<artifactId>scalatest-maven-plugin</artifactId>
 				<version>${scalatest.maven.version}</version>
 				<configuration>
-					<skipTests>false</skipTests>
+					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
 			<!-- Uber jar generation -->

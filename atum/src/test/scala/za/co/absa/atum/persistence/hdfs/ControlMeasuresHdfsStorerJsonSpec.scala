@@ -26,12 +26,9 @@ class ControlMeasuresHdfsStorerJsonSpec extends AnyFlatSpec with Matchers {
     val expectedContent = FileUtils.readFileToString(expectedFilePath)
 
     // some output may be prettified while other may not, we do not take this into account.
-    filterWhitespaces(actualContent) shouldBe filterWhitespaces(expectedContent)
+    TestResources.filterWhitespaces(actualContent) shouldBe TestResources.filterWhitespaces(expectedContent)
 
     fs.delete(outputPath, false)
   }
 
-  private def filterWhitespaces(content: String): String = {
-    content.filterNot(_.isWhitespace)
-  }
 }

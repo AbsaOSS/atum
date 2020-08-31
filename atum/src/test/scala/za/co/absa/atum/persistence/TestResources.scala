@@ -18,4 +18,8 @@ object TestResources {
     )
   }
 
+  def filterWhitespaces(content: String): String = {
+    content.filterNot(_.isWhitespace)
+  }
+
 }

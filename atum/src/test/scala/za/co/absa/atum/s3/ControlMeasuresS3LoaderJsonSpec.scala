@@ -2,7 +2,7 @@ package za.co.absa.atum.s3
 
 import org.mockito.captor.{ArgCaptor, Captor}
 import org.mockito.scalatest.IdiomaticMockito
-import org.mockito.{ArgumentMatchers, ArgumentMatchersSugar, Mockito}
+import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import software.amazon.awssdk.core.ResponseBytes
@@ -17,7 +17,7 @@ class ControlMeasuresS3LoaderJsonSpec extends AnyFlatSpec with Matchers with Idi
 
   val expectedInputControlMeasure = TestResources.InputInfo.controlMeasure
 
-  "ControlMeasuresS3LoaderJsonFile" should "load json file from (mocked) S3" in {
+  "ControlMeasuresS3LoaderJsonFile" should "load measurements from json file from (mocked) S3" in {
 
     val inputLocation = S3Location(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
     val mockedS3Client = mock[S3Client]
@@ -27,6 +27,7 @@ class ControlMeasuresS3LoaderJsonSpec extends AnyFlatSpec with Matchers with Idi
       override def getS3Client: S3Client = mockedS3Client
     }
 
+    // This file is mocked to be read from in S3
     val inputFilePath: String = TestResources.InputInfo.localPath
     val mockedS3Data = FileUtils.readFileToString(inputFilePath)
 
