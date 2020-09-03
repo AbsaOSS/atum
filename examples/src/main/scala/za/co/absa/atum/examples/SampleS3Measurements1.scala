@@ -16,6 +16,7 @@
 package za.co.absa.atum.examples
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.persistence.S3Location
 import za.co.absa.atum.utils.S3Utils
@@ -34,7 +35,7 @@ object SampleS3Measurements1 {
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTrackingForS3(
-      sourceS3Location = Some(S3Location("euw1-ctodatadev-dev-bigdatarnd-s3-poc", "atum/input/wikidata.csv.info")),
+      sourceS3Location = Some(S3Location("my-bucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
       destinationS3Config = None
     ).setControlMeasuresWorkflow("Job 1 S3 ")
 

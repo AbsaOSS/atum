@@ -9,4 +9,10 @@ object FileUtils {
     str
   }
 
+  implicit class PathJoin(path: String) {
+    def /(pathSegment: String): String = {
+      s"${path.stripSuffix("/")}/${pathSegment.stripPrefix("/")}"
+    }
+  }
+
 }

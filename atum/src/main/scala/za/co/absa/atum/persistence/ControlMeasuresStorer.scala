@@ -22,3 +22,8 @@ trait ControlMeasuresStorer {
   def store(controlInfo: ControlMeasure): Unit
   def getInfo: String
 }
+
+trait S3ControlMeasuresStorer extends ControlMeasuresStorer {
+  def kmsSettings: S3KmsSettings
+  def outputLocation: S3Location
+}
