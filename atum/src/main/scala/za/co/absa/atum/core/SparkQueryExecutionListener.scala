@@ -54,7 +54,7 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
     // Write _INFO file to the output directory
     infoFilePath.foreach(path => {
       Atum.log.info(s"Infered _INFO Path = ${path.toUri.toString}")
-      cf.storeCurrentInfoFile(path, qe.sparkSession.sparkContext.hadoopConfiguration)
+      cf.storeCurrentInfoFileOnHdfs(path, qe.sparkSession.sparkContext.hadoopConfiguration)
     })
 
     // Write _INFO file to a registered storer
