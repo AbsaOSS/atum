@@ -4,6 +4,7 @@ import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, ProfileC
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import za.co.absa.atum.core.Atum.log
+import za.co.absa.atum.persistence.S3Location
 
 object S3Utils {
 
@@ -20,6 +21,27 @@ object S3Utils {
       .region(region)
       .credentialsProvider(credentialsProvider)
       .build()
+  }
+
+  // todo test/move
+  // hint: https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
+  val S3LocationRx = "s3(?:a|n)?://([-a-z0-9.]{3,63})/(.*)".r
+
+  def isValidS3Path(path: String): Boolean = path match {
+    case S3LocationRx(_, _) => true
+    case _ => false
+  }
+
+  implicit class StringS3LocationExt(path: String) {
+
+    def toS3Location(withRegion: Region): S3Location = {
+      path match {
+        case S3LocationRx(bucketName, path) => S3Location(bucketName, path, withRegion)
+        case _ => throw new IllegalArgumentException(s"Could not parse S3 Location from $path using rx $S3LocationRx.")
+      }
+    }
+
+    def isValidS3Path: Boolean = S3Utils.isValidS3Path(path)
   }
 
 }

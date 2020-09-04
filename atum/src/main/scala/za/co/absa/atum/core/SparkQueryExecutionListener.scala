@@ -19,13 +19,15 @@ import java.io.{PrintWriter, StringWriter}
 
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
-import za.co.absa.atum.utils.ExecutionPlanUtils.{inferOutputFileName, inferOutputInfoFileName}
+import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings, S3Location}
+import za.co.absa.atum.utils.ExecutionPlanUtils._
+import za.co.absa.atum.utils.S3Utils
 
 /**
-  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
-  */
+ * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
+ */
 class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecutionListener {
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
@@ -33,14 +35,21 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
 
       cf.accumulator.getStorer match {
         case Some(s3storer: S3ControlMeasuresStorer) =>
-          writeInfoFileForQueryForS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)
-        case _ => writeInfoFileForQuery(qe)
+          // todo remove extra logging?
+          Atum.log.info("SparkQueryExecutionListener.onSuccess: S3ControlMeasuresStorer")
+          writeInfoFileForQueryForS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
+
+        case Some(otherStorer) =>
+          Atum.log.info(s"SparkQueryExecutionListener.onSuccess: $otherStorer")
+          writeInfoFileForQuery(qe)
+        case None =>
+          Atum.log.info(s"SparkQueryExecutionListener.onSuccess: <no storer>")
+          writeInfoFileForQuery(qe)
       }
 
       // Notify listeners
       cf.updateRunCheckpoints(saveInfoFile = true)
       cf.updateStatusSuccess()
-
 
       updateSplineRef(qe)
     }
@@ -71,13 +80,18 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
   }
 
   /** Write _INFO file with control measurements to the output directory based on the query plan */
-  private def writeInfoFileForQueryForS3(qe: QueryExecution, region: Region, kmsSettings: S3KmsSettings): Unit = {
-    val infoFilePath = inferOutputInfoFileName(qe, cf.outputInfoFileName)
+  private def writeInfoFileForQueryForS3(qe: QueryExecution, region: Region, kmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
+    val infoFilePath = inferOutputInfoFileNameOnS3(qe, cf.outputInfoFileName)
 
     // Write _INFO file to the output directory
     infoFilePath.foreach(path => {
-      Atum.log.info(s"Inferred _INFO Path = ${path.toUri.toString}")
-      cf.storeCurrentInfoFileOnHdfs(path, qe.sparkSession.sparkContext.hadoopConfiguration)
+
+      import S3Utils.StringS3LocationExt
+      val location = path.toS3Location(region)
+
+      Atum.log.info(s"Inferred _INFO Location = $location")
+
+      cf.storeCurrentInfoFileOnS3(location, kmsSettings)
     })
 
     // Write _INFO file to a registered storer

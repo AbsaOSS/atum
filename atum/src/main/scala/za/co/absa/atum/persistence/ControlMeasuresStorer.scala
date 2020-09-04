@@ -15,6 +15,7 @@
 
 package za.co.absa.atum.persistence
 
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.model.ControlMeasure
 
 /** Trait for control measurements saving to a persistent storage */
@@ -26,4 +27,6 @@ trait ControlMeasuresStorer {
 trait S3ControlMeasuresStorer extends ControlMeasuresStorer {
   def kmsSettings: S3KmsSettings
   def outputLocation: S3Location
+
+  def credentialsProvider: AwsCredentialsProvider
 }

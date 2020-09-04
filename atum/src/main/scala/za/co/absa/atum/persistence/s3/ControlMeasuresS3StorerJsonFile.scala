@@ -32,7 +32,7 @@ import za.co.absa.atum.utils.S3Utils
  * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
 class ControlMeasuresS3StorerJsonFile(val outputLocation: S3Location, val kmsSettings: S3KmsSettings)
-                                     (implicit credentialsProvider: AwsCredentialsProvider) extends S3ControlMeasuresStorer {
+                                     (implicit val credentialsProvider: AwsCredentialsProvider) extends S3ControlMeasuresStorer {
 
   /**
    * Stores the `controlInfo` measurement to an S3 location.
