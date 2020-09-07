@@ -23,14 +23,8 @@ object S3Utils {
       .build()
   }
 
-  // todo test/move
   // hint: https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
   val S3LocationRx = "s3(?:a|n)?://([-a-z0-9.]{3,63})/(.*)".r
-
-  def isValidS3Path(path: String): Boolean = path match {
-    case S3LocationRx(_, _) => true
-    case _ => false
-  }
 
   implicit class StringS3LocationExt(path: String) {
 
@@ -41,7 +35,6 @@ object S3Utils {
       }
     }
 
-    def isValidS3Path: Boolean = S3Utils.isValidS3Path(path)
   }
 
 }
