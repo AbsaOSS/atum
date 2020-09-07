@@ -28,4 +28,20 @@ class S3UtilsSpec extends AnyFlatSpec with Matchers {
     }
   }
 
+  it should "fail parsing invalid S3 path from String using toS3Location" in {
+    invalidPaths.foreach { path =>
+      assertThrows[IllegalArgumentException] {
+        path.toS3Location(region1)
+      }
+    }
+  }
+
+  it should "check path using isValidS3Path" in {
+    validPathsWithExpectedLocations.map(_._1).foreach { path =>
+      path.isValidS3Path shouldBe true
+    }
+
+    invalidPaths.foreach(_.isValidS3Path shouldBe false)
+  }
+
 }

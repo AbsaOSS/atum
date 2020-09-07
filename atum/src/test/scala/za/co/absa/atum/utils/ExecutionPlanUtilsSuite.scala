@@ -13,6 +13,11 @@ class ExecutionPlanUtilsSuite extends AnyFlatSpec with Matchers with IdiomaticMo
 
   val hadoopConf = new Configuration
 
+  implicit class SimplePath(path: Path) {
+    // disregarding hdfs nameserver prefix or local FS fallback (file://)
+    def simplePath: String = path.toUri.getPath
+  }
+
   "inferOutputInfoFileName" should "derive output file name for HDFS from SaveIntoDataSourceCommand" in {
     val qe = mock[QueryExecution]
     Mockito.when(qe.analyzed).thenReturn(
@@ -36,7 +41,7 @@ class ExecutionPlanUtilsSuite extends AnyFlatSpec with Matchers with IdiomaticMo
     val qe = mock[QueryExecution]
     val myInfoName = "myInfo"
     Mockito.when(qe.analyzed).thenReturn(
-      // training slash should get taken care of
+      // trailing slash should get taken care of
       SaveIntoDataSourceCommand(null, null, options = Map(("path", "/tmp/here2/")), null)
     )
 
@@ -44,9 +49,5 @@ class ExecutionPlanUtilsSuite extends AnyFlatSpec with Matchers with IdiomaticMo
   }
 
 
-  implicit class SimplePath(path: Path) {
-    // disregarding hdfs nameserver prefix or local FS fallback (file://)
-    def simplePath: String = path.toUri.getPath
-  }
 
 }

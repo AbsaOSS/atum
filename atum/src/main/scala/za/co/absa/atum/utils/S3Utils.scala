@@ -35,6 +35,10 @@ object S3Utils {
       }
     }
 
+    def isValidS3Path: Boolean = path match {
+      case S3LocationRx(_, _) => true
+      case _ => false
+    }
   }
 
 }
