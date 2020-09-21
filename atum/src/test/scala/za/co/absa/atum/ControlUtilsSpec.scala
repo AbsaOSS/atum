@@ -16,12 +16,12 @@
 package za.co.absa.atum
 
 import org.apache.spark.sql.types._
-import org.scalatest._
-import za.co.absa.atum.utils.ControlUtils
-import za.co.absa.atum.utils.SparkTestBase
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.utils.{ControlUtils, SparkTestBase}
 
 
-class ControlUtilsSpec  extends FlatSpec with Matchers with SparkTestBase {
+class ControlUtilsSpec  extends AnyFlatSpec with Matchers with SparkTestBase {
   import spark.implicits._
 
   private val singleStringColumnDF = spark.sparkContext.parallelize(List("987987", "example", "example", "another example")).toDF

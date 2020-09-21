@@ -61,6 +61,12 @@ class Accumulator() {
   }
 
   /**
+   * Ability to view the storer if set.
+   * @return
+   */
+  private[atum] def getStorer: Option[ControlMeasuresStorer] = if (isStorerLoaded) Some(storer) else None
+
+  /**
     * The method returns Control Info object in which checkpoints are sorted by calculation order.
     */
   def getControlMeasure: ControlMeasure = this.synchronized(

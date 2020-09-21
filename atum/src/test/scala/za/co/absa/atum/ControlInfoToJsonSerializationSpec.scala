@@ -15,15 +15,15 @@
 
 package za.co.absa.atum
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
 import za.co.absa.atum.utils.{BuildProperties, ControlUtils}
-import za.co.absa.atum.model._
 
 /**
   * Unit tests for ControlInfo object serialization
   */
-class ControlInfoToJsonSerializationSpec extends FlatSpec with Matchers {
+class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
   val exampleCtrlInfo = ControlMeasure(
     metadata = ControlMeasureMetadata(
       sourceApplication = "FrontArena",

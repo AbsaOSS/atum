@@ -19,11 +19,14 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.storage.StorageLevel
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.AtumImplicits.DefaultControlInfoLoader
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.core.ControlType.Count
 import za.co.absa.atum.model.{RunError, RunState, _}
-import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, ControlMeasuresStorerJsonFile}
+import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
+import za.co.absa.atum.persistence.s3.ControlMeasuresS3StorerJsonFile
+import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, S3KmsSettings, S3Location}
 import za.co.absa.atum.plugins.EventListener
 import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFileName
 
@@ -245,7 +248,13 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
-  private[atum] def storeCurrentInfoFile(outputHDFSPathFileName: Path, hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration): Unit = {
+  private[atum] def storeCurrentInfoFileOnS3(s3Location: S3Location, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
+    val storer = new ControlMeasuresS3StorerJsonFile(s3Location, s3KmsSettings)
+    storer.store(accumulator.getControlMeasure)
+    Atum.log.info(s"Control measurements saved to ${s3Location.s3String()}")
+  }
+
+  private[atum] def storeCurrentInfoFileOnHdfs(outputHDFSPathFileName: Path, hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration): Unit = {
     val fs = FileSystem.get(hadoopConfiguration)
     val outputFilePath = if (fs.isDirectory(outputHDFSPathFileName)) {
       new Path(outputHDFSPathFileName, outputInfoFileName)
@@ -253,7 +262,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
       outputHDFSPathFileName
     }
 
-    val storer = new ControlMeasuresStorerJsonFile(hadoopConfiguration, outputFilePath)
+    val storer = new ControlMeasuresHdfsStorerJsonFile(hadoopConfiguration, outputFilePath)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${outputFilePath.toUri.toString}")
   }

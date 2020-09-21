@@ -23,6 +23,7 @@ import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.execution.datasources.{HadoopFsRelation, InsertIntoHadoopFsRelationCommand, LogicalRelation, SaveIntoDataSourceCommand}
 import org.apache.spark.sql.{Dataset, Row}
 import za.co.absa.atum.core.Constants
+import za.co.absa.atum.utils.FileUtils.PathJoin
 
 /**
   * This object contains utils for traversing execution plan DAG to infer control measurement input/output paths
@@ -90,7 +91,7 @@ object ExecutionPlanUtils {
   }
 
   /**
-    * The method returns output control measurements info file name inferred from the source dataset
+    * The method returns output control measurements info file name inferred from the source dataset on HDFS
     *
     * @param qe A query execution object where output path name will be searched
     * @param infoFileName A file name of an info file, e.g. "_INFO"
@@ -112,7 +113,28 @@ object ExecutionPlanUtils {
     }
   }
 
-    /**
+  /**
+   * The method returns output control measurements info file name inferred from the source dataset on S3
+   *
+   * @param qe A query execution object where output path name will be searched
+   * @param infoFileName A file name of an info file, e.g. "_INFO"
+   *
+   * @return The inferred output control measurements file path of the source dataset
+   */
+  def inferOutputInfoFileNameOnS3(qe: QueryExecution, infoFileName: String = Constants.DefaultInfoFileName): Option[String] = {
+    qe.analyzed match {
+      case s: SaveIntoDataSourceCommand =>
+        Some(s.options("path") / infoFileName)
+      case _ =>
+        log.warn(s"Logical plan: ${qe.logical.treeString}")
+        log.warn(s"Analyzed plan: ${qe.analyzed.treeString}")
+        log.warn(s"Optimized plan: ${qe.optimizedPlan.treeString}")
+        log.error(s"Unable to infer output path for control measurements for query execution $qe.")
+        None
+    }
+  }
+
+  /**
     * The method returns source file names of a DataSet execution plan by traversing the DAG.
     * Thanks za.co.absa.spline.core
     *

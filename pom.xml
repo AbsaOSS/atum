@@ -20,7 +20,7 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -97,15 +97,29 @@
         <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
 
         <!-- Frameworks and libraries -->
-        <json4s.version>3.2.11</json4s.version> <!-- This version is set to be compatible with Spark 2.2.0 -->
+        <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
         <scala.compat.version>2.11</scala.compat.version>
         <scala.version>2.11.8</scala.version>
         <scalatest.maven.version>1.0</scalatest.maven.version>
-        <scalatest.version>2.2.4</scalatest.version>
+        <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <spark.version>2.2.1</spark.version>
+        <spark.version>2.4.5</spark.version>
         <specs.version>2.4.16</specs.version>
+        <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
+        <mockito.scala.version>1.15.0</mockito.scala.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.java.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- scala -->
@@ -132,6 +146,10 @@
             <groupId>org.json4s</groupId>
             <artifactId>json4s-ext_${scala.compat.version}</artifactId>
             <version>${json4s.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
 
         <!-- scalatest -->

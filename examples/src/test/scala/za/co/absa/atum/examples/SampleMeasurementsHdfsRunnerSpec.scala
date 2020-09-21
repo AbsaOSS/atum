@@ -15,11 +15,14 @@
 
 package za.co.absa.atum.examples
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.atum.utils._
 
-class SampleMeasurements2Runner extends FunSuite
+class SampleMeasurementsHdfsRunnerSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
-  runSparkJobAsTest[SampleMeasurements2.type]
+
+    // SampleMeasurement2 depends on SampleMeasurements1's output, so they must be run in this order
+    runSparkJobAsTest[SampleMeasurements1.type]
+    runSparkJobAsTest[SampleMeasurements2.type]
 }

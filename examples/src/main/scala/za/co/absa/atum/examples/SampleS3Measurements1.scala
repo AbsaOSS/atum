@@ -16,20 +16,28 @@
 package za.co.absa.atum.examples
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.persistence.S3Location
+import za.co.absa.atum.utils.S3Utils
 
-object SampleMeasurements1 {
+object SampleS3Measurements1 {
   def main(args: Array[String]) {
-    val sparkBuilder = SparkSession.builder().appName("Sample Measurements 1 Job")
+    val sparkBuilder = SparkSession.builder().appName("Sample S3 Measurements 1 Job")
     val spark = sparkBuilder
-//      .master("local")
+      // .master("local")
       .getOrCreate()
 
     import spark.implicits._
 
+    // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
+    implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
+
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info")
-      .setControlMeasuresWorkflow("Job 1")
+    spark.enableControlMeasuresTrackingForS3(
+      sourceS3Location = Some(S3Location("my-bucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
+      destinationS3Config = None
+    ).setControlMeasuresWorkflow("Job 1 S3 ")
 
     // A business logic of a spark job ...
 
@@ -41,7 +49,7 @@ object SampleMeasurements1 {
       .filter($"total_response_size" > 1000)
       .setCheckpoint("checkpoint1")
       .write.mode(SaveMode.Overwrite)
-      .parquet("data/output/stage1_job_results")
+      .parquet("data/output_s3/stage1_job_results")
 
     spark.disableControlMeasuresTracking()
   }
