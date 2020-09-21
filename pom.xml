@@ -20,7 +20,7 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -99,7 +99,7 @@
 
         <!-- Overridable SCM properties to support multiple SCM URLs-->
         <scm.connection>scm:git:git://github.com/AbsaOSS/atum.git</scm.connection>
-        <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/atum.git</scm.developerConnection>
+        <scm.developerConnection>scm:git:ssh://git@github.com/AbsaOSS/atum.git</scm.developerConnection>
         <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
 
         <!-- Frameworks and libraries -->
