@@ -92,7 +92,7 @@ indepedently.
 <dependency>
       <groupId>za.co.absa</groupId>
       <artifactId>atum</artifactId>
-      <version>0.3.0</version>
+      <version>3.0.0</version>
 </dependency>
 ```
 
@@ -184,7 +184,7 @@ in 'data/input/_INFO'. Two checkpoints are created. Any business logic can be in
 and saving it to Parquet format.  
 
 ### Storing Measurements in AWS S3
-Starting with version 0.3.0, persistence support for AWS S3 has been added. 
+Starting with version 3.0.0, persistence support for AWS S3 has been added. 
 AWS S3 can be both used for loading the measurement data from as well as saving the measurements back to.
 
 The following example demonstrates the setup:
