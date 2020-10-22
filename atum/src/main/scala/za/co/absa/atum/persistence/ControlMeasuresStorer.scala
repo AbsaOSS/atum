@@ -26,7 +26,7 @@ trait ControlMeasuresStorer {
 
 trait S3ControlMeasuresStorer extends ControlMeasuresStorer {
   def kmsSettings: S3KmsSettings
-  def outputLocation: S3Location
+  def outputLocation: SimpleS3LocationWithRegion
 
   def credentialsProvider: AwsCredentialsProvider
 }

@@ -15,6 +15,7 @@
 
 package za.co.absa.atum.examples
 
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import za.co.absa.atum.AtumImplicits._
 
@@ -27,6 +28,9 @@ object SampleMeasurements2 {
     //val spark = sparkBuilder.master("local").getOrCreate()
     val spark = sparkBuilder.getOrCreate()
     import spark.implicits._
+
+    val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically

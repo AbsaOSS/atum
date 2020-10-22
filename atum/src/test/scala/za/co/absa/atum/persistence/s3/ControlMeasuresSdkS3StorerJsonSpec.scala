@@ -10,25 +10,25 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.{PutObjectRequest, PutObjectResponse, ServerSideEncryption}
-import za.co.absa.atum.persistence.s3.ControlMeasuresS3StorerJsonFile
-import za.co.absa.atum.persistence.{S3KmsSettings, S3Location, TestResources}
+import za.co.absa.atum.persistence.s3.ControlMeasuresSdkS3StorerJsonFile
+import za.co.absa.atum.persistence.{S3KmsSettings, SimpleS3LocationWithRegion, TestResources}
 import za.co.absa.atum.utils.FileUtils
 
 import scala.io.Source
 
-class ControlMeasuresS3StorerJsonSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
+class ControlMeasuresSdkS3StorerJsonSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   val inputControlMeasure = TestResources.InputInfo.controlMeasure
 
   "ControlMeasuresS3StorerJsonFile" should "store measurements to json file to S3" in {
 
-    val outputLocation = S3Location(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
+    val outputLocation = SimpleS3LocationWithRegion(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
     val kmsSettigns = S3KmsSettings("testingKeyId123")
     val mockedS3Client = mock[S3Client]
 
     implicit val credentialsProvider = DefaultCredentialsProvider.create()
 
-    val storer = new ControlMeasuresS3StorerJsonFile(outputLocation, kmsSettigns) {
+    val storer = new ControlMeasuresSdkS3StorerJsonFile(outputLocation, kmsSettigns) {
       override def getS3Client: S3Client = mockedS3Client
     }
 

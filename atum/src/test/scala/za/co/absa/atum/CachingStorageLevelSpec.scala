@@ -15,6 +15,8 @@
 
 package za.co.absa.atum
 
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
@@ -23,6 +25,8 @@ import za.co.absa.atum.core.Atum
 import za.co.absa.atum.utils.SparkTestBase
 
 class CachingStorageLevelSpec extends AnyFlatSpec with Matchers with SparkTestBase with BeforeAndAfter {
+
+  implicit val fs = FileSystem.get(new Configuration())
 
   before {
     Atum.init(spark)

@@ -20,7 +20,7 @@ class ControlMeasuresHdfsStorerJsonSpec extends AnyFlatSpec with Matchers {
     val outputPath = new Path("/tmp/json-hdfs-storing-test")
     fs.delete(outputPath, false)
 
-    new ControlMeasuresHdfsStorerJsonFile(new Configuration(), outputPath).store(inputControlMeasure)
+    new ControlMeasuresHdfsStorerJsonFile(outputPath).store(inputControlMeasure)
 
     val actualContent = HdfsFileUtils.readHdfsFileToString(outputPath)
     val expectedContent = FileUtils.readFileToString(expectedFilePath)

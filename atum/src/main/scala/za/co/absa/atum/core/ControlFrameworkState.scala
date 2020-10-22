@@ -25,10 +25,10 @@ import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.core.ControlType.Count
 import za.co.absa.atum.model.{RunError, RunState, _}
 import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
-import za.co.absa.atum.persistence.s3.ControlMeasuresS3StorerJsonFile
-import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, S3KmsSettings, S3Location}
+import za.co.absa.atum.persistence.s3.ControlMeasuresSdkS3StorerJsonFile
+import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.plugins.EventListener
-import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFileName
+import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFilePath
 
 import scala.util.control.NonFatal
 
@@ -100,7 +100,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     cacheStorageLevel = None
   }
 
-  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String): Unit = {
+  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit fs: FileSystem): Unit = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -108,7 +108,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     processor.registerColumnRename(oldName, newName)
   }
 
-  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String): Unit = {
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit fs: FileSystem): Unit = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -116,7 +116,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     processor.registerColumnDrop(columnName)
   }
 
-  private[atum] def calculateCheckpoint(dataset: Dataset[Row], name: String, delayCheckpointPersistence: Boolean): Dataset[Row] = {
+  private[atum] def calculateCheckpoint(dataset: Dataset[Row], name: String, delayCheckpointPersistence: Boolean)(implicit fs: FileSystem): Dataset[Row] = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -228,10 +228,10 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
-  private[atum] def initializeControlInfo(dataset: Dataset[Row]): Unit = {
+  private[atum] def initializeControlInfo(dataset: Dataset[Row])(implicit fs: FileSystem): Unit = {
     if (!accumulator.isControlMeasuresLoaded) {
-      val s = inferInputInfoFileName(dataset, inputInfoFileName)
-      accumulator.loadControlMeasurements(new DefaultControlInfoLoader(sparkSession.sparkContext.hadoopConfiguration, s))
+      val infoFilePath = inferInputInfoFilePath(dataset, inputInfoFileName)
+      accumulator.loadControlMeasurements(new DefaultControlInfoLoader(infoFilePath))
     }
   }
 
@@ -248,21 +248,20 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
-  private[atum] def storeCurrentInfoFileOnS3(s3Location: S3Location, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
-    val storer = new ControlMeasuresS3StorerJsonFile(s3Location, s3KmsSettings)
+  private[atum] def storeCurrentInfoFileOnSdkS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
+    val storer = new ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${s3Location.s3String()}")
   }
 
-  private[atum] def storeCurrentInfoFileOnHdfs(outputHDFSPathFileName: Path, hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration): Unit = {
-    val fs = FileSystem.get(hadoopConfiguration)
-    val outputFilePath = if (fs.isDirectory(outputHDFSPathFileName)) {
-      new Path(outputHDFSPathFileName, outputInfoFileName)
+  private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit fs: FileSystem): Unit = {
+    val outputFilePath = if (fs.isDirectory(outputInfoFilePath)) {
+      new Path(outputInfoFilePath, outputInfoFileName)
     } else {
-      outputHDFSPathFileName
+      outputInfoFilePath
     }
 
-    val storer = new ControlMeasuresHdfsStorerJsonFile(hadoopConfiguration, outputFilePath)
+    val storer = new ControlMeasuresHdfsStorerJsonFile(outputFilePath)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${outputFilePath.toUri.toString}")
   }
