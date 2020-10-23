@@ -246,7 +246,7 @@ object AtumImplicits {
       *
       * @param name Name of the checkpoint
       */
-    def setCheckpoint(name: String, persistInDatabase: Boolean = true)(implicit fs: FileSystem): Dataset[Row] = {
+    def setCheckpoint(name: String, persistInDatabase: Boolean = true)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
       if (Atum.controlFrameworkState == null) {
@@ -283,7 +283,7 @@ object AtumImplicits {
       * @param oldName A job step name
       * @param newName An error description
       */
-    def registerColumnRename(oldName: String, newName: String)(implicit fs: FileSystem): Dataset[Row] = {
+    def registerColumnRename(oldName: String, newName: String)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
       controlFrameworkState.registerColumnRename(dataset, oldName, newName)
@@ -295,7 +295,7 @@ object AtumImplicits {
       *
       * @param columnName A column to be dropped from measurements
       */
-    def registerColumnDrop(columnName: String)(implicit fs: FileSystem): Dataset[Row] = {
+    def registerColumnDrop(columnName: String)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
       controlFrameworkState.registerColumnDrop(dataset, columnName)
@@ -307,7 +307,7 @@ object AtumImplicits {
       * to ControlFrameworkKeys.InfoFileVersionKey Spark Session Key
       *
       */
-    def loadControlInfoFile(implicit fs: FileSystem): Dataset[Row] = {
+    def loadControlInfoFile(implicit inputFs: FileSystem): Dataset[Row] = {
       Atum.controlFrameworkState.initializeControlInfo(dataset)
       dataset
     }
@@ -317,7 +317,7 @@ object AtumImplicits {
       *
       * @param outputPath A directory or a file name to save the info file to.
       */
-    def writeInfoFile(outputPath: String)(implicit fs: FileSystem): Dataset[Row] = {
+    def writeInfoFile(outputPath: String)(implicit outputFs: FileSystem): Dataset[Row] = {
       Atum.controlFrameworkState.storeCurrentInfoFile(outputPath.toPath)
       dataset
     }

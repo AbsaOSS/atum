@@ -205,12 +205,12 @@ object Atum {
     controlFrameworkState.workflowName = workflowName
   }
 
-  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit fs: FileSystem): Unit = {
+  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit inputFs: FileSystem): Unit = {
     preventNotInitialized()
     controlFrameworkState.registerColumnRename(dataset, oldName, newName)
   }
 
-  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit fs: FileSystem): Unit = {
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit inputFs: FileSystem): Unit = {
     preventNotInitialized()
     controlFrameworkState.registerColumnDrop(dataset, columnName)
   }

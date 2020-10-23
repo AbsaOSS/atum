@@ -100,7 +100,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     cacheStorageLevel = None
   }
 
-  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit fs: FileSystem): Unit = {
+  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit inputFs: FileSystem): Unit = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -108,7 +108,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     processor.registerColumnRename(oldName, newName)
   }
 
-  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit fs: FileSystem): Unit = {
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit inputFs: FileSystem): Unit = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -116,7 +116,8 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     processor.registerColumnDrop(columnName)
   }
 
-  private[atum] def calculateCheckpoint(dataset: Dataset[Row], name: String, delayCheckpointPersistence: Boolean)(implicit fs: FileSystem): Dataset[Row] = {
+  private[atum] def calculateCheckpoint(dataset: Dataset[Row], name: String, delayCheckpointPersistence: Boolean)
+                                       (implicit inputFs: FileSystem): Dataset[Row] = {
     initializeControlInfo(dataset)
     if (processor == null) {
       initializeProcessor(dataset.sparkSession)
@@ -228,7 +229,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
-  private[atum] def initializeControlInfo(dataset: Dataset[Row])(implicit fs: FileSystem): Unit = {
+  private[atum] def initializeControlInfo(dataset: Dataset[Row])(implicit inputFs: FileSystem): Unit = {
     if (!accumulator.isControlMeasuresLoaded) {
       val infoFilePath = inferInputInfoFilePath(dataset, inputInfoFileName)
       accumulator.loadControlMeasurements(new DefaultControlInfoLoader(infoFilePath))
