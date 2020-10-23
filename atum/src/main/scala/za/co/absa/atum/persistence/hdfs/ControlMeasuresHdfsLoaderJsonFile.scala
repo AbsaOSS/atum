@@ -15,14 +15,14 @@
 
 package za.co.absa.atum.persistence.hdfs
 
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
 import za.co.absa.atum.utils.{ControlUtils, HdfsFileUtils}
 
-/** A loader of control measurements from a JSON file stored in HDFS filesystem. */
+/** A loader of control measurements from a JSON file stored in hadoop filesystem. */
 class ControlMeasuresHdfsLoaderJsonFile(path: Path)
-                                       (implicit fs: org.apache.hadoop.fs.FileSystem) extends ControlMeasuresLoader {
+                                       (implicit inputFs: FileSystem) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
     val controlInfoJson = HdfsFileUtils.readHdfsFileToString(path)
 

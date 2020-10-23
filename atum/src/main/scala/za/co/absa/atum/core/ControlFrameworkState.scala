@@ -254,8 +254,8 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     Atum.log.info(s"Control measurements saved to ${s3Location.s3String()}")
   }
 
-  private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit fs: FileSystem): Unit = {
-    val outputFilePath = if (fs.isDirectory(outputInfoFilePath)) {
+  private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit outputFs: FileSystem): Unit = {
+    val outputFilePath = if (outputFs.isDirectory(outputInfoFilePath)) {
       new Path(outputInfoFilePath, outputInfoFileName)
     } else {
       outputInfoFilePath

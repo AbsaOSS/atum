@@ -29,7 +29,8 @@ import za.co.absa.atum.utils.S3Utils
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
  */
-class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit fs: FileSystem) extends QueryExecutionListener {
+// todo bad design - fs is not needed for SDK s3 approach, but required
+class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit outputFs: FileSystem) extends QueryExecutionListener {
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     if (funcName == "save") {
@@ -64,7 +65,7 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit fs: FileSy
   }
 
   /** Write _INFO file with control measurements to the output directory based on the query plan */
-  private def writeInfoFileForQuery(qe: QueryExecution)(implicit fs: FileSystem): Unit = {
+  private def writeInfoFileForQuery(qe: QueryExecution)(implicit outputFs: FileSystem): Unit = {
     val infoFilePath = inferOutputInfoFileName(qe, cf.outputInfoFileName)
 
     // Write _INFO file to the output directory
