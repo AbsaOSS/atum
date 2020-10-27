@@ -4,6 +4,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption
 
 trait S3Location {
+  def protocol: String
   def bucketName: String
   def path: String
 
@@ -11,22 +12,21 @@ trait S3Location {
 
   /**
    * Returns formatted S3 string, e.g. `s3://myBucket/path/to/somewhere`
-   * @param protocol http "s3" protocol, e.g. s3, s3n, s3a. Default = "s3".
    * @return formatted s3 string
    */
-  def s3String(protocol: String = "s3"): String = s"s3://$bucketName/$path"
+  def s3String: String = s"$protocol://$bucketName/$path"
 }
 
 trait Regionable {
   def region: Region
 }
 
-case class SimpleS3Location(bucketName: String, path: String) extends S3Location {
+case class SimpleS3Location(protocol: String, bucketName: String, path: String) extends S3Location {
   override def withRegion(region: Region): SimpleS3LocationWithRegion =
-    SimpleS3LocationWithRegion(bucketName, path, region)
+    SimpleS3LocationWithRegion(protocol, bucketName, path, region)
 }
 
-case class SimpleS3LocationWithRegion(bucketName: String, path: String, region: Region) extends S3Location with Regionable {
+case class SimpleS3LocationWithRegion(protocol: String, bucketName: String, path: String, region: Region) extends S3Location with Regionable {
   override def withRegion(region: Region): SimpleS3LocationWithRegion = this.copy(region = region)
 }
 

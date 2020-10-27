@@ -58,7 +58,7 @@ class ControlMeasuresSdkS3StorerJsonFile(val outputLocation: SimpleS3LocationWit
   }
 
   override def getInfo: String = {
-    s"JSON serializer for Storer to ${outputLocation.s3String()}"
+    s"JSON serializer for Storer to ${outputLocation.s3String}"
   }
 
   private[s3] def getS3Client: S3Client = S3Utils.getS3Client(outputLocation.region, credentialsProvider)

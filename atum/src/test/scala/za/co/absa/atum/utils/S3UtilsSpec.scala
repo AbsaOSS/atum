@@ -9,9 +9,9 @@ class S3UtilsSpec extends AnyFlatSpec with Matchers {
 
   val validPathsWithExpectedLocations = Seq(
     // (path, expected parsed value)
-    ("s3://mybucket-123/path/to/file.ext", SimpleS3Location("mybucket-123", "path/to/file.ext")),
-    ("s3n://mybucket-123/path/to/ends/with/slash/", SimpleS3Location("mybucket-123", "path/to/ends/with/slash/")),
-    ("s3a://mybucket-123.asdf.cz/path-to-$_file!@#$.ext", SimpleS3Location("mybucket-123.asdf.cz", "path-to-$_file!@#$.ext"))
+    ("s3://mybucket-123/path/to/file.ext", SimpleS3Location("s3", "mybucket-123", "path/to/file.ext")),
+    ("s3n://mybucket-123/path/to/ends/with/slash/", SimpleS3Location("s3n","mybucket-123", "path/to/ends/with/slash/")),
+    ("s3a://mybucket-123.asdf.cz/path-to-$_file!@#$.ext", SimpleS3Location("s3a", "mybucket-123.asdf.cz", "path-to-$_file!@#$.ext"))
   )
 
   val invalidPaths = Seq(

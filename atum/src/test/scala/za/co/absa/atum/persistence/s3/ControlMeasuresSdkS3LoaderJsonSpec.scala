@@ -19,7 +19,7 @@ class ControlMeasuresSdkS3LoaderJsonSpec extends AnyFlatSpec with Matchers with 
 
   "ControlMeasuresS3LoaderJsonFile" should "load measurements from json file from (mocked) S3" in {
 
-    val inputLocation = SimpleS3LocationWithRegion(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
+    val inputLocation = SimpleS3LocationWithRegion("s3", "bucket1", "path/to/json.info", Region.EU_WEST_2)
     val mockedS3Client = mock[S3Client]
     val mockedRequest: ResponseBytes[GetObjectResponse] = mock[ResponseBytes[GetObjectResponse]]
 

@@ -37,7 +37,7 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit outputFs: 
 
       cf.accumulator.getStorer match {
         case Some(s3storer: S3ControlMeasuresStorer) =>
-          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String()}")
+          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}")
           writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
         case Some(_) =>

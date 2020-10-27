@@ -41,7 +41,7 @@ class ControlMeasuresSdkS3LoaderJsonFile(inputLocation: SimpleS3LocationWithRegi
   }
 
   override def getInfo: String = {
-    s"JSON deserializer from ${inputLocation.s3String()}"
+    s"JSON deserializer from ${inputLocation.s3String}"
   }
 
   private[s3] def getS3Client: S3Client = S3Utils.getS3Client(inputLocation.region, credentialsProvider)

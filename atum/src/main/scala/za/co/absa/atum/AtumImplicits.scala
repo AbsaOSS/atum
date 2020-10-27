@@ -73,7 +73,7 @@ object AtumImplicits {
       * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
       * Both input and output info file paths need to be provided
       *
-      * Example info file path name: "data/input/wikidata.csv.info"
+      * Example info file path name: "data/input/wikidata.csv.info" or "s3://bucket1/folder1/wikidata.csv.info"
       *
       * @param sourceInfoFile      Pathname to a json-formatted info file containing control measurements
       * @param destinationInfoFile Pathname to save the control measurement results to

@@ -47,7 +47,7 @@ object SampleSdkS3Measurements2 {
     spark.enableControlMeasuresTrackingForSdkS3(
       sourceS3Location = None,
       destinationS3Config = Some(
-        SimpleS3LocationWithRegion("my-bucket", "atum/output/wikidata.csv.info", Region.EU_WEST_1),
+        SimpleS3LocationWithRegion("s3", "my-bucket", "atum/output/wikidata.csv.info", Region.EU_WEST_1),
         S3KmsSettings(kmsKeyId)
       )
     ) .setControlMeasuresWorkflow("Job 2")

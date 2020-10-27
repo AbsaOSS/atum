@@ -24,13 +24,13 @@ object S3Utils {
   }
 
   // hint: https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
-  val S3LocationRx = "s3(?:a|n)?://([-a-z0-9.]{3,63})/(.*)".r
+  val S3LocationRx = "(s3[an]?)://([-a-z0-9.]{3,63})/(.*)".r
 
   implicit class StringS3LocationExt(path: String) {
 
     def toS3Location: Option[SimpleS3Location] = {
       path match {
-        case S3LocationRx(bucketName, path) => Some(SimpleS3Location(bucketName, path))
+        case S3LocationRx(protocol, bucketName, path) => Some(SimpleS3Location(protocol, bucketName, path))
         case _ => None
       }
     }
@@ -42,7 +42,7 @@ object S3Utils {
     }
 
     def isValidS3Path: Boolean = path match {
-      case S3LocationRx(_, _) => true
+      case S3LocationRx(_, _, _) => true
       case _ => false
     }
   }

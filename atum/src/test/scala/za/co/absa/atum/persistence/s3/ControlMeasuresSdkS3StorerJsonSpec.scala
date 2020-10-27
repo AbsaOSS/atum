@@ -22,7 +22,7 @@ class ControlMeasuresSdkS3StorerJsonSpec extends AnyFlatSpec with Matchers with 
 
   "ControlMeasuresS3StorerJsonFile" should "store measurements to json file to S3" in {
 
-    val outputLocation = SimpleS3LocationWithRegion(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
+    val outputLocation = SimpleS3LocationWithRegion("s3", "bucket1", "path/to/json.info", Region.EU_WEST_2)
     val kmsSettigns = S3KmsSettings("testingKeyId123")
     val mockedS3Client = mock[S3Client]
 
