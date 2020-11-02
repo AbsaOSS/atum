@@ -27,7 +27,7 @@ import za.co.absa.atum.utils.{ControlUtils, S3Utils}
  * @param inputLocation S3 location to read the json measurements from
  * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
-class ControlMeasuresSdkS3LoaderJsonFile(inputLocation: SimpleS3LocationWithRegion)
+case class ControlMeasuresSdkS3LoaderJsonFile(inputLocation: SimpleS3LocationWithRegion)
                                         (implicit credentialsProvider: AwsCredentialsProvider) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
     val s3Client: S3Client = getS3Client

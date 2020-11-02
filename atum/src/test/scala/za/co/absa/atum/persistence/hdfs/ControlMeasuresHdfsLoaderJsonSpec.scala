@@ -15,7 +15,7 @@ class ControlMeasuresHdfsLoaderJsonSpec extends AnyFlatSpec with Matchers {
 
 
   "ControlMeasuresHdfsLoaderJsonFile" should "load json file from HDFS" in {
-    val loadedControlMeasure = new ControlMeasuresHdfsLoaderJsonFile(new Path(inputPath)).load()
+    val loadedControlMeasure = ControlMeasuresHdfsLoaderJsonFile(new Path(inputPath)).load()
 
     loadedControlMeasure shouldBe expectedInputControlMeasure
   }

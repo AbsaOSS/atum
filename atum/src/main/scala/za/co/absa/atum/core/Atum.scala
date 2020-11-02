@@ -144,7 +144,7 @@ object Atum {
     controlFrameworkState.getControlMeasure
   }
 
-  private[atum] def init(sparkSession: SparkSession)(implicit outputFs: FileSystem): Unit = {
+  private[atum] def init(sparkSession: SparkSession): Unit = {
     preventDoubleInitialization(sparkSession)
 
     state = new ControlFrameworkState(sparkSession)

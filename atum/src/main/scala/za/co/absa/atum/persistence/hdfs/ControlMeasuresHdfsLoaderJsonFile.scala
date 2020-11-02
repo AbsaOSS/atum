@@ -21,7 +21,7 @@ import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser
 import za.co.absa.atum.utils.{ControlUtils, HdfsFileUtils}
 
 /** A loader of control measurements from a JSON file stored in hadoop filesystem. */
-class ControlMeasuresHdfsLoaderJsonFile(path: Path)
+case class ControlMeasuresHdfsLoaderJsonFile(path: Path)
                                        (implicit inputFs: FileSystem) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
     val controlInfoJson = HdfsFileUtils.readHdfsFileToString(path)

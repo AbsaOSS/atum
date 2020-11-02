@@ -250,7 +250,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
   }
 
   private[atum] def storeCurrentInfoFileOnSdkS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
-    val storer = new ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
+    val storer = ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${s3Location.s3String}")
   }
@@ -262,7 +262,7 @@ class ControlFrameworkState(sparkSession: SparkSession) {
       outputInfoFilePath
     }
 
-    val storer = new ControlMeasuresHdfsStorerJsonFile(outputFilePath)
+    val storer = ControlMeasuresHdfsStorerJsonFile(outputFilePath)
     storer.store(accumulator.getControlMeasure)
     Atum.log.info(s"Control measurements saved to ${outputFilePath.toUri.toString}")
   }

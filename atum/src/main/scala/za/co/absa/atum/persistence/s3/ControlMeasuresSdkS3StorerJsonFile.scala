@@ -31,7 +31,7 @@ import za.co.absa.atum.utils.S3Utils
  * @param kmsSettings         KMS settings - server side encryption configuration
  * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
-class ControlMeasuresSdkS3StorerJsonFile(val outputLocation: SimpleS3LocationWithRegion, val kmsSettings: S3KmsSettings)
+case class ControlMeasuresSdkS3StorerJsonFile(outputLocation: SimpleS3LocationWithRegion, kmsSettings: S3KmsSettings)
                                         (implicit val credentialsProvider: AwsCredentialsProvider) extends S3ControlMeasuresStorer {
 
   /**

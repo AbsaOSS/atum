@@ -77,10 +77,9 @@ object AtumImplicits {
       *
       * @param sourceInfoFile      Pathname to a json-formatted info file containing control measurements
       * @param destinationInfoFile Pathname to save the control measurement results to
-      * @param outputFs Fs where loader will attempt to save the INFO file to
       */
     def enableControlMeasuresTracking(sourceInfoFile: String = "",
-                                      destinationInfoFile: String = "")(implicit outputFs: FileSystem): SparkSession = {
+                                      destinationInfoFile: String = ""): SparkSession = {
       implicit val hadoopConfiguration = sparkSession.sparkContext.hadoopConfiguration
 
       val loader = InfoFile(sourceInfoFile).toOptDefaultControlInfoLoader
@@ -98,14 +97,13 @@ object AtumImplicits {
      *                            { @link software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider#create()}
      * @return spark session with atum tracking enabled
      */
-    // todo bad design - fs is not needed for SDK s3 approach, but required
     def enableControlMeasuresTrackingForSdkS3(sourceS3Location: Option[SimpleS3LocationWithRegion],
                                               destinationS3Config: Option[(SimpleS3LocationWithRegion, S3KmsSettings)])
-                                             (implicit credentialsProvider: AwsCredentialsProvider, outputFs: FileSystem): SparkSession = {
+                                             (implicit credentialsProvider: AwsCredentialsProvider): SparkSession = {
 
-      val loader = sourceS3Location.map(new ControlMeasuresSdkS3LoaderJsonFile(_))
+      val loader = sourceS3Location.map(ControlMeasuresSdkS3LoaderJsonFile(_))
       val storer = destinationS3Config.map { case (destLoc, kms) =>
-        new ControlMeasuresSdkS3StorerJsonFile(destLoc, kms)
+        ControlMeasuresSdkS3StorerJsonFile(destLoc, kms)
       }
 
       enableControlMeasuresTracking(loader, storer)
@@ -118,11 +116,10 @@ object AtumImplicits {
      *
      * @param loader  An object responsible for loading data source control measurements
      * @param storer  An object responsible for storing the result control measurements
-     * @param outputFs Fs where loader will attempt to save the INFO file to
      *
      */
     def enableControlMeasuresTracking(loader: Option[ControlMeasuresLoader],
-                                      storer: Option[ControlMeasuresStorer])(implicit outputFs: FileSystem): SparkSession =
+                                      storer: Option[ControlMeasuresStorer]): SparkSession =
       sparkSession.synchronized {
         Atum.init(sparkSession)
 

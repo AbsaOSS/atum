@@ -22,15 +22,14 @@ import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
+import za.co.absa.atum.persistence.{HadoopFsControlMeasuresStorer, S3ControlMeasuresStorer, S3KmsSettings}
 import za.co.absa.atum.utils.ExecutionPlanUtils._
 import za.co.absa.atum.utils.S3Utils
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
  */
-// todo bad design - fs is not needed for SDK s3 approach, but required
-class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit outputFs: FileSystem) extends QueryExecutionListener {
+class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecutionListener {
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     if (funcName == "save") {
@@ -40,12 +39,12 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState)(implicit outputFs: 
           Atum.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}")
           writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
-        case Some(_) =>
-          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to HDFS")
-          writeInfoFileForQuery(qe)
+        case Some(hadoopStorer: HadoopFsControlMeasuresStorer) =>
+          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to Hadoop FS")
+          writeInfoFileForQuery(qe)(hadoopStorer.outputFs)
 
-        case None =>
-          Atum.log.info("No storer is set, therefore no data will be written the automatically with DF-save to an _INFO file.")
+        case _ =>
+          Atum.log.info("No usable storer is set, therefore no data will be written the automatically with DF-save to an _INFO file.")
       }
 
       // Notify listeners
