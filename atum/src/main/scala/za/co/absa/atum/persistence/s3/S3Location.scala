@@ -8,7 +8,7 @@ trait S3Location {
   def bucketName: String
   def path: String
 
-  def withRegion(region: Region): S3Location with Regionable
+  def withRegion(region: Region): S3Location with Regional
 
   /**
    * Returns formatted S3 string, e.g. `s3://myBucket/path/to/somewhere`
@@ -17,7 +17,7 @@ trait S3Location {
   def s3String: String = s"$protocol://$bucketName/$path"
 }
 
-trait Regionable {
+trait Regional {
   def region: Region
 }
 
@@ -26,7 +26,7 @@ case class SimpleS3Location(protocol: String, bucketName: String, path: String) 
     SimpleS3LocationWithRegion(protocol, bucketName, path, region)
 }
 
-case class SimpleS3LocationWithRegion(protocol: String, bucketName: String, path: String, region: Region) extends S3Location with Regionable {
+case class SimpleS3LocationWithRegion(protocol: String, bucketName: String, path: String, region: Region) extends S3Location with Regional {
   override def withRegion(region: Region): SimpleS3LocationWithRegion = this.copy(region = region)
 }
 
