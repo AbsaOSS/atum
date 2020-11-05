@@ -15,13 +15,14 @@
 
 package za.co.absa.atum.examples
 
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.persistence.S3Location
+import za.co.absa.atum.persistence.SimpleS3LocationWithRegion
 import za.co.absa.atum.utils.S3Utils
 
-object SampleS3Measurements1 {
+object SampleSdkS3Measurements1 {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample S3 Measurements 1 Job")
     val spark = sparkBuilder
@@ -30,12 +31,15 @@ object SampleS3Measurements1 {
 
     import spark.implicits._
 
+    val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(hadoopConfiguration)
+
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
     implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
 
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTrackingForS3(
-      sourceS3Location = Some(S3Location("my-bucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
+    spark.enableControlMeasuresTrackingForSdkS3(
+      sourceS3Location = Some(SimpleS3LocationWithRegion("s3", "my-bucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
       destinationS3Config = None
     ).setControlMeasuresWorkflow("Job 1 S3 ")
 

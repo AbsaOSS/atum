@@ -21,7 +21,7 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import za.co.absa.atum.model.ControlMeasure
-import za.co.absa.atum.persistence.{ControlMeasuresParser, S3ControlMeasuresStorer, S3KmsSettings, S3Location}
+import za.co.absa.atum.persistence.{ControlMeasuresParser, S3ControlMeasuresStorer, S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.S3Utils
 
 /**
@@ -31,8 +31,8 @@ import za.co.absa.atum.utils.S3Utils
  * @param kmsSettings         KMS settings - server side encryption configuration
  * @param credentialsProvider a specific credentials provider (e.g. SAML profile). Consider using [[DefaultCredentialsProvider#create()]] when in doubt.
  */
-class ControlMeasuresS3StorerJsonFile(val outputLocation: S3Location, val kmsSettings: S3KmsSettings)
-                                     (implicit val credentialsProvider: AwsCredentialsProvider) extends S3ControlMeasuresStorer {
+case class ControlMeasuresSdkS3StorerJsonFile(outputLocation: SimpleS3LocationWithRegion, kmsSettings: S3KmsSettings)
+                                        (implicit val credentialsProvider: AwsCredentialsProvider) extends S3ControlMeasuresStorer {
 
   /**
    * Stores the `controlInfo` measurement to an S3 location.
@@ -58,7 +58,7 @@ class ControlMeasuresS3StorerJsonFile(val outputLocation: S3Location, val kmsSet
   }
 
   override def getInfo: String = {
-    s"JSON serializer for Storer to ${outputLocation.s3String()}"
+    s"JSON serializer for Storer to ${outputLocation.s3String}"
   }
 
   private[s3] def getS3Client: S3Client = S3Utils.getS3Client(outputLocation.region, credentialsProvider)

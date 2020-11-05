@@ -15,14 +15,15 @@
 
 package za.co.absa.atum.examples
 
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.core.Atum
-import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
+import za.co.absa.atum.persistence.{S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.S3Utils
 
-object SampleS3Measurements2 {
+object SampleSdkS3Measurements2 {
   def main(args: Array[String]) {
 
     // This example is intended to run AFTER SampleMeasurements1, otherwise it will fail on input file absence
@@ -32,6 +33,9 @@ object SampleS3Measurements2 {
     val spark = sparkBuilder.getOrCreate()
     import spark.implicits._
 
+    val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(hadoopConfiguration)
+
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
     // AND by having explicitly defined KMS Key ID
     implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
@@ -40,10 +44,10 @@ object SampleS3Measurements2 {
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically
-    spark.enableControlMeasuresTrackingForS3(
+    spark.enableControlMeasuresTrackingForSdkS3(
       sourceS3Location = None,
       destinationS3Config = Some(
-        S3Location("my-bucket", "atum/output/wikidata.csv.info", Region.EU_WEST_1),
+        SimpleS3LocationWithRegion("s3", "my-bucket", "atum/output/wikidata.csv.info", Region.EU_WEST_1),
         S3KmsSettings(kmsKeyId)
       )
     ) .setControlMeasuresWorkflow("Job 2")

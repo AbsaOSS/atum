@@ -41,18 +41,16 @@ object ExecutionPlanUtils {
     *
     * @return The inferred input control measurements file path of the source dataset
     */
-  def inferInputInfoFileName(dataset: Dataset[Row], infoFileName: String = Constants.DefaultInfoFileName): Path = {
+  def inferInputInfoFilePath(dataset: Dataset[Row], infoFileName: String = Constants.DefaultInfoFileName)(implicit inputFs: FileSystem): Path = {
     val plan = dataset.queryExecution.logical
     val paths = getSourceFileNames(plan)
     if (paths.isEmpty) {
       throw new IllegalStateException("Control framework was unable to infer dataset input file name.")
     }
-    val hadoopConfiguration = dataset.sparkSession.sparkContext.hadoopConfiguration
-    val fs = FileSystem.get(hadoopConfiguration)
     val infoNames = paths.flatMap(p => {
       val infoName = new Path(p, infoFileName)
       log.info(s"Inferred info file name: $infoName, from path $p and name $infoFileName")
-      Some(infoName).filter(fs.exists)
+      Some(infoName).filter(inputFs.exists)
     })
     val path = infoNames match {
       case List(p) => p

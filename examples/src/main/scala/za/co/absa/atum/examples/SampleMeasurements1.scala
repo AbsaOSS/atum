@@ -15,6 +15,7 @@
 
 package za.co.absa.atum.examples
 
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import za.co.absa.atum.AtumImplicits._
 
@@ -26,6 +27,9 @@ object SampleMeasurements1 {
       .getOrCreate()
 
     import spark.implicits._
+
+    val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info")

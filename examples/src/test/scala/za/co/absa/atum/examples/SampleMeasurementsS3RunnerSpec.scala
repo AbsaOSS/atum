@@ -22,6 +22,6 @@ class SampleMeasurementsS3RunnerSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
 
-    runSparkJobAsTest[SampleS3Measurements1.type]
-    runSparkJobAsTest[SampleS3Measurements2.type]
+    runSparkJobAsTest[SampleSdkS3Measurements1.type]
+    runSparkJobAsTest[SampleSdkS3Measurements2.type]
 }

@@ -15,6 +15,7 @@
 
 package za.co.absa.atum.core
 
+import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.sql.util.QueryExecutionListener
@@ -204,12 +205,12 @@ object Atum {
     controlFrameworkState.workflowName = workflowName
   }
 
-  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String): Unit = {
+  private[atum] def registerColumnRename(dataset: Dataset[Row], oldName: String, newName: String)(implicit inputFs: FileSystem): Unit = {
     preventNotInitialized()
     controlFrameworkState.registerColumnRename(dataset, oldName, newName)
   }
 
-  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String): Unit = {
+  private[atum] def registerColumnDrop(dataset: Dataset[Row], columnName: String)(implicit inputFs: FileSystem): Unit = {
     preventNotInitialized()
     controlFrameworkState.registerColumnDrop(dataset, columnName)
   }

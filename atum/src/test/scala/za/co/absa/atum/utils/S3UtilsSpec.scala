@@ -1,20 +1,17 @@
 package za.co.absa.atum.utils
 
 import org.scalatest.flatspec.AnyFlatSpec
-import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.persistence.S3Location
+import za.co.absa.atum.persistence.{SimpleS3Location, SimpleS3LocationWithRegion}
 import S3Utils.StringS3LocationExt
 import org.scalatest.matchers.should.Matchers
 
 class S3UtilsSpec extends AnyFlatSpec with Matchers {
 
-  val region1 = Region.EU_WEST_1
-
   val validPathsWithExpectedLocations = Seq(
     // (path, expected parsed value)
-    ("s3://mybucket-123/path/to/file.ext", S3Location("mybucket-123", "path/to/file.ext", region1)),
-    ("s3n://mybucket-123/path/to/ends/with/slash/", S3Location("mybucket-123", "path/to/ends/with/slash/", region1)),
-    ("s3a://mybucket-123.asdf.cz/path-to-$_file!@#$.ext", S3Location("mybucket-123.asdf.cz", "path-to-$_file!@#$.ext", region1))
+    ("s3://mybucket-123/path/to/file.ext", SimpleS3Location("s3", "mybucket-123", "path/to/file.ext")),
+    ("s3n://mybucket-123/path/to/ends/with/slash/", SimpleS3Location("s3n","mybucket-123", "path/to/ends/with/slash/")),
+    ("s3a://mybucket-123.asdf.cz/path-to-$_file!@#$.ext", SimpleS3Location("s3a", "mybucket-123.asdf.cz", "path-to-$_file!@#$.ext"))
   )
 
   val invalidPaths = Seq(
@@ -24,14 +21,20 @@ class S3UtilsSpec extends AnyFlatSpec with Matchers {
 
   "S3Utils.StringS3LocationExt" should "parse S3 path from String using toS3Location" in {
     validPathsWithExpectedLocations.foreach { case (path, expectedLocation) =>
-      path.toS3Location(region1) shouldBe expectedLocation
+      path.toS3Location shouldBe Some(expectedLocation)
     }
   }
 
-  it should "fail parsing invalid S3 path from String using toS3Location" in {
+  it should "find no valid S3 path when parsing invalid S3 path from String using toS3Location" in {
+    invalidPaths.foreach {
+      _.toS3Location shouldBe None
+    }
+  }
+
+  it should "fail parsing invalid S3 path from String using toS3LocationOrFail" in {
     invalidPaths.foreach { path =>
       assertThrows[IllegalArgumentException] {
-        path.toS3Location(region1)
+        path.toS3LocationOrFail
       }
     }
   }

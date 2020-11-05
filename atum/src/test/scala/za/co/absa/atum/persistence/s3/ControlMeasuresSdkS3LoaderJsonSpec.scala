@@ -10,21 +10,21 @@ import software.amazon.awssdk.core.ResponseBytes
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse}
-import za.co.absa.atum.persistence.{S3Location, TestResources}
+import za.co.absa.atum.persistence.{SimpleS3LocationWithRegion, TestResources}
 import za.co.absa.atum.utils.FileUtils
 
-class ControlMeasuresS3LoaderJsonSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
+class ControlMeasuresSdkS3LoaderJsonSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   val expectedInputControlMeasure = TestResources.InputInfo.controlMeasure
 
   "ControlMeasuresS3LoaderJsonFile" should "load measurements from json file from (mocked) S3" in {
 
-    val inputLocation = S3Location(bucketName = "bucket1", "path/to/json.info", region = Region.EU_WEST_2)
+    val inputLocation = SimpleS3LocationWithRegion("s3", "bucket1", "path/to/json.info", Region.EU_WEST_2)
     val mockedS3Client = mock[S3Client]
     val mockedRequest: ResponseBytes[GetObjectResponse] = mock[ResponseBytes[GetObjectResponse]]
 
     implicit val credentialsProvider = DefaultCredentialsProvider.create()
-    val loader = new ControlMeasuresS3LoaderJsonFile(inputLocation) {
+    val loader = new ControlMeasuresSdkS3LoaderJsonFile(inputLocation) {
       override def getS3Client: S3Client = mockedS3Client
     }
 

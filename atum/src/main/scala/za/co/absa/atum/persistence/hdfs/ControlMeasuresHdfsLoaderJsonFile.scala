@@ -15,21 +15,20 @@
 
 package za.co.absa.atum.persistence.hdfs
 
-import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
 import za.co.absa.atum.utils.{ControlUtils, HdfsFileUtils}
 
-/** A loader of control measurements from a JSON file stored in HDFS filesystem. */
-class ControlMeasuresHdfsLoaderJsonFile(hadoopConfiguration: Configuration, path: Path) extends ControlMeasuresLoader {
+/** A loader of control measurements from a JSON file stored in hadoop filesystem. */
+case class ControlMeasuresHdfsLoaderJsonFile(path: Path)
+                                       (implicit inputFs: FileSystem) extends ControlMeasuresLoader {
   override def load(): ControlMeasure = {
-
-    implicit val fs = FileSystem.get(hadoopConfiguration)
     val controlInfoJson = HdfsFileUtils.readHdfsFileToString(path)
 
     ControlUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
   }
+
   override def getInfo: String = {
     s"JSON deserializer from ${path.toUri}"
   }
