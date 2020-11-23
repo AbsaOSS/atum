@@ -147,6 +147,8 @@ available when running unit tests.
 ```scala
 import org.apache.spark.sql.SparkSession
 import za.co.absa.atum.AtumImplicits._
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
 
 object ExampleSparkJob {
   def main(args: Array[String]) {
@@ -156,6 +158,9 @@ object ExampleSparkJob {
       .getOrCreate()
 
     import spark.implicits._
+
+    // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
+    implicit val localHdfs = FileSystem.get(new Configuration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")
@@ -168,11 +173,10 @@ object ExampleSparkJob {
       .csv("data/input/mydata.csv")
       .as("source")
       .setCheckpoint("Computations Started") // First checkpoint
-    
+
     // A business logic of a spark job ...
-    
+
     // The df.setCheckpoint() routine can be used as many time as needed.
-    
     df.setCheckpoint("Computations Finished") // Second checkpoint
       .parquet("data/output/my_results")
   }
