@@ -173,9 +173,9 @@ object ExampleSparkJob {
       .csv("data/input/mydata.csv")
       .as("source")
       .setCheckpoint("Computations Started") // First checkpoint
-    
+
     // A business logic of a spark job ...
-  
+
     // The df.setCheckpoint() routine can be used as many time as needed.
     df.setCheckpoint("Computations Finished") // Second checkpoint
       .parquet("data/output/my_results")
