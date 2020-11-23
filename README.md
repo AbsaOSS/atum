@@ -159,6 +159,9 @@ object ExampleSparkJob {
 
     import spark.implicits._
 
+    // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
+    implicit val localHdfs = FileSystem.get(new Configuration)
+
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")
       .setControlMeasuresWorkflow("Example processing")
@@ -172,10 +175,7 @@ object ExampleSparkJob {
       .setCheckpoint("Computations Started") // First checkpoint
     
     // A business logic of a spark job ...
-
-    // implicit FS is needed for setCheckpoint call, e.g. standard HDFS here:
-    implicit val localFs = FileSystem.get(new Configuration)
-    
+  
     // The df.setCheckpoint() routine can be used as many time as needed.
     df.setCheckpoint("Computations Finished") // Second checkpoint
       .parquet("data/output/my_results")
