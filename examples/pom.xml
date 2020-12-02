@@ -57,6 +57,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>za.co.absa</groupId>
+			<artifactId>atum-sdk-s3</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		<!-- Scalatest is added as a provided scope so it won't be included to the uber jar -->
 		<dependency>
 			<groupId>org.scalatest</groupId>

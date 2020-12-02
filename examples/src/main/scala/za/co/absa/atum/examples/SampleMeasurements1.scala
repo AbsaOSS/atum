@@ -18,6 +18,7 @@ package za.co.absa.atum.examples
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.core.Atum
 
 object SampleMeasurements1 {
   def main(args: Array[String]) {
@@ -27,6 +28,7 @@ object SampleMeasurements1 {
       .getOrCreate()
 
     import spark.implicits._
+    implicit val atum = Atum // using basic Atum without extensions
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs = FileSystem.get(hadoopConfiguration)

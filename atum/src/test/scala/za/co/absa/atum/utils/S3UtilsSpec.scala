@@ -1,8 +1,7 @@
 package za.co.absa.atum.utils
 
 import org.scalatest.flatspec.AnyFlatSpec
-import za.co.absa.atum.persistence.{SimpleS3Location, SimpleS3LocationWithRegion}
-import S3Utils.StringS3LocationExt
+import S3LocationUtils.StringS3LocationExt
 import org.scalatest.matchers.should.Matchers
 
 class S3UtilsSpec extends AnyFlatSpec with Matchers {

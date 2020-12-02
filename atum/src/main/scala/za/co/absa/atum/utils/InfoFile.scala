@@ -5,7 +5,7 @@ import java.net.URI
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.AtumImplicits.{DefaultControlInfoLoader, DefaultControlInfoStorer}
-import za.co.absa.atum.utils.S3Utils.StringS3LocationExt
+import za.co.absa.atum.utils.S3LocationUtils.StringS3LocationExt
 import za.co.absa.atum.AtumImplicits.StringPathExt
 
 private[atum] case class InfoFile(infoFile: String) {
@@ -17,6 +17,7 @@ private[atum] case class InfoFile(infoFile: String) {
       definedInfoFile.toS3Location match {
 
         case Some(s3Location) =>
+          // this is S3 over hadoop FS API, not SDK S3 approach
           val s3Uri = new URI(s3Location.s3String) // s3://<bucket>
           val s3Path = new Path(s"/${s3Location.path}") // /<text-file-object-path>
 

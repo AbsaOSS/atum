@@ -19,14 +19,14 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.storage.StorageLevel
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+//import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.AtumImplicits.DefaultControlInfoLoader
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.core.ControlType.Count
 import za.co.absa.atum.model.{RunError, RunState, _}
 import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
-import za.co.absa.atum.persistence.s3.ControlMeasuresSdkS3StorerJsonFile
-import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer, S3KmsSettings, SimpleS3LocationWithRegion}
+//import za.co.absa.atum.persistence.s3.ControlMeasuresSdkS3StorerJsonFile
+import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer/*, S3KmsSettings, SimpleS3LocationWithRegion*/}
 import za.co.absa.atum.plugins.EventListener
 import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFilePath
 
@@ -249,11 +249,11 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     }
   }
 
-  private[atum] def storeCurrentInfoFileOnSdkS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
-    val storer = ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
-    storer.store(accumulator.getControlMeasure)
-    Atum.log.info(s"Control measurements saved to ${s3Location.s3String}")
-  }
+//  private[atum] def storeCurrentInfoFileOnSdkS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
+//    val storer = ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
+//    storer.store(accumulator.getControlMeasure)
+//    Atum.log.info(s"Control measurements saved to ${s3Location.s3String}")
+//  }
 
   private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit outputFs: FileSystem): Unit = {
     val outputFilePath = if (outputFs.isDirectory(outputInfoFilePath)) {

@@ -18,9 +18,11 @@ package za.co.absa.atum.examples
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.regions.Region
+import za.co.absa.atum.AtumImplicitsSdkS3._
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.core.AtumSdkS3
 import za.co.absa.atum.persistence.SimpleS3LocationWithRegion
-import za.co.absa.atum.utils.S3Utils
+import za.co.absa.atum.utils.SdkS3ClientUtils
 
 object SampleSdkS3Measurements1 {
   def main(args: Array[String]) {
@@ -33,9 +35,10 @@ object SampleSdkS3Measurements1 {
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs = FileSystem.get(hadoopConfiguration)
+    implicit val atum = AtumSdkS3 // using extended Atum for SdkS3
 
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
-    implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
+    implicit val samlCredentialsProvider = SdkS3ClientUtils.getLocalProfileCredentialsProvider("saml")
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTrackingForSdkS3(

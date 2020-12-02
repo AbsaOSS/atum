@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresParser, S3ControlMeasuresStorer, S3KmsSettings, SimpleS3LocationWithRegion}
-import za.co.absa.atum.utils.S3Utils
+import za.co.absa.atum.utils.SdkS3ClientUtils
 
 /**
  * A storer of control measurements to a JSON file stored in AWS S3.
@@ -61,5 +61,5 @@ case class ControlMeasuresSdkS3StorerJsonFile(outputLocation: SimpleS3LocationWi
     s"JSON serializer for Storer to ${outputLocation.s3String}"
   }
 
-  private[s3] def getS3Client: S3Client = S3Utils.getS3Client(outputLocation.region, credentialsProvider)
+  private[s3] def getS3Client: S3Client = SdkS3ClientUtils.getS3Client(outputLocation.region, credentialsProvider)
 }

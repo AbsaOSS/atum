@@ -16,15 +16,12 @@
 package za.co.absa.atum.persistence
 
 import org.apache.hadoop.fs.FileSystem
-//import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.model.ControlMeasure
 
-/** Trait for control measurements saving to a persistent storage */
-trait ControlMeasuresStorer {
-  def store(controlInfo: ControlMeasure): Unit
-  def getInfo: String
-}
 
-trait HadoopFsControlMeasuresStorer extends ControlMeasuresStorer {
-  def outputFs: FileSystem
+trait S3ControlMeasuresStorer extends ControlMeasuresStorer {
+  def kmsSettings: S3KmsSettings
+  def outputLocation: SimpleS3LocationWithRegion
+  def credentialsProvider: AwsCredentialsProvider
 }
