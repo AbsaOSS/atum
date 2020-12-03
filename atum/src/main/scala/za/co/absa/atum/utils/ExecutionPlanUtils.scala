@@ -97,11 +97,17 @@ object ExecutionPlanUtils {
     * @return The inferred output control measurements file path of the source dataset
     */
   def inferOutputInfoFileName(qe: QueryExecution, infoFileName: String = Constants.DefaultInfoFileName): Option[Path] = {
+    inferOutputInfoFileDir(qe).map { dir =>
+      new Path(dir, infoFileName)
+    }
+  }
+
+  private[atum] def inferOutputInfoFileDir(qe: QueryExecution): Option[String] = {
     qe.analyzed match {
       case s: SaveIntoDataSourceCommand =>
-          Some(new Path(s.options("path"), infoFileName))
+        Some(s.options("path"))
       case h: InsertIntoHadoopFsRelationCommand =>
-          Some(new Path(h.outputPath, infoFileName))
+        Some(h.outputPath.toString)
       case a =>
         log.warn(s"Logical plan: ${qe.logical.treeString}")
         log.warn(s"Analyzed plan: ${qe.analyzed.treeString}")
