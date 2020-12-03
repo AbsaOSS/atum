@@ -160,7 +160,7 @@ object ExampleSparkJob {
     import spark.implicits._
 
     // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
-    implicit val localHdfs = FileSystem.get(new Configuration)
+    implicit val localHdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")
@@ -188,8 +188,28 @@ in 'data/input/_INFO'. Two checkpoints are created. Any business logic can be in
 and saving it to Parquet format.  
 
 ### Storing Measurements in AWS S3
-Starting with version 3.0.0, persistence support for AWS S3 has been added. 
-AWS S3 can be both used for loading the measurement data from as well as saving the measurements back to.
+
+#### AWS S3 via Hadoop FS API
+Since version 3.1.0, persistence support for AWS S3 via Hadoop FS API is available. The usage is the same as with 
+regular HDFS with the exception of providing a different file system, e.g.:
+```scala
+import java.net.URI
+import org.apache.hadoop.fs.FileSystem
+import org.apache.spark.sql.SparkSession
+
+val spark = SparkSession
+      .builder()
+      .appName("Example Spark Job")
+      .getOrCreate()
+
+val s3Uri = new URI("s3://my-awesome-bucket")
+implicit  val fs = FileSystem.get(s3Uri, spark.sparkContext.hadoopConfiguration)
+
+```
+The rest of the usage is the same in the example listed above.
+
+#### AWS S3 via AWS SDK for S3
+Starting with version 3.0.0, there is also persistence support for AWS S3 via AWS SDK S3.
 
 The following example demonstrates the setup:
 ```scala
@@ -230,7 +250,7 @@ object S3Example {
 }
 
 ```
-The rest of the processing logic and programatic approach to the library remains unchanged.
+The rest of the processing logic and programmatic approach to the library remains unchanged.
 
 
 ## Atum library routines

@@ -44,7 +44,9 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
           writeInfoFileForQuery(qe)(hadoopStorer.outputFs)
 
         case _ =>
-          Atum.log.info("No usable storer is set, therefore no data will be written the automatically with DF-save to an _INFO file.")
+          Atum.log.info("No storer is set, using default HadoopFs-based bound with DF-save to an inferred _INFO file path.")
+          val defaultFs = FileSystem.get(qe.sparkSession.sparkContext.hadoopConfiguration)
+          writeInfoFileForQuery(qe)(defaultFs)
       }
 
       // Notify listeners
