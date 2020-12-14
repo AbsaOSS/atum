@@ -91,8 +91,8 @@ indepedently.
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
-      <artifactId>atum</artifactId>
-      <version>3.0.0</version>
+      <artifactId>atum_2.11</artifactId>
+      <version>3.2.0</version>
 </dependency>
 ```
 

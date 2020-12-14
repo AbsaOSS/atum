@@ -102,6 +102,17 @@
         <scm.developerConnection>scm:git:ssh://git@github.com/AbsaOSS/atum.git</scm.developerConnection>
         <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
 
+        <!-- Cross Compilation Properties -->
+        <default.scala.binary.version>2.11</default.scala.binary.version>
+        <default.scala.version>${scala_2.11.version}</default.scala.version>
+
+        <scala_2.11.version>2.11.12</scala_2.11.version>
+        <scala_2.12.version>2.12.12</scala_2.12.version>
+
+        <!-- Controlled by `scala-cross-build` plugin -->
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
         <scala.compat.version>2.11</scala.compat.version>
@@ -252,10 +263,33 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>com.github.wajda</groupId>
+                <artifactId>scala-cross-build-maven-plugin</artifactId>
+                <version>0.2.1</version>
+                <configuration>
+                    <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
+                    <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>scala-2.11</id>
+            <properties>
+                <scala.binary.version>2.11</scala.binary.version>
+                <scala.version>${scala_2.11.version}</scala.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.12</id>
+            <properties>
+                <scala.binary.version>2.12</scala.binary.version>
+                <scala.version>${scala_2.12.version}</scala.version>
+            </properties>
+        </profile>
         <profile>
             <id>license-check</id>
             <build>
