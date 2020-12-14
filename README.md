@@ -87,11 +87,19 @@ indepedently.
 ## Usage
 
 ### Coordinate for Maven POM dependancy
-
+For Scala 2.11
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
       <artifactId>atum_2.11</artifactId>
+      <version>3.2.0</version>
+</dependency>
+```
+For Scala 2.12
+```xml
+<dependency>
+      <groupId>za.co.absa</groupId>
+      <artifactId>atum_2.12</artifactId>
       <version>3.2.0</version>
 </dependency>
 ```
