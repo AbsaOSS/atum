@@ -39,10 +39,11 @@ object SampleSdkS3Measurements1 {
 
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
     implicit val samlCredentialsProvider = SdkS3ClientUtils.getLocalProfileCredentialsProvider("saml")
+    val myBucket = System.getenv("TOOLING_BUCKET_NAME") // load from an environment property in order not to disclose it here
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTrackingForSdkS3(
-      sourceS3Location = Some(SimpleS3LocationWithRegion("s3", "mybucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)), // todo mybucket
+      sourceS3Location = Some(SimpleS3LocationWithRegion("s3", myBucket, "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
       destinationS3Config = None
     ).setControlMeasuresWorkflow("Job 1 S3 ")
 
@@ -53,7 +54,7 @@ object SampleSdkS3Measurements1 {
       .option("inferSchema", "true")
       .csv("data/input/wikidata.csv")
       .as("source")
-      .filter($"total_response_size" > 1000)
+      .filter($"total_response_size" > 10000)
       .setCheckpoint("checkpoint1")
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output_s3/stage1_job_results")

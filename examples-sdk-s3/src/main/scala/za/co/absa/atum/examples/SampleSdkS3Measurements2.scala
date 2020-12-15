@@ -21,6 +21,8 @@ import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicitsSdkS3._
 import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.core.AtumSdkS3
+import za.co.absa.atum.model.{ControlMeasure, Measurement}
+import za.co.absa.atum.persistence.s3.ControlMeasuresSdkS3LoaderJsonFile
 import za.co.absa.atum.persistence.{S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.SdkS3ClientUtils
 
@@ -42,17 +44,21 @@ object SampleSdkS3Measurements2 {
     // AND by having explicitly defined KMS Key ID
     implicit val samlCredentialsProvider = SdkS3ClientUtils.getLocalProfileCredentialsProvider("saml")
     val kmsKeyId = System.getenv("TOOLING_KMS_KEY_ID") // load from an environment property in order not to disclose it here
+    val myBucket = System.getenv("TOOLING_BUCKET_NAME") // same reason
     AtumSdkS3.log.info(s"kmsKeyId from env loaded = ${kmsKeyId.take(10)}...")
+    AtumSdkS3.log.info(s"BucketName from env loaded = $myBucket")
+
+    val infoFileOutputLocation = SimpleS3LocationWithRegion("s3", myBucket, "atum/output/wikidata.csv.info", Region.EU_WEST_1)
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically
     spark.enableControlMeasuresTrackingForSdkS3(
       sourceS3Location = None,
       destinationS3Config = Some(
-        SimpleS3LocationWithRegion("s3", "my-bucket", "atum/output/wikidata.csv.info", Region.EU_WEST_1),
+        infoFileOutputLocation,
         S3KmsSettings(kmsKeyId)
       )
-    ) .setControlMeasuresWorkflow("Job 2")
+    ).setControlMeasuresWorkflow("Job 2")
 
     val sourceDS = spark.read
       .parquet("data/output_s3/stage1_job_results")
@@ -62,13 +68,29 @@ object SampleSdkS3Measurements2 {
     // An example - a column rename
     // If the renamed column is one of control measurement columns, the rename need to be registered in Control Framework
     sourceDS.as("target")
-      .withColumnRenamed("total_response_size", "trs")   // Renaming the column
-      .registerColumnRename("total_response_size","trs") // Registering the rename, from now on the new name for the column is 'trs'
-      .filter($"trs" > 1000)
+      .withColumnRenamed("total_response_size", "trs") // Renaming the column
+      .registerColumnRename("total_response_size", "trs") // Registering the rename, from now on the new name for the column is 'trs'
+      .filter($"trs" > 15000)
       .setCheckpoint("checkpoint2")
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output_s3/stage2_job_results")
 
     spark.disableControlMeasuresTracking()
+
+    // checking info file presence via wrapped AWS SDK s3
+    val loader = ControlMeasuresSdkS3LoaderJsonFile(infoFileOutputLocation)
+    val controlMeasure = loader.load()
+
+    val expectedCheckpointRecordCounts = Seq(
+      "Source" -> 4964, "Raw" -> 4964, "checkpoint1" -> 3072, "checkpoint2" -> 1651)
+    val extractedCounts = extractCheckpointsRecordCounts(controlMeasure)
+    assert(extractedCounts == expectedCheckpointRecordCounts, s"expecting control measure counts to be: $expectedCheckpointRecordCounts, but $extractedCounts found.")
+  }
+
+  private def extractCheckpointsRecordCounts(controlMeasure: ControlMeasure): Seq[(String, Int)] = {
+    controlMeasure.checkpoints.map { checkpoint =>
+      val count: Int = checkpoint.controls.collectFirst { case Measurement("recordCount", _, _, value) => value.toString.toInt }.getOrElse(0)
+      (checkpoint.name, count)
+    }
   }
 }

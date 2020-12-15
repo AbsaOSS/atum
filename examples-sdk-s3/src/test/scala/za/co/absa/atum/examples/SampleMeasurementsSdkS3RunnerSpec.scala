@@ -19,7 +19,7 @@ import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.atum.utils._
 
-@Ignore
+// integ tests are skipped via pom-settings
 class SampleMeasurementsS3RunnerExampleSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {

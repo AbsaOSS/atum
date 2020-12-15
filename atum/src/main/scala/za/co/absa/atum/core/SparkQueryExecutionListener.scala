@@ -21,12 +21,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import za.co.absa.atum.utils.ExecutionPlanUtils
-//import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
-//import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.persistence.{HadoopFsControlMeasuresStorer /*, S3ControlMeasuresStorer, S3KmsSettings */}
-import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
-import za.co.absa.atum.utils.ExecutionPlanUtils._
-import za.co.absa.atum.utils.{InfoFile, S3Utils}
+import za.co.absa.atum.utils.InfoFile
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.

@@ -6,6 +6,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.core.Atum
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
@@ -43,6 +44,8 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
 
         val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
         implicit val fs = FileSystem.get(hadoopConfiguration)
+
+        implicit val atum = Atum // using basic Atum without extensions
 
         // Initializing library to hook up to Apache Spark
         spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info", destinationInfoFile = destinationInfoFilePath)
