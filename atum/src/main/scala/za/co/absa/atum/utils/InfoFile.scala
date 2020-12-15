@@ -12,7 +12,7 @@ private[atum] case class InfoFile(infoFile: String) {
 
   private val validatedInfoFile: Option[String] = if (infoFile.isEmpty) None else Some(infoFile)
 
-  private def toOptFsPath(implicit hadoopConfiguration: Configuration): Option[(FileSystem, Path)] = {
+  def toOptFsPath(implicit hadoopConfiguration: Configuration): Option[(FileSystem, Path)] = {
     validatedInfoFile.map { definedInfoFile =>
       definedInfoFile.toS3Location match {
 

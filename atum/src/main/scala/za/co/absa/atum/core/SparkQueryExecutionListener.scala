@@ -17,13 +17,16 @@ package za.co.absa.atum.core
 
 import java.io.{PrintWriter, StringWriter}
 
-import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import za.co.absa.atum.utils.ExecutionPlanUtils
 //import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 //import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.persistence.{HadoopFsControlMeasuresStorer /*, S3ControlMeasuresStorer, S3KmsSettings */}
+import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
+import za.co.absa.atum.utils.ExecutionPlanUtils._
+import za.co.absa.atum.utils.{InfoFile, S3Utils}
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
@@ -38,12 +41,9 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
 //          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}") // todo solve how
 //          writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
-        case Some(hadoopStorer: HadoopFsControlMeasuresStorer) =>
-          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to Hadoop FS")
-          writeInfoFileForQuery(qe)(hadoopStorer.outputFs)
-
         case _ =>
-          Atum.log.info("No usable storer is set, therefore no data will be written the automatically with DF-save to an _INFO file.")
+          Atum.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to Hadoop FS")
+          writeInfoFileForQuery(qe)
       }
 
       // Notify listeners
@@ -63,14 +63,21 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
   }
 
   /** Write _INFO file with control measurements to the output directory based on the query plan */
-  private def writeInfoFileForQuery(qe: QueryExecution)(implicit outputFs: FileSystem): Unit = {
-    val infoFilePath = ExecutionPlanUtils.inferOutputInfoFileName(qe, cf.outputInfoFileName)
+  private[core] def writeInfoFileForQuery(qe: QueryExecution)(): Unit = {
+    val infoFileDir: Option[String] = ExecutionPlanUtils.inferOutputInfoFileDir(qe)
+
+    implicit val hadoopConf = qe.sparkSession.sparkContext.hadoopConfiguration
+    val fsWithDir = infoFileDir
+      .map(InfoFile)
+      .flatMap(_.toOptFsPath) // path + FS based on HDFS or S3 over hadoopFS
 
     // Write _INFO file to the output directory
-    infoFilePath.foreach(path => {
+    fsWithDir.foreach { case (fs, dir) => {
+      val path = new Path(dir, cf.outputInfoFileName)
+
       Atum.log.info(s"Inferred _INFO Path = ${path.toUri.toString}")
-      cf.storeCurrentInfoFile(path)
-    })
+      cf.storeCurrentInfoFile(path)(fs)
+    }}
 
     // Write _INFO file to a registered storer
     if (cf.accumulator.isStorerLoaded) {
