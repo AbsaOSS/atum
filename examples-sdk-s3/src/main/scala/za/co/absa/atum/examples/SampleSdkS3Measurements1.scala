@@ -42,7 +42,7 @@ object SampleSdkS3Measurements1 {
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTrackingForSdkS3(
-      sourceS3Location = Some(SimpleS3LocationWithRegion("s3", "my-bucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)),
+      sourceS3Location = Some(SimpleS3LocationWithRegion("s3", "mybucket", "atum/input/wikidata.csv.info", Region.EU_WEST_1)), // todo mybucket
       destinationS3Config = None
     ).setControlMeasuresWorkflow("Job 1 S3 ")
 

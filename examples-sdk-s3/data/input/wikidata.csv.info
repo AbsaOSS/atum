@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "sourceApplication": "WikiApp",
+    "country": "",
+    "historyType": "Snapshot",
+    "dataFilename": "wikidata.csv",
+    "sourceType": "public",
+    "version": 1,
+    "informationDate": "01-01-2017",
+    "additionalInfo": { }
+  },
+  "checkpoints": [
+    {
+      "name": "Source",
+      "processStartTime": "01-01-2017 08:00:00",
+      "processEndTime": "01-01-2017 08:00:00",
+      "workflowName": "Source",
+      "order": 1,
+      "controls": [
+        {
+          "controlName": "recordCount",
+          "controlType": "controlType.Count",
+          "controlCol": "*",
+          "controlValue": 4964
+        },
+        {
+          "controlName": "pvControlTotal",
+          "controlType": "controlType.aggregatedTotal",
+          "controlCol": "count_views",
+          "controlValue": 5819
+        },
+        {
+          "controlName": "SumOfReponseSize",
+          "controlType": "controlType.aggregatedTotal",
+          "controlCol": "total_response_size",
+          "controlValue": 97729547
+        }
+      ]
+    },
+    {
+      "name": "Raw",
+      "processStartTime": "01-01-2017 08:00:00",
+      "processEndTime": "01-01-2017 08:00:00",
+      "workflowName": "Raw",
+      "order": 2,
+      "controls": [
+        {
+          "controlName": "recordCount",
+          "controlType": "controlType.Count",
+          "controlCol": "*",
+          "controlValue": 4964
+        },
+        {
+          "controlName": "pvControlTotal",
+          "controlType": "controlType.aggregatedTotal",
+          "controlCol": "count_views",
+          "controlValue": 5819
+        },
+        {
+          "controlName": "SumOfReponseSize",
+          "controlType": "controlType.aggregatedTotal",
+          "controlCol": "total_response_size",
+          "controlValue": 97729547
+        }
+      ]
+    }
+  ]
+}

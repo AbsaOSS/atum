@@ -45,3 +45,4 @@ examples/data/output
 # switch to regexp syntax.
 #  syntax: regexp
 #  ^\.pc/
+/examples-sdk-s3/data/output_s3/
