@@ -87,7 +87,7 @@ indepedently.
 ## Usage
 
 ### Coordinate for Maven POM dependancy
-For Scala 2.11
+For project using Scala 2.11
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
@@ -95,7 +95,7 @@ For Scala 2.11
       <version>3.2.0</version>
 </dependency>
 ```
-For Scala 2.12
+For project using Scala 2.12
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
@@ -275,4 +275,3 @@ on business requirements. This table represents all currently supported measurem
 | controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
-
