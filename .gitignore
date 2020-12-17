@@ -32,7 +32,7 @@ build.log
 .CVS
 .hg*
 
-#SHITTY output not in target directory
+# output not in target directory
 build.log
 
 .cache*
@@ -45,3 +45,5 @@ examples/data/output
 # switch to regexp syntax.
 #  syntax: regexp
 #  ^\.pc/
+
+pom.xml.bkp
