@@ -53,6 +53,10 @@
 	</dependencies>
 
 	<build>
+		<directory>${project.basedir}/target/${scala.binary.version}</directory>
+		<outputDirectory>${project.build.directory}/classes</outputDirectory>
+		<testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
+
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<resources>
@@ -62,5 +66,22 @@
 			</resource>
 		</resources>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>scala-2.11</id>
+			<properties>
+				<scala.binary.version>2.11</scala.binary.version>
+				<scala.version>${scala_2.11.version}</scala.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>scala-2.12</id>
+			<properties>
+				<scala.binary.version>2.12</scala.binary.version>
+				<scala.version>${scala_2.12.version}</scala.version>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
