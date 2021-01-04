@@ -120,7 +120,6 @@
         <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <spark.version>2.4.5</spark.version>
-<!--        <spark.version>3.0.1</spark.version>-->
         <specs.version>2.5</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
         <mockito.scala.version>1.15.0</mockito.scala.version>
