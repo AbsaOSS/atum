@@ -17,11 +17,9 @@ package za.co.absa.atum
 
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
-//import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
-//import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, ControlMeasuresSdkS3StorerJsonFile}
 import za.co.absa.atum.utils.InfoFile
 
 import scala.language.implicitConversions
@@ -30,11 +28,11 @@ import scala.language.implicitConversions
   * The object contains implicit methods for Control Framework
   * Minimalistic example of enabling control measurements tracking:
   *   {{{
-  *   import za.co.absa.atum.Atum
+  *   import za.co.absa.atum.core.Atum
   *   import za.co.absa.atum.AtumImplicits._
   *
   *   ...
-  *
+  *   implicit val atum = Atum // using basic Atum
   *   spark.enableControlFrameworkTracking(sourceInfoFile = "/source/info/file/path")
   *
   *   ...
@@ -86,27 +84,6 @@ object AtumImplicits {
 
       enableControlMeasuresTracking(loader, storer)
     }
-
-//    /**
-//     * Enable S3-based control measurements tracking via SDK S3
-//     *
-//     * @param sourceS3Location    s3 location to load info files from in S3
-//     * @param destinationS3Config s3 location and kms settings to save the data to in S3
-//     * @param credentialsProvider If you do not have a specific Credentials provider, use the default
-//     *                            { @link software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider#create()}
-//     * @return spark session with atum tracking enabled
-//     */
-//    def enableControlMeasuresTrackingForSdkS3(sourceS3Location: Option[SimpleS3LocationWithRegion],
-//                                              destinationS3Config: Option[(SimpleS3LocationWithRegion, S3KmsSettings)])
-//                                             (implicit credentialsProvider: AwsCredentialsProvider): SparkSession = {
-//
-//      val loader = sourceS3Location.map(ControlMeasuresSdkS3LoaderJsonFile(_))
-//      val storer = destinationS3Config.map { case (destLoc, kms) =>
-//        ControlMeasuresSdkS3StorerJsonFile(destLoc, kms)
-//      }
-//
-//      enableControlMeasuresTracking(loader, storer)
-//    }
 
     /**
      * Enable control measurements tracking.
@@ -317,12 +294,5 @@ object AtumImplicits {
       atum.controlFrameworkState.storeCurrentInfoFile(outputPath.toPath)
       dataset
     }
-
-//    def writeInfoFileOnS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Dataset[Row] = {
-//      Atum.controlFrameworkState.storeCurrentInfoFileOnSdkS3(s3Location, s3KmsSettings)
-//      dataset
-//    }
-
   }
-
 }

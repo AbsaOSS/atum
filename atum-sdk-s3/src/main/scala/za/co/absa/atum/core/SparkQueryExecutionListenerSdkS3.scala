@@ -17,13 +17,11 @@ package za.co.absa.atum.core
 
 import java.io.{PrintWriter, StringWriter}
 
-import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.execution.QueryExecution
-import org.apache.spark.sql.util.QueryExecutionListener
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.persistence.{HadoopFsControlMeasuresStorer, S3ControlMeasuresStorer, S3KmsSettings}
-import za.co.absa.atum.utils.{ExecutionPlanUtils, SdkS3ClientUtils}
+import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
+import za.co.absa.atum.utils.ExecutionPlanUtils
 import za.co.absa.atum.utils.ExecutionPlanUtils._
 
 /**
@@ -40,13 +38,9 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
           AtumSdkS3.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}")
           writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
-//        case Some(hadoopStorer: HadoopFsControlMeasuresStorer) =>
-//          AtumSdkS3.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to Hadoop FS")
-//          writeInfoFileForQuery(qe)(hadoopStorer.outputFs)
-
         case _ =>
           // regular SQE processing
-          super.onSuccess(funcName, qe, durationNs) //AtumSdkS3.log.info("No usable storer is set, therefore no data will be written the automatically with DF-save to an _INFO file.")
+          super.onSuccess(funcName, qe, durationNs)
       }
 
       // Notify listeners
@@ -73,8 +67,8 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     // Write _INFO file to the output directory
     infoFilePath.foreach(path => {
 
-      import za.co.absa.atum.utils.S3LocationUtils.StringS3LocationExt
       import za.co.absa.atum.persistence.S3LocationRegionImplicits.SimpleS3LocationRegionExt
+      import za.co.absa.atum.utils.S3LocationUtils.StringS3LocationExt
 
       val location = path.toS3LocationOrFail.withRegion(region)
 
