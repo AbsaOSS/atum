@@ -102,7 +102,12 @@ object ExecutionPlanUtils {
     }
   }
 
-  private[atum] def inferOutputInfoFileDir(qe: QueryExecution): Option[String] = {
+  /**
+   * Based on the `qe` supplied, output _INFO file path is inference is attempted
+   * @param qe QueryExecution - path inference basis
+   * @return optional inferred _INFO file path
+   */
+  def inferOutputInfoFileDir(qe: QueryExecution): Option[String] = {
     qe.analyzed match {
       case s: SaveIntoDataSourceCommand =>
         Some(s.options("path"))

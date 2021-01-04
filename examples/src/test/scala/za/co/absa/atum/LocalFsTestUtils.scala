@@ -27,7 +27,7 @@ object LocalFsTestUtils {
     try {
       FileUtils.deleteDirectory(new File(path))
     } catch {
-      case NonFatal(e) => log.warn(s"Unable to delete a test directory $path")
+      case NonFatal(_) => log.warn(s"Unable to delete a test directory $path")
     }
   }
 

@@ -32,7 +32,7 @@ object SampleSdkS3Measurements1 {
     import spark.implicits._
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-    implicit val fs = FileSystem.get(hadoopConfiguration)
+    implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
     implicit val samlCredentialsProvider = S3Utils.getLocalProfileCredentialsProvider("saml")
