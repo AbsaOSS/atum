@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-parent</artifactId>
+    <artifactId>atum-parent_2.11</artifactId>
     <version>3.1.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
