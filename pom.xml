@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-parent_2.12</artifactId>
+    <artifactId>atum-parent_2.11</artifactId>
     <version>3.1.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -111,8 +111,8 @@
         <scala_2.12.version>2.12.12</scala_2.12.version>
 
         <!-- Controlled by `scala-cross-build` plugin -->
-        <scala.version>2.12.12</scala.version>
-        <scala.binary.version>2.12</scala.binary.version>
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
 
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
