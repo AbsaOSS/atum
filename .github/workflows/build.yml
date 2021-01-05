@@ -2,7 +2,7 @@ name: Automatic build
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ master ]
 
 jobs:
   build-scala-2_11-spark-2_4:
