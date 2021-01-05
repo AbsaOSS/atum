@@ -87,12 +87,20 @@ indepedently.
 ## Usage
 
 ### Coordinate for Maven POM dependancy
-
+For project using Scala 2.11
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
-      <artifactId>atum</artifactId>
-      <version>3.0.0</version>
+      <artifactId>atum_2.11</artifactId>
+      <version>3.2.0</version>
+</dependency>
+```
+For project using Scala 2.12
+```xml
+<dependency>
+      <groupId>za.co.absa</groupId>
+      <artifactId>atum_2.12</artifactId>
+      <version>3.2.0</version>
 </dependency>
 ```
 
@@ -287,4 +295,3 @@ on business requirements. This table represents all currently supported measurem
 | controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
-
