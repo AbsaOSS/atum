@@ -15,10 +15,12 @@
 
 package za.co.absa.atum.examples
 
+import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.atum.utils._
 
-class SampleMeasurementsS3RunnerSpec extends AnyFunSuite
+@Ignore
+class SampleMeasurementsS3RunnerExampleSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
 

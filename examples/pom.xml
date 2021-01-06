@@ -79,7 +79,7 @@
                 <artifactId>scalatest-maven-plugin</artifactId>
                 <version>${scalatest.maven.version}</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
             <!-- Uber jar generation -->

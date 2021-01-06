@@ -30,7 +30,7 @@ object SampleMeasurements2 {
     import spark.implicits._
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-    implicit val fs = FileSystem.get(hadoopConfiguration)
+    implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically
