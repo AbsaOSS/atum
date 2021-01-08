@@ -32,7 +32,7 @@ build.log
 .CVS
 .hg*
 
-#SHITTY output not in target directory
+# output not in target directory
 build.log
 
 .cache*
@@ -46,3 +46,5 @@ examples/data/output
 #  syntax: regexp
 #  ^\.pc/
 /examples-sdk-s3/data/output_s3/
+
+pom.xml.bkp

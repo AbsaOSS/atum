@@ -16,7 +16,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
   private val log = LogManager.getLogger(this.getClass)
   val tempDir: String = LocalFsTestUtils.createLocalTemporaryDirectory("hdfsTestOutput")
 
-  override def afterAll = {
+  override def afterAll: Unit = {
     LocalFsTestUtils.safeDeleteTestDir(tempDir)
   }
 
@@ -43,8 +43,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         import za.co.absa.atum.AtumImplicits._
 
         val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-        implicit val fs = FileSystem.get(hadoopConfiguration)
-
+        implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
         implicit val atum = Atum // using basic Atum without extensions
 
         // Initializing library to hook up to Apache Spark

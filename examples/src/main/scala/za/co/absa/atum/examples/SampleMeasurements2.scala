@@ -31,7 +31,7 @@ object SampleMeasurements2 {
     import spark.implicits._
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-    implicit val fs = FileSystem.get(hadoopConfiguration)
+    implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
     implicit val atum = Atum // using basic Atum without extensions
 
     // Initializing library to hook up to Apache Spark

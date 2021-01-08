@@ -87,11 +87,19 @@ indepedently.
 ## Usage
 
 ### Coordinate for Maven POM dependancy
-
+For project using Scala 2.11
 ```xml
 <dependency>
       <groupId>za.co.absa</groupId>
-      <artifactId>atum</artifactId>
+      <artifactId>atum_2.11</artifactId>
+      <version>3.3.0</version>
+</dependency>
+```
+For project using Scala 2.12
+```xml
+<dependency>
+      <groupId>za.co.absa</groupId>
+      <artifactId>atum_2.12</artifactId>
       <version>3.3.0</version>
 </dependency>
 ```
@@ -162,7 +170,7 @@ object ExampleSparkJob {
     implicit val atum = Atum // using basic Atum without extensions
 
     // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
-    implicit val localHdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+    implicit val localHdfs = FileSystem.get(new Configuration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")
@@ -217,7 +225,7 @@ Starting with version 3.3.0, there is also persistence support for AWS S3 via AW
 ```xml
 <dependency>
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-sdk-s3</artifactId>
+    <artifactId>atum-sdk-s3_2.11</artifactId> <!-- or 2.12 -->
     <version>${project.version}</version> <!-- e.g. 3.3.0 -->
 </dependency>
 ```
@@ -301,4 +309,3 @@ on business requirements. This table represents all currently supported measurem
 | controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
-

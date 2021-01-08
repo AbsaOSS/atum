@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-parent</artifactId>
+    <artifactId>atum-parent_2.11</artifactId>
     <version>3.1.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -83,6 +83,7 @@
     </distributionManagement>
 
     <properties>
+        <java.version>1.8</java.version>
         <!-- Common project properties -->
         <encoding>UTF-8</encoding>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -104,15 +105,24 @@
         <scm.developerConnection>scm:git:ssh://git@github.com/AbsaOSS/atum.git</scm.developerConnection>
         <scm.url>http://github.com/AbsaOSS/atum/tree/master</scm.url>
 
+        <!-- Cross Compilation Properties -->
+        <default.scala.binary.version>2.11</default.scala.binary.version>
+        <default.scala.version>${scala_2.11.version}</default.scala.version>
+
+        <scala_2.11.version>2.11.12</scala_2.11.version>
+        <scala_2.12.version>2.12.12</scala_2.12.version>
+
+        <!-- Controlled by `scala-cross-build` plugin -->
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
-        <scala.compat.version>2.11</scala.compat.version>
-        <scala.version>2.11.8</scala.version>
         <scalatest.maven.version>1.0</scalatest.maven.version>
         <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <spark.version>2.4.5</spark.version>
-        <specs.version>2.4.16</specs.version>
+        <specs.version>2.5</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
         <mockito.scala.version>1.15.0</mockito.scala.version>
     </properties>
@@ -140,19 +150,21 @@
         <!-- spark -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.compat.version}</artifactId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.compat.version}</artifactId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- libraries -->
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-ext_${scala.compat.version}</artifactId>
+            <artifactId>json4s-ext_${scala.binary.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
 <!--        <dependency>-->
@@ -163,13 +175,13 @@
         <!-- scalatest -->
         <dependency>
             <groupId>org.specs2</groupId>
-            <artifactId>specs2-core_${scala.compat.version}</artifactId>
+            <artifactId>specs2-core_${scala.binary.version}</artifactId>
             <version>${specs.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.compat.version}</artifactId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
             <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>
@@ -184,6 +196,17 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${maven.scala.version}</version>
+                <configuration>
+                    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
+                    <recompileMode>incremental</recompileMode>
+                    <args>
+                        <arg>-target:jvm-${java.version}</arg>
+                    </args>
+                    <javacArgs>
+                        <javacArg>-source</javacArg><javacArg>${java.version}</javacArg>
+                        <javacArg>-target</javacArg><javacArg>${java.version}</javacArg>
+                    </javacArgs>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -254,10 +277,33 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>com.github.wajda</groupId>
+                <artifactId>scala-cross-build-maven-plugin</artifactId>
+                <version>0.2.1</version>
+                <configuration>
+                    <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
+                    <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>scala-2.11</id>
+            <properties>
+                <scala.binary.version>2.11</scala.binary.version>
+                <scala.version>${scala_2.11.version}</scala.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.12</id>
+            <properties>
+                <scala.binary.version>2.12</scala.binary.version>
+                <scala.version>${scala_2.12.version}</scala.version>
+            </properties>
+        </profile>
         <profile>
             <id>license-check</id>
             <build>

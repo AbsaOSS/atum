@@ -31,7 +31,7 @@ object SampleMeasurements1 {
     implicit val atum = Atum // using basic Atum without extensions
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-    implicit val fs = FileSystem.get(hadoopConfiguration)
+    implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info")
