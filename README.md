@@ -170,7 +170,7 @@ object ExampleSparkJob {
     implicit val atum = Atum // using basic Atum without extensions
 
     // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
-    implicit val localHdfs = FileSystem.get(new Configuration)
+    implicit val localHdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")

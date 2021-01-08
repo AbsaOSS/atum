@@ -17,6 +17,7 @@ package za.co.absa.atum.core
 
 import java.io.{PrintWriter, StringWriter}
 
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
@@ -52,18 +53,18 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
   private[core] def writeInfoFileForQuery(qe: QueryExecution)(): Unit = {
     val infoFileDir: Option[String] = ExecutionPlanUtils.inferOutputInfoFileDir(qe)
 
-    implicit val hadoopConf = qe.sparkSession.sparkContext.hadoopConfiguration
+    implicit val hadoopConf: Configuration = qe.sparkSession.sparkContext.hadoopConfiguration
     val fsWithDir = infoFileDir
       .map(InfoFile)
       .flatMap(_.toOptFsPath) // path + FS based on HDFS or S3 over hadoopFS
 
     // Write _INFO file to the output directory
-    fsWithDir.foreach { case (fs, dir) => {
+    fsWithDir.foreach { case (fs, dir) =>
       val path = new Path(dir, cf.outputInfoFileName)
 
       Atum.log.info(s"Inferred _INFO Path = ${path.toUri.toString}")
       cf.storeCurrentInfoFile(path)(fs)
-    }}
+    }
 
     // Write _INFO file to a registered storer
     if (cf.accumulator.isStorerLoaded) {
@@ -72,11 +73,11 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
   }
 
   /** Update Spline reference of the job and notify plugins */
-  private def updateSplineRef(qe: QueryExecution): Unit = {
+  protected def updateSplineRef(qe: QueryExecution): Unit = {
     val outputPath = ExecutionPlanUtils.inferOutputFileName(qe, qe.sparkSession.sparkContext.hadoopConfiguration)
     outputPath.foreach(path => {
       cf.updateSplineRef(path.toUri.toString)
-      Atum.log.info(s"Infered Output Path = ${path.toUri.toString}")
+      Atum.log.info(s"Inferred Output Path = ${path.toUri.toString}")
     })
   }
 }

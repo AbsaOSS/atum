@@ -15,14 +15,11 @@
 
 package za.co.absa.atum.core
 
-import java.io.{PrintWriter, StringWriter}
-
 import org.apache.spark.sql.execution.QueryExecution
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
 import za.co.absa.atum.utils.ExecutionPlanUtils
-import za.co.absa.atum.utils.ExecutionPlanUtils._
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
@@ -38,29 +35,19 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
           AtumSdkS3.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}")
           writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
+          // Notify listeners
+          cf.updateRunCheckpoints(saveInfoFile = true)
+          cf.updateStatusSuccess()
+          updateSplineRef(qe)
+
         case _ =>
           // regular SQE processing
           super.onSuccess(funcName, qe, durationNs)
       }
-
-      // Notify listeners
-      cf.updateRunCheckpoints(saveInfoFile = true)
-      cf.updateStatusSuccess()
-
-      updateSplineRef(qe)
     }
   }
 
-  override def onFailure(funcName: String, qe: QueryExecution, exception: Exception): Unit = {
-    val sw = new StringWriter
-    exception.printStackTrace(new PrintWriter(sw))
-
-    cf.updateStatusFailure(qe.sparkSession.sparkContext.appName, funcName, exception.getMessage,
-      sw.toString + "\r\n\r\n" + qe.optimizedPlan.toString)
-  }
-
-
-  /** Write _INFO file with control measurements to the output directory based on the query plan */
+   /** Write _INFO file with control measurements to the output directory based on the query plan */
   private def writeInfoFileForQueryForSdkS3(qe: QueryExecution, region: Region, kmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
     val infoFilePath = ExecutionPlanUtils.inferOutputInfoFileNameOnS3(qe, cf.outputInfoFileName)
 
@@ -82,12 +69,4 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     }
   }
 
-  /** Update Spline reference of the job and notify plugins */
-  private def updateSplineRef(qe: QueryExecution): Unit = {
-    val outputPath = inferOutputFileName(qe, qe.sparkSession.sparkContext.hadoopConfiguration)
-    outputPath.foreach(path => {
-      cf.updateSplineRef(path.toUri.toString)
-      AtumSdkS3.log.info(s"Infered Output Path = ${path.toUri.toString}")
-    })
-  }
 }
