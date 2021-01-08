@@ -18,12 +18,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>atum-sdk-s3</artifactId>
+	<artifactId>atum-sdk-s3_2.11</artifactId>
 	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>za.co.absa</groupId>
-		<artifactId>atum-parent</artifactId>
+		<artifactId>atum-parent_2.11</artifactId>
 		<version>3.1.1-SNAPSHOT</version>
 	</parent>
 
@@ -43,7 +43,7 @@
 		<!-- Atum -->
 		<dependency>
 			<groupId>za.co.absa</groupId>
-			<artifactId>atum</artifactId>
+			<artifactId>atum_${scala.binary.version}</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -62,14 +62,14 @@
 
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-scala_${scala.compat.version}</artifactId>
+			<artifactId>mockito-scala_${scala.binary.version}</artifactId>
 			<version>${mockito.scala.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-scala-scalatest_${scala.compat.version}</artifactId>
+			<artifactId>mockito-scala-scalatest_${scala.binary.version}</artifactId>
 			<version>${mockito.scala.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -77,6 +77,10 @@
 	</dependencies>
 
 	<build>
+		<directory>${project.basedir}/target/${scala.binary.version}</directory>
+		<outputDirectory>${project.build.directory}/classes</outputDirectory>
+		<testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
+
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<resources>
@@ -86,5 +90,22 @@
 			</resource>
 		</resources>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>scala-2.11</id>
+			<properties>
+				<scala.binary.version>2.11</scala.binary.version>
+				<scala.version>${scala_2.11.version}</scala.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>scala-2.12</id>
+			<properties>
+				<scala.binary.version>2.12</scala.binary.version>
+				<scala.version>${scala_2.12.version}</scala.version>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

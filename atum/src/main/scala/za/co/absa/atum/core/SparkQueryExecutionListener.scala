@@ -17,14 +17,10 @@ package za.co.absa.atum.core
 
 import java.io.{PrintWriter, StringWriter}
 
-import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
-import za.co.absa.atum.utils.ExecutionPlanUtils
-import za.co.absa.atum.persistence.{S3ControlMeasuresStorer, S3KmsSettings}
-import za.co.absa.atum.utils.ExecutionPlanUtils._
-import za.co.absa.atum.utils.{InfoFile, S3Utils}
+import za.co.absa.atum.utils.{ExecutionPlanUtils, InfoFile}
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
