@@ -17,13 +17,13 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-2_11-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-2_11-2_4-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-2_11-
+            ${{ runner.os }}-2_11-2_4-
       - name: Switch scala to 2_11
         run: mvn scala-cross-build:change-version -Pscala-2.11
       - name: Build and unit test
-        run: mvn clean install
+        run: mvn clean install -Pspark-2.4
   build-scala-2_12-spark-2_4:
     runs-on: ubuntu-latest
     steps:
@@ -36,10 +36,29 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-2_12-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-2_12-2_4-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-2_12-
+            ${{ runner.os }}-2_12-2_4-
       - name: Switch scala to 2_11
         run: mvn scala-cross-build:change-version -Pscala-2.12
       - name: Build and unit test
-        run: mvn clean install
+        run: mvn clean install -Pspark-2.4
+  build-scala-2_12-spark-3_0:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-2_12-3_0-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-2_12-3_0-
+      - name: Switch scala to 2_11
+        run: mvn scala-cross-build:change-version -Pscala-2.12
+      - name: Build and unit test
+        run: mvn clean install -Pspark-3.0

@@ -119,10 +119,15 @@
         <scalatest.maven.version>1.0</scalatest.maven.version>
         <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <spark.version>2.4.5</spark.version>
         <specs.version>2.5</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
         <mockito.scala.version>1.15.0</mockito.scala.version>
+
+        <!-- Spark versions -->
+        <spark-24.version>2.4.6</spark-24.version>
+        <spark-30.version>3.0.1</spark-30.version>
+
+        <spark.version>${spark-24.version}</spark.version>
     </properties>
 
     <dependencyManagement>
@@ -288,6 +293,7 @@
     </build>
 
     <profiles>
+        <!-- Cross-building profiles -->
         <profile>
             <id>scala-2.11</id>
             <properties>
@@ -302,6 +308,21 @@
                 <scala.version>${scala_2.12.version}</scala.version>
             </properties>
         </profile>
+
+        <!-- Spark profiles -->
+        <profile>
+            <id>spark-2.4</id>
+            <properties>
+                <spark.version>${spark-24.version}</spark.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>spark-3.0</id>
+            <properties>
+                <spark.version>${spark-30.version}</spark.version>
+            </properties>
+        </profile>
+
         <profile>
             <id>license-check</id>
             <build>
