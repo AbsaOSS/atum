@@ -58,7 +58,7 @@ jobs:
           key: ${{ runner.os }}-2_12-3_0-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-2_12-3_0-
-      - name: Switch scala to 2_11
+      - name: Switch scala to 2_12
         run: mvn scala-cross-build:change-version -Pscala-2.12
       - name: Build and unit test
         run: mvn clean install -Pspark-3.0
