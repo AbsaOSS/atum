@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>atum_2.11</artifactId>
+	<artifactId>atum-model_2.11</artifactId>
 	<packaging>jar</packaging>
 
 	<parent>
@@ -28,27 +28,12 @@
 	</parent>
 
 	<dependencies>
-        <!-- Atum -->
-        <dependency>
-            <groupId>za.co.absa</groupId>
-            <artifactId>atum-model_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-scala_${scala.binary.version}</artifactId>
-			<version>${mockito.scala.version}</version>
-			<scope>test</scope>
+			<groupId>org.json4s</groupId>
+			<artifactId>json4s-native_${scala.binary.version}</artifactId>
+			<version>${json4s.version}</version>
+			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-scala-scalatest_${scala.binary.version}</artifactId>
-			<version>${mockito.scala.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>

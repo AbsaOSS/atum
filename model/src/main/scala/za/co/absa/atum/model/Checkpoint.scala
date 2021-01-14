@@ -15,8 +15,6 @@
 
 package za.co.absa.atum.model
 
-import za.co.absa.atum.utils.BuildProperties
-
 case class Checkpoint
 (
   name: String,
@@ -27,8 +25,4 @@ case class Checkpoint
   workflowName: String,
   order: Int,
   controls: List[Measurement]
-) {
-  def withBuildProperties: Checkpoint = {
-    this.copy(software = Some("Atum"), version = Some(BuildProperties.buildVersion))
-  }
-}
+)

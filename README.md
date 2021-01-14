@@ -86,21 +86,21 @@ indepedently.
 
 ## Usage
 
-### Coordinate for Maven POM dependancy
+### Coordinate for Maven POM dependency
 For project using Scala 2.11
 ```xml
 <dependency>
-      <groupId>za.co.absa</groupId>
-      <artifactId>atum_2.11</artifactId>
-      <version>3.3.0</version>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum_2.11</artifactId>
+    <version>3.3.0</version>
 </dependency>
 ```
 For project using Scala 2.12
 ```xml
 <dependency>
-      <groupId>za.co.absa</groupId>
-      <artifactId>atum_2.12</artifactId>
-      <version>3.3.0</version>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum_2.12</artifactId>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -274,6 +274,29 @@ object S3Example {
 ```
 The rest of the processing logic and programmatic approach to the library remains unchanged.
 
+
+### Standalone model usage
+In cases you only want to work with Atum's model (`ControlMeasure`-related case classes), you may find Atum's model 
+artifact sufficient as your dependency.
+
+In your POM, just include:
+```xml
+<dependency>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum-model_2.11</artifactId> <!-- or 2.12 -->
+    <version>3.3.0</version>
+</dependency>
+```
+
+The model module also offers basic JSON (de)serialization functionality, such as:
+```scala
+import za.co.absa.atum.model._
+import za.co.absa.atum.utils.SerializationUtils
+
+val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](myJsonStringWithAControlMeasure)
+val jsonString: String = SerializationUtils.asJson(measureObject1)
+val prettyfiedJsonString: String = SerializationUtils.asJsonPretty(measureObject1)
+```
 
 ## Atum library routines
 

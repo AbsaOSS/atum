@@ -15,11 +15,10 @@
 
 package za.co.absa.atum.model
 
-import RunState._
+import za.co.absa.atum.model.RunState.RunState
 
 case class RunStatus
 (
   status: RunState,
   error: Option[RunError]
 )
-

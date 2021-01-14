@@ -26,6 +26,7 @@
 
     <modules>
         <module>atum</module>
+        <module>model</module>
         <module>examples</module>
         <module>atum-s3-sdk-extension</module>
         <module>examples-s3-sdk-extension</module>

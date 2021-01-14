@@ -19,7 +19,11 @@ import scala.util.matching.Regex
 
 object S3LocationUtils {
 
-  // hint: https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
+  /**
+   * Generally usable regex for validating S3 path, e.g. `s3://my-cool-bucket1/path/to/file/on/s3.txt`
+   * Protocols `s3`, `s3n`, and `s3a` are allowed.
+   * Bucket naming rules defined at [[https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules]] are instilled.
+   */
   val S3LocationRx: Regex = "(s3[an]?)://([-a-z0-9.]{3,63})/(.*)".r
 
   implicit class StringS3LocationExt(path: String) {

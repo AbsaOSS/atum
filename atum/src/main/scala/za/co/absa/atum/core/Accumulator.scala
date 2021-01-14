@@ -17,10 +17,10 @@ package za.co.absa.atum.core
 
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.model
-import za.co.absa.atum.model.{Checkpoint, ControlMeasure, Measurement}
 import za.co.absa.atum.utils.ControlUtils
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, ControlMeasuresStorer}
 import za.co.absa.atum.model._
+import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
 
 import scala.util.control.NonFatal
 
