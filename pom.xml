@@ -27,8 +27,8 @@
     <modules>
         <module>atum</module>
         <module>examples</module>
-        <module>atum-sdk-s3</module>
-        <module>examples-sdk-s3</module>
+        <module>atum-s3-sdk-extension</module>
+        <module>examples-s3-sdk-extension</module>
     </modules>
 
     <name>Atum</name>

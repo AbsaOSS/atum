@@ -32,9 +32,6 @@ build.log
 .CVS
 .hg*
 
-# output not in target directory
-build.log
-
 .cache*
 dependency-reduced-pom.xml
 
@@ -45,6 +42,6 @@ examples/data/output
 # switch to regexp syntax.
 #  syntax: regexp
 #  ^\.pc/
-/examples-sdk-s3/data/output_s3/
+/examples-s3-sdk-extension/data/output_s3/
 
 pom.xml.bkp

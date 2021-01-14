@@ -13,21 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.examples
 
-object FileUtils {
-  def readFileToString(path: String): String = {
-    val testTxtSource = scala.io.Source.fromFile(path)
-    val str = testTxtSource.mkString
-    testTxtSource.close()
+import org.scalatest.funsuite.AnyFunSuite
+import za.co.absa.atum.utils._
 
-    str
-  }
+// integ tests are skipped via pom-settings
+class SampleMeasurementsS3RunnerExampleSpec extends AnyFunSuite
+  with SparkJobRunnerMethods
+  with SparkLocalMaster {
 
-  implicit class PathJoin(path: String) {
-    def /(pathSegment: String): String = {
-      s"${path.stripSuffix("/")}/${pathSegment.stripPrefix("/")}"
-    }
-  }
-
+    runSparkJobAsTest[SampleSdkS3Measurements1.type]
+    runSparkJobAsTest[SampleSdkS3Measurements2.type]
 }

@@ -13,21 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.persistence
 
-object FileUtils {
-  def readFileToString(path: String): String = {
-    val testTxtSource = scala.io.Source.fromFile(path)
-    val str = testTxtSource.mkString
-    testTxtSource.close()
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import za.co.absa.atum.persistence.s3.{S3KmsSettings, SimpleS3LocationWithRegion}
 
-    str
-  }
-
-  implicit class PathJoin(path: String) {
-    def /(pathSegment: String): String = {
-      s"${path.stripSuffix("/")}/${pathSegment.stripPrefix("/")}"
-    }
-  }
-
+trait S3ControlMeasuresStorer extends ControlMeasuresStorer {
+  def kmsSettings: S3KmsSettings
+  def outputLocation: SimpleS3LocationWithRegion
+  def credentialsProvider: AwsCredentialsProvider
 }

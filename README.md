@@ -225,7 +225,7 @@ Starting with version 3.3.0, there is also persistence support for AWS S3 via AW
 ```xml
 <dependency>
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-sdk-s3_2.11</artifactId> <!-- or 2.12 -->
+    <artifactId>atum-s3-sdk-extension_2.11</artifactId> <!-- or 2.12 -->
     <version>${project.version}</version> <!-- e.g. 3.3.0 -->
 </dependency>
 ```
