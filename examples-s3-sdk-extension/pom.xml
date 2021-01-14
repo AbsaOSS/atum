@@ -30,10 +30,10 @@
     <dependencies>
         <!-- Atum -->
         <dependency>
-			<groupId>za.co.absa</groupId>
-			<artifactId>atum-s3-sdk-extension_${scala.binary.version}</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+            <groupId>za.co.absa</groupId>
+            <artifactId>atum-s3-sdk-extension_${scala.binary.version}</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>za.co.absa</groupId>
             <artifactId>atum-examples_${scala.binary.version}</artifactId>

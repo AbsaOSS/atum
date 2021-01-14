@@ -314,7 +314,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | registerColumnDrop(columnName: *String*) | Register that a column which is part of control measurements is dropped. | df.registerColumnDrop("personId") |
 | setControlMeasuresFileName(fileName: *String*) | Use a specific name for info files instead of deafult '_INFO'. | spark.setControlMeasuresFileName("_EXAMPLE_INFO") |
 | setControlMeasuresWorkflow(workflowName: *String*) | Sets workflow name for the set of checkpoints that will follow. | spark.setControlMeasuresWorkflow("Conformance") |
-| setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job.	| setControlMeasurementError("Conformance", "Validation error", stackTrace) |
+| setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job. | setControlMeasurementError("Conformance", "Validation error", stackTrace) |
 | setAllowUnpersistOldDatasets(allowUnpersist: *Boolean)* | Turns on a performance optimization that unpersists old checkpoints after new onces are materialized. | Atum.setAllowUnpersistOldDatasets(true) |
 | enableCaching(cacheStorageLevel: *StorageLevel*) | Turns on caching that happens every time a checkpoint is generated (default behavior). A specific storagle level can be set as well (see `setCachingStorageLevel()`) | enableCaching() |
 | disableCaching() | Turns off caching that happens every time a checkpoint is generated. | disableCaching() |
@@ -327,8 +327,8 @@ on business requirements. This table represents all currently supported measurem
 
 | Type                           | Description                                           |
 | ------------------------------ |:----------------------------------------------------- |
-| controlType.Count	             | Calculates the number of rows in the dataset          |
-| controlType.distinctCount 	 | Calculates DISTINCT(COUNT(()) of the specified column |
-| controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
+| controlType.Count              | Calculates the number of rows in the dataset          |
+| controlType.distinctCount      | Calculates DISTINCT(COUNT(()) of the specified column |
+| controlType.aggregatedTotal    | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
