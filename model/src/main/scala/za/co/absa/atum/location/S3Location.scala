@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.location
 
 import scala.util.matching.Regex
 
-object S3LocationUtils {
+object S3Location {
 
   /**
    * Generally usable regex for validating S3 path, e.g. `s3://my-cool-bucket1/path/to/file/on/s3.txt`

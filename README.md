@@ -276,8 +276,8 @@ The rest of the processing logic and programmatic approach to the library remain
 
 
 ### Standalone model usage
-In cases you only want to work with Atum's model (`ControlMeasure`-related case classes), you may find Atum's model 
-artifact sufficient as your dependency.
+In cases you only want to work with Atum's model (`ControlMeasure`-related case classes and `S3Location`), you may find
+Atum's model artifact sufficient as your dependency.
 
 In your POM, just include:
 ```xml

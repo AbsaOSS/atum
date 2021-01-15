@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum
+package za.co.absa.atum.util
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

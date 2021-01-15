@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.location
 
 import org.scalatest.flatspec.AnyFlatSpec
-import S3LocationUtils.StringS3LocationExt
 import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.location.S3Location.StringS3LocationExt
 
-class S3UtilsSpec extends AnyFlatSpec with Matchers {
+class S3LocationSpec extends AnyFlatSpec with Matchers {
 
   val validPathsWithExpectedLocations = Seq(
     // (path, expected parsed value)

@@ -56,7 +56,7 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     infoFilePath.foreach(path => {
 
       import za.co.absa.atum.persistence.s3.S3LocationRegionImplicits.SimpleS3LocationRegionExt
-      import za.co.absa.atum.utils.S3LocationUtils.StringS3LocationExt
+      import za.co.absa.atum.location.S3Location.StringS3LocationExt
 
       val location = path.toS3LocationOrFail.withRegion(region)
 

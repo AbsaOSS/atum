@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum
+package za.co.absa.atum.util
 
 import org.json4s._
 import org.json4s.jackson.Serialization
@@ -22,7 +22,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.Measurement
 
-class BigDecimalToJsonSerializationSpec extends AnyFlatSpec with Matchers {
+class SerializatonUtilsBigDecimalToJsonSpec extends AnyFlatSpec with Matchers {
   implicit val formats: Formats = Serialization.formats(NoTypeHints).withBigDecimal
 
   "write" should "serialize a scala.math.BigDecimal" in
