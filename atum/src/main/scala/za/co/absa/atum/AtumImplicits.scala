@@ -15,6 +15,7 @@
 
 package za.co.absa.atum
 
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
@@ -24,15 +25,19 @@ import za.co.absa.atum.utils.InfoFile
 
 import scala.language.implicitConversions
 
+object AtumImplicitsCore {
+  implicit val atum: Atum = Atum
+}
+
 /**
   * The object contains implicit methods for Control Framework
   * Minimalistic example of enabling control measurements tracking:
   *   {{{
-  *   import za.co.absa.atum.core.Atum
   *   import za.co.absa.atum.AtumImplicits._
+  *   import za.co.absa.atum.AtumImplicitsCore._
   *
   *   ...
-  *   implicit val atum = Atum // using basic Atum
+  *   // using basic Atum
   *   spark.enableControlFrameworkTracking(sourceInfoFile = "/source/info/file/path")
   *
   *   ...
@@ -77,10 +82,10 @@ object AtumImplicits {
       */
     def enableControlMeasuresTracking(sourceInfoFile: String = "",
                                       destinationInfoFile: String = ""): SparkSession = {
-      implicit val hadoopConfiguration = sparkSession.sparkContext.hadoopConfiguration
+      implicit val hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration
 
-      val loader = InfoFile(sourceInfoFile).toOptDefaultControlInfoLoader
-      val storer = InfoFile(destinationInfoFile).toOptDefaultControlInfoStorer
+      val loader: Option[ControlMeasuresLoader] = InfoFile(sourceInfoFile).toOptDefaultControlInfoLoader
+      val storer: Option[ControlMeasuresStorer] = InfoFile(destinationInfoFile).toOptDefaultControlInfoStorer
 
       enableControlMeasuresTracking(loader, storer)
     }

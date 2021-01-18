@@ -22,6 +22,10 @@ import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, Contr
 
 import scala.language.implicitConversions
 
+object AtumImplicitsSdkS3Core {
+  implicit val atum: AtumSdkS3 = AtumSdkS3
+}
+
 /**
   * The object contains implicit methods for Control Framework
   */

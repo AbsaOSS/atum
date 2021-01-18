@@ -154,8 +154,8 @@ available when running unit tests.
 
 ```scala
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.core.Atum
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicitsCore._  // using basic Atum without extensions
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 
@@ -167,7 +167,6 @@ object ExampleSparkJob {
       .getOrCreate()
 
     import spark.implicits._
-    implicit val atum = Atum // using basic Atum without extensions
 
     // implicit FS is needed for enableControlMeasuresTracking, setCheckpoint calls, e.g. standard HDFS here:
     implicit val localHdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
@@ -206,14 +205,14 @@ regular HDFS with the exception of providing a different file system, e.g.:
 import java.net.URI
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.core.Atum
+import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicitsCore._  // using basic Atum without extensions
 
 val spark = SparkSession
       .builder()
       .appName("Example Spark Job")
       .getOrCreate()
 
-implicit val atum = Atum // using basic Atum without extensions
 val s3Uri = new URI("s3://my-awesome-bucket")
 implicit  val fs = FileSystem.get(s3Uri, spark.sparkContext.hadoopConfiguration)
 
@@ -235,9 +234,9 @@ The following example demonstrates the setup:
 import org.apache.spark.sql.SparkSession
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider, ProfileCredentialsProvider}
 import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
-import za.co.absa.atum.AtumImplicitsSdkS3._
 import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.core.AtumSdkS3
+import za.co.absa.atum.AtumImplicitsSdkS3._
+import za.co.absa.atum.AtumImplicitsSdkS3Core._ // using extended Atum
 
 object S3Example {
   def main(args: Array[String]) {
@@ -261,8 +260,7 @@ object S3Example {
     )
 
     import spark.implicits._
-    implicit val atum = AtumSdkS3 // using extended Atum for SdkS3
-        
+
     // Initializing library to hook up to Apache Spark with S3 persistence
     spark.enableControlMeasuresTrackingForS3(
       sourceS3Location = Some(sourceS3Location),

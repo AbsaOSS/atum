@@ -16,17 +16,20 @@
 package za.co.absa.atum.examples
 
 import org.apache.hadoop.fs.FileSystem
+import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.AtumImplicitsSdkS3._
 import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.core.AtumSdkS3
+import za.co.absa.atum.AtumImplicitsSdkS3._
+import za.co.absa.atum.AtumImplicitsSdkS3Core._
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
 import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.SdkS3ClientUtils
 
 object SampleSdkS3Measurements2 {
+  val log: Logger = LogManager.getLogger("SampleSdkS3Measurements2")
+
   def main(args: Array[String]) {
 
     // This example is intended to run AFTER SampleMeasurements1, otherwise it will fail on input file absence
@@ -38,15 +41,14 @@ object SampleSdkS3Measurements2 {
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
-    implicit val atum: AtumSdkS3 = AtumSdkS3 // using extended Atum for SdkS3
 
     // This sample example relies on local credentials profile named "saml" with access to the s3 location defined below
     // AND by having explicitly defined KMS Key ID
     implicit val samlCredentialsProvider: ProfileCredentialsProvider = SdkS3ClientUtils.getLocalProfileCredentialsProvider("saml")
     val kmsKeyId = System.getenv("TOOLING_KMS_KEY_ID") // load from an environment property in order not to disclose it here
     val myBucket = System.getenv("TOOLING_BUCKET_NAME") // same reason
-    AtumSdkS3.log.info(s"kmsKeyId from env loaded = ${kmsKeyId.take(10)}...")
-    AtumSdkS3.log.info(s"BucketName from env loaded = $myBucket")
+    log.info(s"kmsKeyId from env loaded = ${kmsKeyId.take(10)}...")
+    log.info(s"BucketName from env loaded = $myBucket")
 
     val infoFileOutputLocation = SimpleS3LocationWithRegion("s3", myBucket, "atum/output/wikidata.csv.info", Region.EU_WEST_1)
 
