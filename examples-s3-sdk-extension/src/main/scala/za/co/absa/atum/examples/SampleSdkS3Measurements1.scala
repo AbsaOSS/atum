@@ -19,9 +19,7 @@ import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.AtumImplicitsSdkS3._
-import za.co.absa.atum.AtumImplicitsSdkS3Core._
 import za.co.absa.atum.persistence.s3.SimpleS3LocationWithRegion
 import za.co.absa.atum.utils.SdkS3ClientUtils
 

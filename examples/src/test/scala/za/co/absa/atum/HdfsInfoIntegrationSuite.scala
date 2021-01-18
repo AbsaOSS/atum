@@ -24,8 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
-
-import za.co.absa.atum.AtumImplicitsCore._
+import za.co.absa.atum.AtumImplicits._
 
 class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll {
 
@@ -55,9 +54,6 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     ).foreach { case (testCaseName, destinationInfoFilePath, expectedPaths) =>
 
       "_INFO" should s"be written on spark.write ($testCaseName)" in {
-        import spark.implicits._
-        import za.co.absa.atum.AtumImplicits._
-
         val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
         implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
@@ -65,6 +61,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info", destinationInfoFile = destinationInfoFilePath)
           .setControlMeasuresWorkflow("Job 1")
 
+        import spark.implicits._
         val df1 = readSparkInputCsv(inputCsv)
         df1.setCheckpoint("Checkpoint0")
         val filteredDf1 = df1.filter($"total_response_size" > 1000)

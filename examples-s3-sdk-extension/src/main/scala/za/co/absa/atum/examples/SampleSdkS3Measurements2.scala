@@ -20,9 +20,7 @@ import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.AtumImplicitsSdkS3._
-import za.co.absa.atum.AtumImplicitsSdkS3Core._
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
 import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.SdkS3ClientUtils

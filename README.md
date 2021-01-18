@@ -154,8 +154,7 @@ available when running unit tests.
 
 ```scala
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.AtumImplicitsCore._  // using basic Atum without extensions
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 
@@ -205,8 +204,7 @@ regular HDFS with the exception of providing a different file system, e.g.:
 import java.net.URI
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.AtumImplicitsCore._  // using basic Atum without extensions
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
 val spark = SparkSession
       .builder()
@@ -234,9 +232,7 @@ The following example demonstrates the setup:
 import org.apache.spark.sql.SparkSession
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider, ProfileCredentialsProvider}
 import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
-import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.AtumImplicitsSdkS3._
-import za.co.absa.atum.AtumImplicitsSdkS3Core._ // using extended Atum
+import za.co.absa.atum.AtumImplicitsSdkS3._ // using extended Atum
 
 object S3Example {
   def main(args: Array[String]) {

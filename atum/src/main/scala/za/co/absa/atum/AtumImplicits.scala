@@ -25,16 +25,11 @@ import za.co.absa.atum.utils.InfoFile
 
 import scala.language.implicitConversions
 
-object AtumImplicitsCore {
-  implicit val atum: Atum = Atum
-}
-
 /**
   * The object contains implicit methods for Control Framework
   * Minimalistic example of enabling control measurements tracking:
   *   {{{
   *   import za.co.absa.atum.AtumImplicits._
-  *   import za.co.absa.atum.AtumImplicitsCore._
   *
   *   ...
   *   // using basic Atum
@@ -49,7 +44,11 @@ object AtumImplicitsCore {
   * is in the path.
   *
   */
-object AtumImplicits {
+object AtumImplicits extends AtumImplicitsBase {
+  implicit val atum: Atum = Atum
+}
+
+trait AtumImplicitsBase {
   type DefaultControlInfoStorer = ControlMeasuresHdfsStorerJsonFile
   type DefaultControlInfoLoader = ControlMeasuresHdfsLoaderJsonFile
 

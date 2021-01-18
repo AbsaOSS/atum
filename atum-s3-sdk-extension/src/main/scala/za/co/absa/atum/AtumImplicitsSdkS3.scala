@@ -22,22 +22,16 @@ import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, Contr
 
 import scala.language.implicitConversions
 
-object AtumImplicitsSdkS3Core {
-  implicit val atum: AtumSdkS3 = AtumSdkS3
-}
-
 /**
   * The object contains implicit methods for Control Framework
   */
-object AtumImplicitsSdkS3 {
-
+object AtumImplicitsSdkS3 extends AtumImplicitsBase {
+  implicit val atum: AtumSdkS3 = AtumSdkS3
 
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.SparkSession]].
     */
   implicit class SparkSessionWrapperSdkS3(sparkSession: SparkSession)(implicit atum: AtumSdkS3) {
-
-    import za.co.absa.atum.AtumImplicits.SparkSessionWrapper
 
     /**
      * Enable S3-based control measurements tracking via SDK S3
