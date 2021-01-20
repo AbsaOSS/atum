@@ -253,6 +253,7 @@
                 <version>2.4.2</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules> <!-- all modules to have the same version -->
                 </configuration>
                 <dependencies>
                     <dependency>
