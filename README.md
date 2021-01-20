@@ -86,21 +86,21 @@ indepedently.
 
 ## Usage
 
-### Coordinate for Maven POM dependancy
+### Coordinate for Maven POM dependency
 For project using Scala 2.11
 ```xml
 <dependency>
-      <groupId>za.co.absa</groupId>
-      <artifactId>atum_2.11</artifactId>
-      <version>3.2.0</version>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum_2.11</artifactId>
+    <version>3.3.0</version>
 </dependency>
 ```
 For project using Scala 2.12
 ```xml
 <dependency>
-      <groupId>za.co.absa</groupId>
-      <artifactId>atum_2.12</artifactId>
-      <version>3.2.0</version>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum_2.12</artifactId>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -154,7 +154,7 @@ available when running unit tests.
 
 ```scala
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 
@@ -204,6 +204,7 @@ regular HDFS with the exception of providing a different file system, e.g.:
 import java.net.URI
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SparkSession
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
 val spark = SparkSession
       .builder()
@@ -217,14 +218,21 @@ implicit  val fs = FileSystem.get(s3Uri, spark.sparkContext.hadoopConfiguration)
 The rest of the usage is the same in the example listed above.
 
 #### AWS S3 via AWS SDK for S3
-Starting with version 3.0.0, there is also persistence support for AWS S3 via AWS SDK S3.
+Starting with version 3.3.0, there is also persistence support for AWS S3 via AWS SDK S3 via an optional dependency:
+```xml
+<dependency>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum-s3-sdk-extension_2.11</artifactId> <!-- or 2.12 -->
+    <version>${project.version}</version> <!-- e.g. 3.3.0 -->
+</dependency>
+```
 
 The following example demonstrates the setup:
 ```scala
 import org.apache.spark.sql.SparkSession
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, DefaultCredentialsProvider, ProfileCredentialsProvider}
-import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.persistence.{S3KmsSettings, S3Location}
+import za.co.absa.atum.AtumImplicitsSdkS3._ // using extended Atum
 
 object S3Example {
   def main(args: Array[String]) {
@@ -248,7 +256,7 @@ object S3Example {
     )
 
     import spark.implicits._
-        
+
     // Initializing library to hook up to Apache Spark with S3 persistence
     spark.enableControlMeasuresTrackingForS3(
       sourceS3Location = Some(sourceS3Location),
@@ -260,6 +268,29 @@ object S3Example {
 ```
 The rest of the processing logic and programmatic approach to the library remains unchanged.
 
+
+### Standalone model usage
+In cases you only want to work with Atum's model (`ControlMeasure`-related case classes and `S3Location`), you may find
+Atum's model artifact sufficient as your dependency.
+
+In your POM, just include:
+```xml
+<dependency>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum-model_2.11</artifactId> <!-- or 2.12 -->
+    <version>3.3.0</version>
+</dependency>
+```
+
+The model module also offers basic JSON (de)serialization functionality, such as:
+```scala
+import za.co.absa.atum.model._
+import za.co.absa.atum.utils.SerializationUtils
+
+val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](myJsonStringWithAControlMeasure)
+val jsonString: String = SerializationUtils.asJson(measureObject1)
+val prettyfiedJsonString: String = SerializationUtils.asJsonPretty(measureObject1)
+```
 
 ## Atum library routines
 
@@ -277,7 +308,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | registerColumnDrop(columnName: *String*) | Register that a column which is part of control measurements is dropped. | df.registerColumnDrop("personId") |
 | setControlMeasuresFileName(fileName: *String*) | Use a specific name for info files instead of deafult '_INFO'. | spark.setControlMeasuresFileName("_EXAMPLE_INFO") |
 | setControlMeasuresWorkflow(workflowName: *String*) | Sets workflow name for the set of checkpoints that will follow. | spark.setControlMeasuresWorkflow("Conformance") |
-| setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job.	| setControlMeasurementError("Conformance", "Validation error", stackTrace) |
+| setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job. | setControlMeasurementError("Conformance", "Validation error", stackTrace) |
 | setAllowUnpersistOldDatasets(allowUnpersist: *Boolean)* | Turns on a performance optimization that unpersists old checkpoints after new onces are materialized. | Atum.setAllowUnpersistOldDatasets(true) |
 | enableCaching(cacheStorageLevel: *StorageLevel*) | Turns on caching that happens every time a checkpoint is generated (default behavior). A specific storagle level can be set as well (see `setCachingStorageLevel()`) | enableCaching() |
 | disableCaching() | Turns off caching that happens every time a checkpoint is generated. | disableCaching() |
@@ -290,8 +321,8 @@ on business requirements. This table represents all currently supported measurem
 
 | Type                           | Description                                           |
 | ------------------------------ |:----------------------------------------------------- |
-| controlType.Count	             | Calculates the number of rows in the dataset          |
-| controlType.distinctCount 	 | Calculates DISTINCT(COUNT(()) of the specified column |
-| controlType.aggregatedTotal	 | Calculates SUM() of the specified column              |
+| controlType.Count              | Calculates the number of rows in the dataset          |
+| controlType.distinctCount      | Calculates DISTINCT(COUNT(()) of the specified column |
+| controlType.aggregatedTotal    | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |

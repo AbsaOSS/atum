@@ -26,7 +26,10 @@
 
     <modules>
         <module>atum</module>
+        <module>model</module>
         <module>examples</module>
+        <module>atum-s3-sdk-extension</module>
+        <module>examples-s3-sdk-extension</module>
     </modules>
 
     <name>Atum</name>
@@ -125,18 +128,6 @@
         <mockito.scala.version>1.15.0</mockito.scala.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>bom</artifactId>
-                <version>${aws.java.sdk.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- scala -->
         <dependency>
@@ -164,10 +155,6 @@
             <groupId>org.json4s</groupId>
             <artifactId>json4s-ext_${scala.binary.version}</artifactId>
             <version>${json4s.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
         </dependency>
 
         <!-- scalatest -->

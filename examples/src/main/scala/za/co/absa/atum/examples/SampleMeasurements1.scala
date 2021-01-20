@@ -17,17 +17,15 @@ package za.co.absa.atum.examples
 
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
 object SampleMeasurements1 {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 1 Job")
     val spark = sparkBuilder
-//      .master("local")
       .getOrCreate()
 
     import spark.implicits._
-
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 

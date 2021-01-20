@@ -24,12 +24,10 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.sql.functions.{abs, col, crc32, sum}
 import org.apache.spark.sql.types.{DecimalType, LongType, NumericType}
-import org.json4s.{Formats, NoTypeHints, ext}
-import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{write, writePretty}
-import za.co.absa.atum.model._
 import za.co.absa.atum.core.{Constants, ControlType}
 import za.co.absa.atum.model._
+
+import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt // for Checkpoint.withBuildProperties
 
 /**
   * This object contains utilities used in Control Measurements processing
@@ -37,7 +35,6 @@ import za.co.absa.atum.model._
 object ControlUtils {
   private val log = LogManager.getLogger("ControlUtils")
 
-  implicit private val formatsJson: Formats = Serialization.formats(NoTypeHints).withBigDecimal + new ext.EnumNameSerializer(RunState)
   private val timestampFormat = DateTimeFormatter.ofPattern(Constants.TimestampFormat)
   private val dateFormat = DateTimeFormatter.ofPattern(Constants.DateFormat)
 
@@ -63,30 +60,30 @@ object ControlUtils {
 
   /**
     * The method returns arbitrary object as a Json string.
+    * Calls [[za.co.absa.atum.utils.SerializationUtils#asJson(java.lang.Object)]]
     *
     * @return A string representing the object in Json format
     */
-  def asJson[T <: AnyRef](obj: T): String = {
-    write[T](obj)
-  }
+  @deprecated("Use SerializationUtils.asJson instead", "3.3.0")
+  def asJson[T <: AnyRef](obj: T): String = SerializationUtils.asJson[T](obj)
 
   /**
     * The method returns arbitrary object as a pretty Json string.
+    * Calls [[za.co.absa.atum.utils.SerializationUtils#asJsonPretty(java.lang.Object)]]
     *
     * @return A string representing the object in Json format
     */
-  def asJsonPretty[T <: AnyRef](obj: T): String = {
-    writePretty[T](obj)
-  }
+  @deprecated("Use SerializationUtils.asJsonPretty instead", "3.3.0")
+  def asJsonPretty[T <: AnyRef](obj: T): String = SerializationUtils.asJsonPretty[T](obj)
 
   /**
     * The method returns arbitrary object parsed from Json string.
+    * Calls [[za.co.absa.atum.utils.SerializationUtils#fromJson(java.lang.String, scala.reflect.Manifest)]]
     *
     * @return An object deserialized from the Json string
     */
-  def fromJson[T <: AnyRef](jsonStr: String )(implicit m: Manifest[T]): T = {
-    Serialization.read[T](jsonStr)
-  }
+  @deprecated("Use SerializationUtils.fromJson instead", "3.3.0")
+  def fromJson[T <: AnyRef](jsonStr: String)(implicit m: Manifest[T]): T = SerializationUtils.fromJson[T](jsonStr)
 
   /**
     * The method generates a temporary column name which does not exist in the specified `DataFrame`.
@@ -212,7 +209,7 @@ object ControlUtils {
         ) :: aggegatedMeasurements.toList
       ).withBuildProperties :: Nil )
 
-    val controlMeasuresJson = if (prettyJSON) ControlUtils.asJsonPretty(cm) else ControlUtils.asJson(cm)
+    val controlMeasuresJson = if (prettyJSON) SerializationUtils.asJsonPretty(cm) else SerializationUtils.asJson(cm)
     log.info("JSON Generated: " + controlMeasuresJson)
 
     if (writeToHDFS) {
@@ -239,7 +236,7 @@ object ControlUtils {
     }
 
     // Ensure no exception is thrown on converting back to ControlMeasures object
-    ControlUtils.fromJson[ControlMeasure](controlMeasuresJson)
+    SerializationUtils.fromJson[ControlMeasure](controlMeasuresJson)
     controlMeasuresJson
   }
 
