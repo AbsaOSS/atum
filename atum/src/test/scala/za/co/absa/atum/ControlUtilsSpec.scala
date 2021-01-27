@@ -30,6 +30,31 @@ class ControlUtilsSpec  extends AnyFlatSpec with Matchers with SparkTestBase {
   private val singleIntColumnDF = spark.sparkContext.parallelize(List(100, 10000, -10000, 999)).toDF
   private val singleIntColumnDF2 = spark.sparkContext.parallelize(List(100, 999)).toDF
 
+  "createInfoFile" should "generates a complete info file" in {
+    val testingVersion = "1.2.3"
+    val testingDate = "20-02-2020"
+    val testingDateTime1 = "20-02-2020 10:20:30 +0100"
+    val testingDateTime2 = "20-02-2020 10:20:40 +0100"
+
+    val expected =
+      s"""{"metadata":{"sourceApplication":"Test","country":"ZA","historyType":"Snapshot","dataFilename":"/data",
+        |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
+        |"checkpoints":[{"name":"Source","software":"Atum","version":"$testingVersion","processStartTime":"$testingDateTime1",
+        |"processEndTime":"$testingDateTime2","workflowName":"Source","order":1,
+        |"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*","controlValue":"4"},
+        |{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value","controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
+
+    val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    // replace non-stable fields (date, time, version):
+    val actualStabilized = actual
+      .replaceFirst("""(?<="informationDate":")(\d{2}-\d{2}-\d{4})""", testingDate)
+      .replaceFirst("""(?<="processStartTime":")([-+: \d]+)""", testingDateTime1)
+      .replaceFirst("""(?<="processEndTime":")([-+: \d]+)""", testingDateTime2)
+      .replaceFirst("""(?<="version":")([-\d\.A-z]+)""", testingVersion)
+
+    assert(actualStabilized == expected)
+  }
+
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
