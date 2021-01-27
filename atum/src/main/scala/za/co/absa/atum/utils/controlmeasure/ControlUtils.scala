@@ -15,16 +15,16 @@
 
 package za.co.absa.atum.utils.controlmeasure
 
+import java.io.IOException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import za.co.absa.atum.core.{Constants, ControlType}
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
-import za.co.absa.atum.utils.{ARMImplicits, SerializationUtils}
+import za.co.absa.atum.utils.{HdfsFileUtils, SerializationUtils}
 
 /**
  * This object contains utilities used in Control Measurements processing
@@ -126,22 +126,11 @@ object ControlUtils {
 
     if (writeToHDFS) {
       val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
-      val fs = FileSystem.get(hadoopConfiguration)
+      implicit val fs = FileSystem.get(hadoopConfiguration)
       val pathWithoutSpecialChars = inputPathName.replaceAll("[\\*\\?]", "")
       val infoPath = new Path(pathWithoutSpecialChars, Constants.DefaultInfoFileName)
 
-      import ARMImplicits._
-      for (fos <- fs.create(
-        infoPath,
-        new FsPermission("777"),
-        true,
-        hadoopConfiguration.getInt("io.file.buffer.size", 4096),
-        fs.getDefaultReplication(infoPath),
-        fs.getDefaultBlockSize(infoPath),
-        null)
-           ) {
-        fos.write(controlMeasuresJson.getBytes)
-      }
+      HdfsFileUtils.saveStringDataToFile(infoPath, controlMeasuresJson)
 
       log.warn("Info file written: " + infoPath.toUri.toString)
       log.warn("JSON written: " + controlMeasuresJson)
