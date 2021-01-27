@@ -91,6 +91,7 @@ object ControlUtils {
     *
     * @return The content of the _INFO file.
     */
+  @deprecated("Use ControlMeasureCreator.builder() instead", "3.4.0")
   def createInfoFile(ds: Dataset[Row],
                      sourceApplication: String,
                      inputPathName: String,

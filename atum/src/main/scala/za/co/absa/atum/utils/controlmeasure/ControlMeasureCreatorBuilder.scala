@@ -33,6 +33,11 @@ trait ControlMeasureCreatorBuilder {
   def build: ControlMeasureCreator
 }
 
+/**
+ * ControlMeasureCreatorBuilder implementation. Intended to be only created via [[za.co.absa.atum.utils.controlmeasure.ControlMeasureCreator#builder]]
+ *
+ * @param creator initial ControlMeasureCreatorImpl (has fixed dataset and aggregateColumns).
+ */
 private case class ControlMeasureCreatorBuilderImpl(private val creator: ControlMeasureCreatorImpl) extends ControlMeasureCreatorBuilder {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
