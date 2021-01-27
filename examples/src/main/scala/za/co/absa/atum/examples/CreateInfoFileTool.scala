@@ -16,8 +16,8 @@
 package za.co.absa.atum.examples
 
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
-import za.co.absa.atum.utils.{ARMImplicits, ControlUtils}
+import org.apache.spark.sql.SparkSession
+import za.co.absa.atum.utils.controlmeasure.ControlUtils
 
 /**
   * The object is a Spark Job for creating an info file for a specific data file in a specific format

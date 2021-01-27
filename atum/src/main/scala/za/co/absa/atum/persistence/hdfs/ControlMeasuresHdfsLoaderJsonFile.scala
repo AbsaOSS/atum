@@ -18,7 +18,8 @@ package za.co.absa.atum.persistence.hdfs
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
-import za.co.absa.atum.utils.{ControlUtils, HdfsFileUtils}
+import za.co.absa.atum.utils.HdfsFileUtils
+import za.co.absa.atum.utils.controlmeasure.ControlUtils
 
 /** A loader of control measurements from a JSON file stored in hadoop filesystem. */
 case class ControlMeasuresHdfsLoaderJsonFile(path: Path)

@@ -15,9 +15,14 @@
 
 package za.co.absa.atum.model
 
+import za.co.absa.atum.utils.SerializationUtils
+
 case class ControlMeasure
 (
   metadata: ControlMeasureMetadata,
   runUniqueId: Option[String],
   checkpoints: List[Checkpoint]
-)
+) {
+  def asJson: String = SerializationUtils.asJson(this)
+  def asJsonPretty: String = SerializationUtils.asJsonPretty(this)
+}

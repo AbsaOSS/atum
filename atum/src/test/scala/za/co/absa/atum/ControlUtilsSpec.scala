@@ -18,7 +18,8 @@ package za.co.absa.atum
 import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import za.co.absa.atum.utils.{ControlUtils, SparkTestBase}
+import za.co.absa.atum.utils.SparkTestBase
+import za.co.absa.atum.utils.controlmeasure.ControlUtils
 
 
 class ControlUtilsSpec  extends AnyFlatSpec with Matchers with SparkTestBase {

@@ -20,7 +20,7 @@ import org.apache.spark.sql.types.{DecimalType, LongType, StringType}
 import org.apache.spark.sql.{Column, Dataset, Row}
 import za.co.absa.atum.core.ControlType._
 import za.co.absa.atum.model.Measurement
-import za.co.absa.atum.utils.ControlUtils
+import za.co.absa.atum.utils.controlmeasure.ControlUtils
 
 /**
   * This class is used for processing Spark Dataset to calculate aggregates / control measures

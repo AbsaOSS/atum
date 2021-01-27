@@ -13,33 +13,31 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.utils.controlmeasure
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.fs.permission.FsPermission
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.sql.functions.{abs, col, crc32, sum}
-import org.apache.spark.sql.types.{DecimalType, LongType, NumericType}
 import za.co.absa.atum.core.{Constants, ControlType}
-import za.co.absa.atum.model._
-
-import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt // for Checkpoint.withBuildProperties
+import za.co.absa.atum.model.{ControlMeasure, Measurement}
+import za.co.absa.atum.utils.{ARMImplicits, SerializationUtils}
 
 /**
-  * This object contains utilities used in Control Measurements processing
-  */
+ * This object contains utilities used in Control Measurements processing
+ */
+
 object ControlUtils {
   private val log = LogManager.getLogger("ControlUtils")
 
-  private val timestampFormat = DateTimeFormatter.ofPattern(Constants.TimestampFormat)
-  private val dateFormat = DateTimeFormatter.ofPattern(Constants.DateFormat)
+  val timestampFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.TimestampFormat)
+  val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.DateFormat)
 
   /**
-    * Get current time as a string formatted according to Control Framework format.
+    * Get current time as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlUtils#timestampFormat]].
     *
     * @return The current timestamp as a string (e.g. "05-10-2017 09:43:50 +0200")
     */
@@ -49,7 +47,7 @@ object ControlUtils {
   }
 
   /**
-    * Get current date as a string formatted according to Control Framework format.
+    * Get current date as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlUtils#dateFormat()]].
     *
     * @return The current date as a string (e.g. "05-10-2017")
     */
@@ -57,33 +55,6 @@ object ControlUtils {
     val now = ZonedDateTime.now()
     dateFormat.format(now)
   }
-
-  /**
-    * The method returns arbitrary object as a Json string.
-    * Calls [[za.co.absa.atum.utils.SerializationUtils#asJson(java.lang.Object)]]
-    *
-    * @return A string representing the object in Json format
-    */
-  @deprecated("Use SerializationUtils.asJson instead", "3.3.0")
-  def asJson[T <: AnyRef](obj: T): String = SerializationUtils.asJson[T](obj)
-
-  /**
-    * The method returns arbitrary object as a pretty Json string.
-    * Calls [[za.co.absa.atum.utils.SerializationUtils#asJsonPretty(java.lang.Object)]]
-    *
-    * @return A string representing the object in Json format
-    */
-  @deprecated("Use SerializationUtils.asJsonPretty instead", "3.3.0")
-  def asJsonPretty[T <: AnyRef](obj: T): String = SerializationUtils.asJsonPretty[T](obj)
-
-  /**
-    * The method returns arbitrary object parsed from Json string.
-    * Calls [[za.co.absa.atum.utils.SerializationUtils#fromJson(java.lang.String, scala.reflect.Manifest)]]
-    *
-    * @return An object deserialized from the Json string
-    */
-  @deprecated("Use SerializationUtils.fromJson instead", "3.3.0")
-  def fromJson[T <: AnyRef](jsonStr: String)(implicit m: Manifest[T]): T = SerializationUtils.fromJson[T](jsonStr)
 
   /**
     * The method generates a temporary column name which does not exist in the specified `DataFrame`.
@@ -126,7 +97,7 @@ object ControlUtils {
                      reportDate: String = getTodayAsString,
                      reportVersion: Int = 1,
                      country: String = "ZA",
-                     historyType:String = "Snapshot",
+                     historyType: String = "Snapshot",
                      sourceType: String = "Source",
                      initialCheckpointName: String = "Source",
                      workflowName: String = "Source",
@@ -135,87 +106,27 @@ object ControlUtils {
                      aggregateColumns: Seq[String]): String = {
 
     // Calculate the measurements
-    val timeStart = getTimestampAsString
-    val rowCount = ds.count()
-    val aggegatedMeasurements = for (columnName <- aggregateColumns) yield {
-      import ds.sparkSession.implicits._
+    val cm: ControlMeasure = ControlMeasureCreator
+      .builder(ds, aggregateColumns)
+      .withSourceApplication(sourceApplication)
+      .withInputPath(inputPathName)
+      .withReportDate(reportDate)
+      .withReportVersion(reportVersion)
+      .withCountry(country)
+      .withHistoryType(historyType)
+      .withSourceType(sourceType)
+      .withInitialCheckpointName(initialCheckpointName)
+      .withWorkflowName(workflowName)
+      .build
+      .controlMeasure
 
-      val dataType = ds.select(columnName).schema.fields(0).dataType
-
-      // This is the aggregated total calculation block
-      var controlType = ControlType.AbsAggregatedTotal.value
-      var controlName = columnName + "Total"
-      val aggregatedValue = dataType match {
-        case _: LongType =>
-          // This is protection against long overflow, e.g. Long.MaxValue = 9223372036854775807:
-          //   scala> sc.parallelize(List(Long.MaxValue, 1)).toDF.agg(sum("value")).take(1)(0)(0)
-          //   res11: Any = -9223372036854775808
-          // Converting to BigDecimal fixes the issue
-          val ds2 = ds.select(col(columnName).cast(DecimalType(38,0)).as("value"))
-          ds2.agg(sum(abs($"value"))).collect()(0)(0)
-        case _: NumericType =>
-          ds.agg(sum(abs(col(columnName)))).collect()(0)(0)
-        case _ =>
-          val aggColName = ControlUtils.getTemporaryColumnName(ds)
-          controlType = ControlType.HashCrc32.value
-          controlName = columnName + "Crc32"
-          ds.withColumn(aggColName, crc32(col(columnName).cast("String")))
-            .agg(sum(col(aggColName)))
-            .collect()(0)(0)
-      }
-
-      // Despite aggregated value is Any in Measurement object it should be either a primitive type or Scala's BigDecimal
-      // * null values are now empty strings
-      // * If the result of the aggregation is java.math.BigDecimal, it is converted to Scala one
-      // * If the output is a BigDecimal zero value it is converted to Int(0) so it would not serialize as something like "0+e18"
-      val aggregatedValueFixed = aggregatedValue match {
-        case null => ""
-        case v: java.math.BigDecimal =>
-          val valueInScala = scala.math.BigDecimal(v)
-          // If it is zero, return zero instead of BigDecimal which can be something like 0E-18
-          if (valueInScala == 0) 0 else valueInScala
-        case a => a
-      }
-      Measurement(
-        controlName = columnName + "ControlTotal",
-        controlType = controlType,
-        controlCol = columnName,
-        controlValue = aggregatedValueFixed.toString)
-    }
-    val timeFinish = getTimestampAsString
-
-    // Create a Control Measurement object
-    val cm = ControlMeasure(metadata = ControlMeasureMetadata(
-      sourceApplication = sourceApplication,
-      country = country,
-      historyType = historyType,
-      dataFilename =  inputPathName,
-      sourceType = sourceType,
-      version = reportVersion,
-      informationDate = reportDate,
-      additionalInfo = Map[String, String]()
-    ), runUniqueId = None,
-      Checkpoint(
-        name = initialCheckpointName,
-        processStartTime = timeStart,
-        processEndTime = timeFinish,
-        workflowName = workflowName,
-        order = 1,
-        controls = Measurement(
-          controlName = "recordCount",
-          controlType = ControlType.Count.value,
-          controlCol = "*",
-          controlValue = rowCount.toString
-        ) :: aggegatedMeasurements.toList
-      ).withBuildProperties :: Nil )
-
-    val controlMeasuresJson = if (prettyJSON) SerializationUtils.asJsonPretty(cm) else SerializationUtils.asJson(cm)
+    val controlMeasuresJson = if (prettyJSON) cm.asJsonPretty else cm.asJson
     log.info("JSON Generated: " + controlMeasuresJson)
 
     if (writeToHDFS) {
       val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
       val fs = FileSystem.get(hadoopConfiguration)
-      val pathWithoutSpecialChars = inputPathName.replaceAll("[\\*\\?]","")
+      val pathWithoutSpecialChars = inputPathName.replaceAll("[\\*\\?]", "")
       val infoPath = new Path(pathWithoutSpecialChars, Constants.DefaultInfoFileName)
 
       import ARMImplicits._
@@ -227,7 +138,7 @@ object ControlUtils {
         fs.getDefaultReplication(infoPath),
         fs.getDefaultBlockSize(infoPath),
         null)
-      ){
+           ) {
         fos.write(controlMeasuresJson.getBytes)
       }
 

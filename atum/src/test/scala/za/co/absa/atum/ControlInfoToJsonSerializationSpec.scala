@@ -18,9 +18,9 @@ package za.co.absa.atum
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
-import za.co.absa.atum.utils.{BuildProperties, ControlUtils, SerializationUtils}
-
+import za.co.absa.atum.utils.{BuildProperties, SerializationUtils}
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
+import za.co.absa.atum.utils.controlmeasure.ControlUtils
 
 /**
   * Unit tests for ControlInfo object serialization
