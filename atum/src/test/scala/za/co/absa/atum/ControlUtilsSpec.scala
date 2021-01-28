@@ -101,6 +101,10 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
   ).foreach { case (testCaseName, isJsonPretty, expectedMeasureJson) =>
     "createInfoFile" should s"generates a complete info file and file content $testCaseName" in {
 
+      val hadoopConf = spark.sparkContext.hadoopConfiguration
+      implicit val hdfs = FileSystem.get(hadoopConf)
+      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
+
       val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data", writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
       // replace non-stable fields (date/time, version) using rx lookbehind
       val actualStabilized = stabilizeJsonOutput(actual)
@@ -109,14 +113,12 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
       assert(actualStabilized == expectedMeasureJson, "Generated json does not match")
 
       // check the what's actually written to "HDFS"
-      val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs = FileSystem.get(hadoopConf)
-      val actual2 = HdfsFileUtils.readHdfsFileToString( new Path("_testOutput/data/_INFO"))
-
+      val actual2 = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
       assert(stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+
+      hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
     }
   }
-
 
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
