@@ -15,14 +15,16 @@
 
 package za.co.absa.atum
 
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import za.co.absa.atum.utils.SparkTestBase
 import za.co.absa.atum.utils.controlmeasure.ControlUtils
+import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
 
 
-class ControlUtilsSpec  extends AnyFlatSpec with Matchers with SparkTestBase {
+class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
+
   import spark.implicits._
 
   private val singleStringColumnDF = spark.sparkContext.parallelize(List("987987", "example", "example", "another example")).toDF
@@ -31,73 +33,90 @@ class ControlUtilsSpec  extends AnyFlatSpec with Matchers with SparkTestBase {
   private val singleIntColumnDF = spark.sparkContext.parallelize(List(100, 10000, -10000, 999)).toDF
   private val singleIntColumnDF2 = spark.sparkContext.parallelize(List(100, 999)).toDF
 
-  { // block for a set of tests with common vals
-    val testingVersion = "1.2.3"
-    val testingDate = "20-02-2020"
-    val testingDateTime1 = "20-02-2020 10:20:30 +0100"
-    val testingDateTime2 = "20-02-2020 10:20:40 +0100"
+  private val testingVersion = "1.2.3"
+  private val testingDate = "20-02-2020"
+  private val testingDateTime1 = "20-02-2020 10:20:30 +0100"
+  private val testingDateTime2 = "20-02-2020 10:20:40 +0100"
 
-    val expected =
-      s"""{"metadata":{"sourceApplication":"Test","country":"ZA","historyType":"Snapshot","dataFilename":"/data",
-         |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
-         |"checkpoints":[{"name":"Source","software":"Atum","version":"$testingVersion","processStartTime":"$testingDateTime1",
-         |"processEndTime":"$testingDateTime2","workflowName":"Source","order":1,
-         |"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*","controlValue":"4"},
-         |{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value","controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
+  private val expectedJsonForSingleIntColumn =
+    s"""{"metadata":{"sourceApplication":"Test","country":"ZA","historyType":"Snapshot","dataFilename":"_testOutput/data",
+       |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
+       |"checkpoints":[{"name":"Source","software":"Atum","version":"$testingVersion","processStartTime":"$testingDateTime1",
+       |"processEndTime":"$testingDateTime2","workflowName":"Source","order":1,
+       |"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*","controlValue":"4"},
+       |{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value","controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
 
-    val expectedPretty =
-      s"""{
-         |  "metadata" : {
-         |    "sourceApplication" : "Test",
-         |    "country" : "ZA",
-         |    "historyType" : "Snapshot",
-         |    "dataFilename" : "/data",
-         |    "sourceType" : "Source",
-         |    "version" : 1,
-         |    "informationDate" : "$testingDate",
-         |    "additionalInfo" : { }
-         |  },
-         |  "checkpoints" : [ {
-         |    "name" : "Source",
-         |    "software" : "Atum",
-         |    "version" : "$testingVersion",
-         |    "processStartTime" : "$testingDateTime1",
-         |    "processEndTime" : "$testingDateTime2",
-         |    "workflowName" : "Source",
-         |    "order" : 1,
-         |    "controls" : [ {
-         |      "controlName" : "recordCount",
-         |      "controlType" : "count",
-         |      "controlCol" : "*",
-         |      "controlValue" : "4"
-         |    }, {
-         |      "controlName" : "valueControlTotal",
-         |      "controlType" : "absAggregatedTotal",
-         |      "controlCol" : "value",
-         |      "controlValue" : "21099"
-         |    } ]
-         |  } ]
-         |}""".stripMargin
+  private val expectedPrettyJsonForSingleIntColumn =
+    s"""{
+       |  "metadata" : {
+       |    "sourceApplication" : "Test",
+       |    "country" : "ZA",
+       |    "historyType" : "Snapshot",
+       |    "dataFilename" : "_testOutput/data",
+       |    "sourceType" : "Source",
+       |    "version" : 1,
+       |    "informationDate" : "$testingDate",
+       |    "additionalInfo" : { }
+       |  },
+       |  "checkpoints" : [ {
+       |    "name" : "Source",
+       |    "software" : "Atum",
+       |    "version" : "$testingVersion",
+       |    "processStartTime" : "$testingDateTime1",
+       |    "processEndTime" : "$testingDateTime2",
+       |    "workflowName" : "Source",
+       |    "order" : 1,
+       |    "controls" : [ {
+       |      "controlName" : "recordCount",
+       |      "controlType" : "count",
+       |      "controlCol" : "*",
+       |      "controlValue" : "4"
+       |    }, {
+       |      "controlName" : "valueControlTotal",
+       |      "controlType" : "absAggregatedTotal",
+       |      "controlCol" : "value",
+       |      "controlValue" : "21099"
+       |    } ]
+       |  } ]
+       |}""".stripMargin
 
-    Seq(
-      ("as json", false, expected),
-      ("as pretty json", true, expectedPretty)
-    ).foreach { case (testCaseName, isJsonPretty, expectedMeasureJson) =>
-      "createInfoFile" should s"generates a complete info file $testCaseName" in {
+  /**
+   * Replaces metadata.informationDate, checkpoints.[].{version, processStartTime, processEndTime} with ControlUtilsSpec.testing* values
+   * (and replaces CRLF endings with LF if found, too)
+   * @param actualJson
+   * @return updated json
+   */
+  private def stabilizeJsonOutput(actualJson: String): String = {
+    actualJson
+      .replaceFirst("""(?<="informationDate"\s?:\s?")(\d{2}-\d{2}-\d{4})""", testingDate)
+      .replaceAll("""(?<="processStartTime"\s?:\s?")([-+: \d]+)""", testingDateTime1)
+      .replaceAll("""(?<="processEndTime"\s?:\s?")([-+: \d]+)""", testingDateTime2)
+      .replaceAll("""(?<="version"\s?:\s?")([-\d\.A-z]+)""", testingVersion)
+      .replaceAll("\r\n", "\n") // Windows guard
+  }
 
-        val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
-        // replace non-stable fields (date/time, version) using rx lookbehind
-        val actualStabilized = actual
-          .replaceFirst("""(?<="informationDate"\s?:\s?")(\d{2}-\d{2}-\d{4})""", testingDate)
-          .replaceFirst("""(?<="processStartTime"\s?:\s?")([-+: \d]+)""", testingDateTime1)
-          .replaceFirst("""(?<="processEndTime"\s?:\s?")([-+: \d]+)""", testingDateTime2)
-          .replaceFirst("""(?<="version"\s?:\s?")([-\d\.A-z]+)""", testingVersion)
-          .replaceAll("\r\n", "\n") // Windows guard
+  Seq(
+    ("as json", false, expectedJsonForSingleIntColumn),
+    ("as pretty json", true, expectedPrettyJsonForSingleIntColumn)
+  ).foreach { case (testCaseName, isJsonPretty, expectedMeasureJson) =>
+    "createInfoFile" should s"generates a complete info file and file content $testCaseName" in {
 
-        assert(actualStabilized == expectedMeasureJson)
-      }
+      val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data", writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
+      // replace non-stable fields (date/time, version) using rx lookbehind
+      val actualStabilized = stabilizeJsonOutput(actual)
+
+      // testing the generated jsons
+      assert(actualStabilized == expectedMeasureJson, "Generated json does not match")
+
+      // check the what's actually written to "HDFS"
+      val hadoopConf = spark.sparkContext.hadoopConfiguration
+      implicit val hdfs = FileSystem.get(hadoopConf)
+      val actual2 = HdfsFileUtils.readHdfsFileToString( new Path("_testOutput/data/_INFO"))
+
+      assert(stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
     }
   }
+
 
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
