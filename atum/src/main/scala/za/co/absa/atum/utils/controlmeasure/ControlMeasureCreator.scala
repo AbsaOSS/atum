@@ -50,7 +50,7 @@ private case class ControlMeasureCreatorImpl(ds: Dataset[Row],
 
   aggregateColumns.foreach { aggCol =>
     require(ds.columns.contains(aggCol),
-      s"Aggregated columns must be present in dataset, but $aggCol was not found there. Columns found: ${ds.columns.mkString(",")}"
+      s"Aggregated columns must be present in dataset, but '$aggCol' was not found there. Columns found: ${ds.columns.mkString(", ")}."
     )
   }
 
