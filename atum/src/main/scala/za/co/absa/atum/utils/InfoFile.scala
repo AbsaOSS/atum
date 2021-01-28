@@ -22,29 +22,46 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.AtumImplicits.{DefaultControlInfoLoader, DefaultControlInfoStorer, StringPathExt}
 import za.co.absa.atum.location.S3Location.StringS3LocationExt
 
+object InfoFile {
+  /**
+   * Sanitizes (removes ?s and *s) and converts string full path to Hadoop FS and Path, e.g.
+   * `s3://mybucket1/path/to/file` -> S3 FS + `path/to/file`
+   * `/path/on/hdfs/to/file` -> local HDFS + `/path/on/hdfs/to/file`
+   *
+   * Note, that non-local HDFS paths are not supported in this method, e.g. hdfs://nameservice123:8020/path/on/hdfs/too.
+   *
+   * @param fullPath path to convert to FS and relative path
+   * @param hadoopConfiguration
+   * @return FS + relative path
+   */
+  def convertFullPathToFsAndRelativePath(fullPath: String)(implicit hadoopConfiguration: Configuration): (FileSystem, Path) = {
+    val sanitizedFullPath = fullPath.replaceAll("[\\*\\?]", "")
+
+    sanitizedFullPath.toS3Location match {
+
+      case Some(s3Location) =>
+        // this is S3 over hadoop FS API, not SDK S3 approach
+        val s3Uri = new URI(s3Location.s3String) // s3://<bucket>
+        val s3Path = new Path(s"/${s3Location.path}") // /<text-file-object-path>
+
+        val fs = FileSystem.get(s3Uri, hadoopConfiguration)
+
+        (fs, s3Path)
+
+      case None => // local hdfs location
+        val fs = FileSystem.get(hadoopConfiguration)
+
+        (fs, sanitizedFullPath.toPath)
+    }
+  }
+}
+
 private[atum] case class InfoFile(infoFile: String) {
 
   private val validatedInfoFile: Option[String] = if (infoFile.isEmpty) None else Some(infoFile)
 
   def toOptFsPath(implicit hadoopConfiguration: Configuration): Option[(FileSystem, Path)] = {
-    validatedInfoFile.map { definedInfoFile =>
-      definedInfoFile.toS3Location match {
-
-        case Some(s3Location) =>
-          // this is S3 over hadoop FS API, not SDK S3 approach
-          val s3Uri = new URI(s3Location.s3String) // s3://<bucket>
-          val s3Path = new Path(s"/${s3Location.path}") // /<text-file-object-path>
-
-          val fs = FileSystem.get(s3Uri, hadoopConfiguration)
-
-          (fs, s3Path)
-
-        case None => // hdfs location
-          val fs = FileSystem.get(hadoopConfiguration)
-
-          (fs, definedInfoFile.toPath)
-      }
-    }
+    validatedInfoFile.map (InfoFile.convertFullPathToFsAndRelativePath)
   }
 
   def toOptDefaultControlInfoLoader(implicit hadoopConfiguration: Configuration): Option[DefaultControlInfoLoader] =

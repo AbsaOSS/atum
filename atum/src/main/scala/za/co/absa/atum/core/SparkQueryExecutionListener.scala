@@ -55,8 +55,7 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
 
     implicit val hadoopConf: Configuration = qe.sparkSession.sparkContext.hadoopConfiguration
     val fsWithDir = infoFileDir
-      .map(InfoFile)
-      .flatMap(_.toOptFsPath) // path + FS based on HDFS or S3 over hadoopFS
+      .flatMap(InfoFile(_).toOptFsPath) // path + FS based on HDFS or S3 over hadoopFS
 
     // Write _INFO file to the output directory
     fsWithDir.foreach { case (fs, dir) =>

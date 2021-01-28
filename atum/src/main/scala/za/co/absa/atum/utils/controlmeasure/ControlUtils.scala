@@ -24,7 +24,8 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import za.co.absa.atum.core.{Constants, ControlType}
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
-import za.co.absa.atum.utils.{HdfsFileUtils, SerializationUtils}
+import za.co.absa.atum.utils.controlmeasure.ControlUtils.JsonType.JsonType
+import za.co.absa.atum.utils.{HdfsFileUtils, InfoFile, SerializationUtils}
 
 /**
  * This object contains utilities used in Control Measurements processing
@@ -32,6 +33,11 @@ import za.co.absa.atum.utils.{HdfsFileUtils, SerializationUtils}
 
 object ControlUtils {
   private val log = LogManager.getLogger("ControlUtils")
+
+  object JsonType extends Enumeration {
+    type JsonType = Value
+    val Minified, Pretty = Value
+  }
 
   val timestampFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.TimestampFormat)
   val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.DateFormat)
@@ -121,24 +127,43 @@ object ControlUtils {
       .build
       .controlMeasure
 
-    val controlMeasuresJson = if (prettyJSON) cm.asJsonPretty else cm.asJson
-    log.info("JSON Generated: " + controlMeasuresJson)
-
     if (writeToHDFS) {
+
+      // since this is deprecated wrapper, here we assume HDFS as the original, but generally, s3 would be available, too.
       val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
-      implicit val fs = FileSystem.get(hadoopConfiguration)
-      val pathWithoutSpecialChars = inputPathName.replaceAll("[\\*\\?]", "")
-      val infoPath = new Path(pathWithoutSpecialChars, Constants.DefaultInfoFileName)
+      val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath(inputPathName)(hadoopConfiguration)
 
-      HdfsFileUtils.saveStringDataToFile(infoPath, controlMeasuresJson)
-
-      log.warn("Info file written: " + infoPath.toUri.toString)
-      log.warn("JSON written: " + controlMeasuresJson)
+      val jsonType = if (prettyJSON) JsonType.Pretty else JsonType.Minified
+      writeControlMeasureInfoFileToHdfs(cm, path, jsonType)(fs)
     }
 
+    if (prettyJSON) cm.asJsonPretty else cm.asJson // can afford slight duplication of efforts, because this method is a deprecated wrapper
+  }
+
+  /**
+   * Will write Control Measure `cm` as JSON to Hadoop FS (by default to into the dir specified in `cm.metadata.dataFileName`, file name: _INFO)
+   *
+   * @param cm        control measure
+   * @param outputDir dir on `outputFs`, usual choice is `cm.metadata.dataFileName`
+   *                  @param jsonType          `JsonType.Minified` for compact json (no whitespaces) or `JsonType.Pretty` for indented
+   *                  @param outputFs          hadoop FS. For regular HDFS, use e.g. `FileSystem.get(sparkSession.sparkContext.hadoopConfiguration)` or your S3 FS
+   *                  (or rely on e.g. [[za.co.absa.atum.utils.InfoFile#convertFullPathToFsAndRelativePath(java.lang.String, org.apache.hadoop.conf.Configuration]]))
+   **/
+  def writeControlMeasureInfoFileToHdfs(cm: ControlMeasure, outputDir: Path, jsonType: JsonType)(implicit outputFs: FileSystem): Unit = {
+    val infoPath = new Path(outputDir, Constants.DefaultInfoFileName)
+
+    val jsonString = jsonType match {
+      case JsonType.Minified => cm.asJson
+      case JsonType.Pretty => cm.asJsonPretty
+    }
+
+    HdfsFileUtils.saveStringDataToFile(infoPath, jsonString)
+
+    log.info("Info file written: " + infoPath.toUri.toString)
+    log.info("JSON written: " + jsonString)
+
     // Ensure no exception is thrown on converting back to ControlMeasures object
-    SerializationUtils.fromJson[ControlMeasure](controlMeasuresJson)
-    controlMeasuresJson
+    SerializationUtils.fromJson[ControlMeasure](jsonString)
   }
 
   def preprocessControlMeasure: ControlMeasure => ControlMeasure = convertControlValuesToStrings _ andThen normalize
