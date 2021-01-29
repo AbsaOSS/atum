@@ -15,7 +15,6 @@
 
 package za.co.absa.atum.utils.controlmeasure
 
-import java.io.IOException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -124,7 +123,7 @@ object ControlMeasureUtils {
     *
     * @return The content of the _INFO file.
     */
-  @deprecated("Use ControlMeasureCreator.builder(...) ... .build.controlMeasure & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
+  @deprecated("Use ControlMeasureBuilder.builder(...) ... .build & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
   def createInfoFile(ds: Dataset[Row],
                      sourceApplication: String,
                      inputPathName: String,
@@ -140,7 +139,7 @@ object ControlMeasureUtils {
                      aggregateColumns: Seq[String]): String = {
 
     // Calculate the measurements
-    val cm: ControlMeasure = ControlMeasureCreator
+    val cm: ControlMeasure = ControlMeasureBuilder
       .builder(ds, aggregateColumns)
       .withSourceApplication(sourceApplication)
       .withInputPath(inputPathName)
@@ -152,7 +151,6 @@ object ControlMeasureUtils {
       .withInitialCheckpointName(initialCheckpointName)
       .withWorkflowName(workflowName)
       .build
-      .controlMeasure
 
     if (writeToHDFS) {
 

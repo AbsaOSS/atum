@@ -67,7 +67,7 @@ Features:
 *   Create checkpoints
 *   Store sequences of checkpoints in info files alongside data.
 *   Automatically infer info file names by analyzing logical execution plans.
-*   Provide an initial info file content generator routine (**ControlMeasureCreator.builder(...).build.controlMeasure.asJson**) for Spark dataframes 
+*   Provide an initial info file content generator routine (**ControlMeasureBuilder.builder(...).build.asJson**) for Spark dataframes 
 *   Field rename is supported, but if a field is part of a control measurements calculation the renaming should be
     explicitly stated using the **spark.registerColumnRename()** method.
 *   Plugin support
@@ -109,7 +109,7 @@ For project using Scala 2.12
 Atum provides helper methods for initial creation of info files from a Spark dataframe. It can be used as is or can
 serve as a reference implementation for calculating control measurements.
 
-The `ControlMeasureCreator.builder` accepts some metadata via optional setters. In addition it accepts the list of fields for which control
+The `ControlMeasureBuilder.builder` accepts some metadata via optional setters. In addition it accepts the list of fields for which control
 measurements should be generated. Depending on the data type of a field the method will generate a different
 control measurement. For numeric types it will generate **controlType.absAggregatedTotal**, e.g. **SUM(ABS(X))**. 
 For non-numeric types it will generate **controlType.HashCrc32** e.g. **SUM(CRC32(x))**. Non-primitive data types 
@@ -120,7 +120,7 @@ import java.net.URI
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import za.co.absa.atum.model.ControlMeasure
-import za.co.absa.atum.utils.controlmeasure.{ControlMeasureCreator, ControlMeasureUtils}
+import za.co.absa.atum.utils.controlmeasure.{ControlMeasureBuilder, ControlMeasureUtils}
 
 val dataSourceName = "Source Application"
 val inputPath = "/path/to/source"
@@ -137,15 +137,14 @@ val df: DataFrame = spark
   .load(inputPath)
 val aggregateColumns = List("employeeId", "address", "dealId") // these columns must exist in the `df`
 
-// builder-like fluent API to construct a ControlMeasureCreator and yield the `controlMeasure`
+// builder-like fluent API to construct a ControlMeasureBuilder and yield the `controlMeasure` with `build`
 val controlMeasure: ControlMeasure =
-  ControlMeasureCreator.builder(df, aggregateColumns)
+  ControlMeasureBuilder.builder(df, aggregateColumns)
     .withInputPath(inputPath)
     .withSourceApplication(dataSourceName)
     .withReportDate(batchDate)
     .withReportVersion(batchVersion)
     .build
-    .controlMeasure
 
 // convert to JSON using .asJson | asJsonPretty
 println("Generated control measure is: " + controlMeasure.asJson)

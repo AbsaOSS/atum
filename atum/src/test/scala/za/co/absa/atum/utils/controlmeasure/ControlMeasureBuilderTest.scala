@@ -7,8 +7,7 @@ import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
 import ControlMeasureUtilsSpec._
 
-// testing ControlMeasureCreator + ControlMeasureCreatorBuilder
-class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matchers {
+class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matchers {
 
   import spark.implicits._
 
@@ -18,15 +17,8 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
     ("another", 12)
   ).toDF(colNames: _*)
 
-  "ControlMeasureCreator.builder" should "give default creator" in {
-    val defaultCreator = ControlMeasureCreator.builder(testingDf, colNames).build
-    val expectedCreator = ControlMeasureCreatorImpl(testingDf, colNames)
-
-    defaultCreator shouldBe expectedCreator
-  }
-
-  "ControlMeasureCreator" should "give default ControlMeasure" in {
-    val defaultCm = ControlMeasureCreator.builder(testingDf, colNames).build.controlMeasure
+  "ControlMeasureBuilder" should "give default ControlMeasure" in {
+    val defaultCm = ControlMeasureBuilder.builder(testingDf, colNames).build
 
     val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
@@ -42,8 +34,8 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
     defaultCm.stabilizeTestingControlMeasure shouldBe expectedDefaultControlMeasure
   }
 
-  "ControlMeasureCreator" should "give customized ControlMeasure" in {
-    val customCm = ControlMeasureCreator.builder(testingDf, colNames)
+  "ControlMeasureBuilder" should "give customized ControlMeasure" in {
+    val customCm = ControlMeasureBuilder.builder(testingDf, colNames)
       .withSourceApplication("SourceApp1")
       .withInputPath("input/path1")
       .withReportDate("2020-10-20")
@@ -52,7 +44,7 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
       .withSourceType("SourceType1")
       .withInitialCheckpointName("InitCheckpoint1")
       .withWorkflowName("Workflow1")
-      .build.controlMeasure
+      .build
 
     val expectedCustomControlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
@@ -68,9 +60,9 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
     customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
   }
 
-  "ControlMeasureCreator.builder" should "refuse incompatible df+columns" in {
+  "ControlMeasureBuilder" should "refuse incompatible df+columns" in {
     val message = intercept[IllegalArgumentException] {
-      ControlMeasureCreator.builder(testingDf, Seq("nonExistentColName"))
+      ControlMeasureBuilder.builder(testingDf, Seq("nonExistentColName"))
     }.getMessage
 
     message should include("Aggregated columns must be present in dataset, but 'nonExistentColName' was not found there. Columns found: col1, col2.")
