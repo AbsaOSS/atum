@@ -24,14 +24,14 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import za.co.absa.atum.core.{Constants, ControlType}
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
-import za.co.absa.atum.utils.controlmeasure.ControlUtils.JsonType.JsonType
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType.JsonType
 import za.co.absa.atum.utils.{HdfsFileUtils, InfoFile, SerializationUtils}
 
 /**
  * This object contains utilities used in Control Measurements processing
  */
 
-object ControlUtils {
+object ControlMeasureUtils {
   private val log = LogManager.getLogger("ControlUtils")
 
   object JsonType extends Enumeration {
@@ -43,7 +43,7 @@ object ControlUtils {
   val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.DateFormat)
 
   /**
-    * Get current time as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlUtils#timestampFormat]].
+    * Get current time as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils#timestampFormat]].
     *
     * @return The current timestamp as a string (e.g. "05-10-2017 09:43:50 +0200")
     */
@@ -53,7 +53,7 @@ object ControlUtils {
   }
 
   /**
-    * Get current date as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlUtils#dateFormat()]].
+    * Get current date as a string formatted according to Control Framework format [[za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils#dateFormat()]].
     *
     * @return The current date as a string (e.g. "05-10-2017")
     */
@@ -124,7 +124,7 @@ object ControlUtils {
     *
     * @return The content of the _INFO file.
     */
-  @deprecated("Use ControlMeasureCreator.builder() instead", "3.4.0")
+  @deprecated("Use ControlMeasureCreator.builder(...) ... .build.controlMeasure & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
   def createInfoFile(ds: Dataset[Row],
                      sourceApplication: String,
                      inputPathName: String,
@@ -161,7 +161,7 @@ object ControlUtils {
       val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath(inputPathName)(hadoopConfiguration)
 
       val jsonType = if (prettyJSON) JsonType.Pretty else JsonType.Minified
-      writeControlMeasureInfoFileToHdfs(cm, path, jsonType)(fs)
+      writeControlMeasureInfoFileToHadoopFs(cm, path, jsonType)(fs)
     }
 
     if (prettyJSON) cm.asJsonPretty else cm.asJson // can afford slight duplication of efforts, because this method is a deprecated wrapper
@@ -176,7 +176,7 @@ object ControlUtils {
    *                  @param outputFs          hadoop FS. For regular HDFS, use e.g. `FileSystem.get(sparkSession.sparkContext.hadoopConfiguration)` or your S3 FS
    *                  (or rely on e.g. [[za.co.absa.atum.utils.InfoFile#convertFullPathToFsAndRelativePath(java.lang.String, org.apache.hadoop.conf.Configuration]]))
    **/
-  def writeControlMeasureInfoFileToHdfs(cm: ControlMeasure, outputDir: Path, jsonType: JsonType)(implicit outputFs: FileSystem): Unit = {
+  def writeControlMeasureInfoFileToHadoopFs(cm: ControlMeasure, outputDir: Path, jsonType: JsonType = JsonType.Minified)(implicit outputFs: FileSystem): Unit = {
     val infoPath = new Path(outputDir, Constants.DefaultInfoFileName)
 
     val jsonString = jsonType match {

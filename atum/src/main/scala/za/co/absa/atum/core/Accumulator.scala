@@ -20,7 +20,7 @@ import za.co.absa.atum.model
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, ControlMeasuresStorer}
 import za.co.absa.atum.model._
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
-import za.co.absa.atum.utils.controlmeasure.ControlUtils
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 import scala.util.control.NonFatal
 
@@ -30,7 +30,7 @@ import scala.util.control.NonFatal
 class Accumulator() {
   private var controlMeasure: ControlMeasure = _
   private var storer: ControlMeasuresStorer = _
-  private var lastProcessingDate: String = ControlUtils.getTimestampAsString
+  private var lastProcessingDate: String = ControlMeasureUtils.getTimestampAsString
 
   def isControlMeasuresLoaded: Boolean = controlMeasure != null
   def isStorerLoaded: Boolean = storer != null
@@ -117,7 +117,7 @@ class Accumulator() {
                     controls: Seq[Measurement]
                    ): Checkpoint = this.synchronized {
     val order = controlMeasure.checkpoints.map(c => c.order).fold(0)(Math.max) + 1
-    val timestampStr = ControlUtils.getTimestampAsString
+    val timestampStr = ControlMeasureUtils.getTimestampAsString
     val checkpoint = model.Checkpoint(name = name,
       processStartTime = lastProcessingDate,
       processEndTime = timestampStr,

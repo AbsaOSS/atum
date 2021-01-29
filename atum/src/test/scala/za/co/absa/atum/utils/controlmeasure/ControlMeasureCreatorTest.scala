@@ -5,7 +5,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
-import ControlUtilsSpec._
+import ControlMeasureUtilsSpec._
 
 // testing ControlMeasureCreator + ControlMeasureCreatorBuilder
 class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matchers {

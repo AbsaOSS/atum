@@ -19,7 +19,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
 import za.co.absa.atum.utils.HdfsFileUtils
-import za.co.absa.atum.utils.controlmeasure.ControlUtils
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /** A loader of control measurements from a JSON file stored in hadoop filesystem. */
 case class ControlMeasuresHdfsLoaderJsonFile(path: Path)
@@ -27,7 +27,7 @@ case class ControlMeasuresHdfsLoaderJsonFile(path: Path)
   override def load(): ControlMeasure = {
     val controlInfoJson = HdfsFileUtils.readHdfsFileToString(path)
 
-    ControlUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
+    ControlMeasureUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
   }
 
   override def getInfo: String = {

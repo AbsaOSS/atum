@@ -18,7 +18,7 @@ package za.co.absa.atum.examples
 
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.utils.controlmeasure.ControlUtils
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /**
   * The object is a Spark Job for creating an info file for a specific CSV file.
@@ -74,7 +74,7 @@ object CreateInfoFileToolCSV {
       .option("header", haveHeaders)
       .load(inputFileName)
 
-    val strJson = ControlUtils.createInfoFile(ds,
+    val strJson = ControlMeasureUtils.createInfoFile(ds,
       sourceApplication,
       inputFileName,
       dateInDMYFormat,

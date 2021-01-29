@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure}
 import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
 
-object ControlUtilsSpec { // todo move this?
+object ControlMeasureUtilsSpec {
   val testingVersion = "1.2.3"
   val testingDate = "20-02-2020"
   val testingDateTime1 = "20-02-2020 10:20:30 +0100"
@@ -63,9 +63,9 @@ object ControlUtilsSpec { // todo move this?
 
 }
 
-class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
+class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
 
-  import ControlUtilsSpec._
+  import ControlMeasureUtilsSpec._
   import spark.implicits._
 
   private val singleStringColumnDF = spark.sparkContext.parallelize(List("987987", "example", "example", "another example")).toDF
@@ -126,7 +126,7 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
       implicit val hdfs = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
-      val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data", writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
+      val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data", writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
       // replace non-stable fields (date/time, version) using rx lookbehind
       val actualStabilized = stabilizeJsonOutput(actual)
 
@@ -144,7 +144,7 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
-    val actual = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
     assert(actual.contains(expected))
   }
@@ -154,8 +154,8 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
     // For example, if SUM() is used as an aggregator opposite values will cancel each other and
     // the final control value will be the same for datasets containing two values and for a dataset containing none at all
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlUtils.createInfoFile(singleIntColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json1 = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json2 = ControlMeasureUtils.createInfoFile(singleIntColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
     val matcher(value1) = json1
     val matcher(value2) = json2
@@ -167,7 +167,7 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
   "createInfoFile" should "handle string columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
-    val actual = ControlUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val actual = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
     assert(actual.contains(expected))
   }
@@ -178,8 +178,8 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
     // the final hash will be the same for datasets containing a duplicate values and containing no such values at all
 
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlUtils.createInfoFile(singleStringColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json1 = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json2 = ControlMeasureUtils.createInfoFile(singleStringColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
     val matcher(value1) = json1
     val matcher(value2) = json2
@@ -205,12 +205,15 @@ class ControlUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
       .json(inputDataJson.toDS)
 
     val matcher = "(tmp_\\d+)".r
-    val colName = ControlUtils.getTemporaryColumnName(df)
+    val colName = ControlMeasureUtils.getTemporaryColumnName(df)
 
     colName match {
       case matcher(_) =>
       case _ => fail(s"A temporaty column name '$colName' doesn't match the required pattern.")
     }
   }
+
+  // todo new hdfs writing testing:
+
 
 }

@@ -46,8 +46,8 @@ private case class ControlMeasureCreatorBuilderImpl(private val creator: Control
   def withInputPath(inputPath: String): ControlMeasureCreatorBuilderImpl = ControlMeasureCreatorBuilderImpl(creator.copy(inputPathName = inputPath))
 
   def withReportDate(reportDate: String): ControlMeasureCreatorBuilderImpl = {
-    if(Try(ControlUtils.dateFormat.parse(reportDate)).isFailure) {
-      logger.error(s"Report date $reportDate does not validate against format ${ControlUtils.dateFormat}." +
+    if(Try(ControlMeasureUtils.dateFormat.parse(reportDate)).isFailure) {
+      logger.error(s"Report date $reportDate does not validate against format ${ControlMeasureUtils.dateFormat}." +
         s"Consider checking correctness of the ControlMeasure")
     }
     ControlMeasureCreatorBuilderImpl(creator.copy(reportDate = reportDate))

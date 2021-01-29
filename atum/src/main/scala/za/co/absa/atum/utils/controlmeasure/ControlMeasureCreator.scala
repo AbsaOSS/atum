@@ -21,7 +21,7 @@ import org.apache.spark.sql.{Dataset, Row}
 import za.co.absa.atum.core.ControlType
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
-import za.co.absa.atum.utils.controlmeasure.ControlUtils.getTimestampAsString // for Checkpoint.withBuildProperties
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.getTimestampAsString // for Checkpoint.withBuildProperties
 
 
 trait ControlMeasureCreator {
@@ -36,16 +36,16 @@ object ControlMeasureCreator {
 }
 
 private case class ControlMeasureCreatorImpl(ds: Dataset[Row],
-                                         aggregateColumns: Seq[String],
-                                         sourceApplication: String = "",
-                                         inputPathName: String = "",
-                                         reportDate: String = ControlUtils.getTodayAsString,
-                                         reportVersion: Int = 1,
-                                         country: String = "ZA",
-                                         historyType: String = "Snapshot",
-                                         sourceType: String = "Source",
-                                         initialCheckpointName: String = "Source",
-                                         workflowName: String = "Source"
+                                             aggregateColumns: Seq[String],
+                                             sourceApplication: String = "",
+                                             inputPathName: String = "",
+                                             reportDate: String = ControlMeasureUtils.getTodayAsString,
+                                             reportVersion: Int = 1,
+                                             country: String = "ZA",
+                                             historyType: String = "Snapshot",
+                                             sourceType: String = "Source",
+                                             initialCheckpointName: String = "Source",
+                                             workflowName: String = "Source"
                                         ) extends ControlMeasureCreator {
 
   aggregateColumns.foreach { aggCol =>
@@ -82,7 +82,7 @@ private case class ControlMeasureCreatorImpl(ds: Dataset[Row],
         case _: NumericType =>
           ds.agg(sum(abs(col(columnName)))).collect()(0)(0)
         case _ =>
-          val aggColName = ControlUtils.getTemporaryColumnName(ds)
+          val aggColName = ControlMeasureUtils.getTemporaryColumnName(ds)
           controlType = ControlType.HashCrc32.value
           controlName = columnName + "Crc32"
           ds.withColumn(aggColName, crc32(col(columnName).cast("String")))
