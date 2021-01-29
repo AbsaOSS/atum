@@ -63,6 +63,33 @@ object ControlUtils {
   }
 
   /**
+   * The method returns arbitrary object as a Json string.
+   * Calls [[za.co.absa.atum.utils.SerializationUtils#asJson(java.lang.Object)]]
+   *
+   * @return A string representing the object in Json format
+   */
+  @deprecated("Use SerializationUtils.asJson instead", "3.3.0")
+  def asJson[T <: AnyRef](obj: T): String = SerializationUtils.asJson[T](obj)
+
+  /**
+   * The method returns arbitrary object as a pretty Json string.
+   * Calls [[za.co.absa.atum.utils.SerializationUtils#asJsonPretty(java.lang.Object)]]
+   *
+   * @return A string representing the object in Json format
+   */
+  @deprecated("Use SerializationUtils.asJsonPretty instead", "3.3.0")
+  def asJsonPretty[T <: AnyRef](obj: T): String = SerializationUtils.asJsonPretty[T](obj)
+
+  /**
+   * The method returns arbitrary object parsed from Json string.
+   * Calls [[za.co.absa.atum.utils.SerializationUtils#fromJson(java.lang.String, scala.reflect.Manifest)]]
+   *
+   * @return An object deserialized from the Json string
+   */
+  @deprecated("Use SerializationUtils.fromJson instead", "3.3.0")
+  def fromJson[T <: AnyRef](jsonStr: String)(implicit m: Manifest[T]): T = SerializationUtils.fromJson[T](jsonStr)
+
+  /**
     * The method generates a temporary column name which does not exist in the specified `DataFrame`.
     *
     * @return An column name as a string
