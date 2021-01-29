@@ -20,6 +20,7 @@ import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure}
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
 import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
 
 object ControlMeasureUtilsSpec {
@@ -141,6 +142,30 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     }
   }
 
+  // builder-based version of the above, the above can be removed when the deprecated ControlMeasureUtils.createInfoFile is removed
+  Seq(
+    ("as json", JsonType.Minified, expectedJsonForSingleIntColumn),
+    ("as pretty json", JsonType.Pretty, expectedPrettyJsonForSingleIntColumn)
+  ).foreach { case (testCaseName, jsonType, expectedMeasureJson) =>
+    "writeControlMeasureInfoFileToHadoopFs" should s"correctly write data to hdfs $testCaseName" in {
+      val hadoopConf = spark.sparkContext.hadoopConfiguration
+      implicit val hdfs = FileSystem.get(hadoopConf)
+      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
+
+      val cm = ControlMeasureCreator.builder(singleIntColumnDF, Seq("value"))
+        .withSourceApplication("Test")
+        .withInputPath("_testOutput/data")
+        .build.controlMeasure
+      ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, new Path("_testOutput/data"), jsonType)
+
+      // check the what's actually written to "HDFS"
+      val actual = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
+      assert(stabilizeJsonOutput(actual) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+
+      hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
+    }
+  }
+
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
@@ -212,8 +237,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       case _ => fail(s"A temporaty column name '$colName' doesn't match the required pattern.")
     }
   }
-
-  // todo new hdfs writing testing:
 
 
 }
