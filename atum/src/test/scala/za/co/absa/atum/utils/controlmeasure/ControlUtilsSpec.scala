@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.atum.utils
+package za.co.absa.atum.utils.controlmeasure
 
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure}
-import za.co.absa.atum.utils.controlmeasure.ControlUtils
+import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
 
 object ControlUtilsSpec { // todo move this?
   val testingVersion = "1.2.3"
@@ -53,7 +53,7 @@ object ControlUtilsSpec { // todo move this?
     def replaceCheckpointsProcessStartTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processStartTime = newDateTime))
     def replaceCheckpointsProcessEndTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processEndTime = newDateTime))
 
-    def stabilizeControlMeasure: ControlMeasure = {
+    def stabilizeTestingControlMeasure: ControlMeasure = {
       cm.replaceInformationDate(testingDate)
         .replaceCheckpointsVersion(Some(testingVersion))
         .replaceCheckpointsProcessStartTime(testingDateTime1)

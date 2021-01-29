@@ -5,8 +5,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
-import za.co.absa.atum.utils.ControlUtilsSpec._
+import ControlUtilsSpec._
 
+// testing ControlMeasureCreator + ControlMeasureCreatorBuilder
 class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matchers {
 
   import spark.implicits._
@@ -24,10 +25,10 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
     defaultCreator shouldBe expectedCreator
   }
 
-  "ControlMeasureCreator" should "give default ControlMeaure" in {
+  "ControlMeasureCreator" should "give default ControlMeasure" in {
     val defaultCm = ControlMeasureCreator.builder(testingDf, colNames).build.controlMeasure
 
-    val expectedControlMeasure: ControlMeasure = ControlMeasure(
+    val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
       None,
       List(
@@ -38,7 +39,33 @@ class ControlMeasureCreatorTest extends AnyFlatSpec with SparkTestBase with Matc
       )
     )
 
-    defaultCm.stabilizeControlMeasure shouldBe expectedControlMeasure
+    defaultCm.stabilizeTestingControlMeasure shouldBe expectedDefaultControlMeasure
+  }
+
+  "ControlMeasureCreator" should "give customized ControlMeasure" in {
+    val customCm = ControlMeasureCreator.builder(testingDf, colNames)
+      .withSourceApplication("SourceApp1")
+      .withInputPath("input/path1")
+      .withReportDate("2020-10-20")
+      .withCountry("CZ")
+      .withHistoryType("HistoryType1")
+      .withSourceType("SourceType1")
+      .withInitialCheckpointName("InitCheckpoint1")
+      .withWorkflowName("Workflow1")
+      .build.controlMeasure
+
+    val expectedCustomControlMeasure: ControlMeasure = ControlMeasure(
+      ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
+      None,
+      List(
+        Checkpoint("InitCheckpoint1", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Workflow1", 1, List(
+          Measurement("recordCount", "count", "*", "2"),
+          Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
+          Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")))
+      )
+    )
+
+    customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
   }
 
   "ControlMeasureCreator.builder" should "refuse incompatible df+columns" in {
