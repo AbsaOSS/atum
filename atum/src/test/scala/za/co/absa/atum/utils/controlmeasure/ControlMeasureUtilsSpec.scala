@@ -152,7 +152,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       implicit val hdfs = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
-      val cm = ControlMeasureBuilder.builder(singleIntColumnDF, Seq("value"))
+      val cm = ControlMeasureBuilder.forDF(singleIntColumnDF, Seq("value"))
         .withSourceApplication("Test")
         .withInputPath("_testOutput/data")
         .build

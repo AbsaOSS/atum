@@ -15,14 +15,14 @@
 
 package za.co.absa.atum.utils.controlmeasure
 
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{abs, col, crc32, sum}
 import org.apache.spark.sql.types.{DecimalType, LongType, NumericType}
 import org.slf4j.LoggerFactory
 import za.co.absa.atum.core.ControlType
+import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.getTimestampAsString
-import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt // for Checkpoint.withBuildProperties
 
 import scala.util.Try
 
@@ -45,22 +45,22 @@ object ControlMeasureBuilder {
   /**
    * Get builder instance
    *
-   * @param ds               dataset to build ControlMeasure from
+   * @param df               dataframe to build ControlMeasure from
    * @param aggregateColumns Columns to be aggregated, must be part of `ds`
    * @return ControlMeasureBuilder to continue with
    */
-  def builder(ds: Dataset[Row], aggregateColumns: Seq[String]): ControlMeasureBuilder =
-    ControlMeasureBuilderImpl(ds, aggregateColumns)
+  def forDF(df: DataFrame, aggregateColumns: Seq[String]): ControlMeasureBuilder =
+    ControlMeasureBuilderImpl(df, aggregateColumns)
 
 
   /**
    * This class can be used to construct a [[ControlMeasure]] data object (to be used for content as source _INFO file)
-   * for a given dataset using the `build` "method" after all necessary fields have been set.
+   * for a given dataframe using the `build` "method" after all necessary fields have been set.
    *
    * The row count measurement is added automatically. You can also specify aggregation columns for aggregation measurements
    *
-   * @param ds                    A dataset for which _INFO file to be created.
-   * @param aggregateColumns      Column names for `ds`.
+   * @param df                    A dataframe for which _INFO file to be created.
+   * @param aggregateColumns      Column names for `df`.
    * @param sourceApplication     The name of the application providing the data (default = "").
    * @param inputPathName         The path to the input file name. Can be a folder with file mask (default = "").
    * @param reportDate            The date of the data generation (default = today).
@@ -72,7 +72,7 @@ object ControlMeasureBuilder {
    * @param workflowName          A workflow name to group several checkpoint sth in the chain (default = "Source").
    *
    */
-  private case class ControlMeasureBuilderImpl(ds: Dataset[Row],
+  private case class ControlMeasureBuilderImpl(df: DataFrame,
                                                aggregateColumns: Seq[String],
                                                sourceApplication: String = "",
                                                inputPathName: String = "",
@@ -86,8 +86,8 @@ object ControlMeasureBuilder {
                                               ) extends ControlMeasureBuilder {
 
     aggregateColumns.foreach { aggCol =>
-      require(ds.columns.contains(aggCol),
-        s"Aggregated columns must be present in dataset, but '$aggCol' was not found there. Columns found: ${ds.columns.mkString(", ")}."
+      require(df.columns.contains(aggCol),
+        s"Aggregate columns must be present in dataframe, but '$aggCol' was not found there. Columns found: ${df.columns.mkString(", ")}."
       )
     }
 
@@ -114,7 +114,7 @@ object ControlMeasureBuilder {
 
     /**
      * Constructs a [[ControlMeasure]] data object (to be used for content as source _INFO file)
-     * for a given dataset based on the all builder fields that have been set.
+     * for a given dataframe based on the all builder fields that have been set.
      *
      * The row count measurement is added automatically. You can also specify aggregation columns for aggregation measurements
      */
@@ -128,11 +128,11 @@ object ControlMeasureBuilder {
     def calculateMeasurement(): ControlMeasure = {
       // Calculate the measurements
       val timeStart = getTimestampAsString
-      val rowCount = ds.count()
+      val rowCount = df.count()
       val aggegatedMeasurements = for (columnName <- aggregateColumns) yield {
-        import ds.sparkSession.implicits._
+        import df.sparkSession.implicits._
 
-        val dataType = ds.select(columnName).schema.fields(0).dataType
+        val dataType = df.select(columnName).schema.fields(0).dataType
 
         // This is the aggregated total calculation block
         var controlType = ControlType.AbsAggregatedTotal.value
@@ -143,15 +143,15 @@ object ControlMeasureBuilder {
             //   scala> sc.parallelize(List(Long.MaxValue, 1)).toDF.agg(sum("value")).take(1)(0)(0)
             //   res11: Any = -9223372036854775808
             // Converting to BigDecimal fixes the issue
-            val ds2 = ds.select(col(columnName).cast(DecimalType(38, 0)).as("value"))
+            val ds2 = df.select(col(columnName).cast(DecimalType(38, 0)).as("value"))
             ds2.agg(sum(abs($"value"))).collect()(0)(0)
           case _: NumericType =>
-            ds.agg(sum(abs(col(columnName)))).collect()(0)(0)
+            df.agg(sum(abs(col(columnName)))).collect()(0)(0)
           case _ =>
-            val aggColName = ControlMeasureUtils.getTemporaryColumnName(ds)
+            val aggColName = ControlMeasureUtils.getTemporaryColumnName(df)
             controlType = ControlType.HashCrc32.value
             controlName = columnName + "Crc32"
-            ds.withColumn(aggColName, crc32(col(columnName).cast("String")))
+            df.withColumn(aggColName, crc32(col(columnName).cast("String")))
               .agg(sum(col(aggColName)))
               .collect()(0)(0)
         }

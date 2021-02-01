@@ -8,14 +8,14 @@ we propose the approach implemented in this library.
 
 The purpose of Atum is to add the ability to specify "checkpoints" in Spark applications. These checkpoints are used 
 to designate when and what metrics are calculated to ensure that critical input values have not been modified as well 
-as allow for quick and efficient represention of the completeness of a dataset. Additional metrics can also be defined 
+as allow for quick and efficient representation of the completeness of a dataset. Additional metrics can also be defined 
 at any checkpoint.
 
 Atum adopts a standard JSON message schema for capturing checkpoint data, thus can be extended upstream or downstream,
-providing flexibiltiy across other computation engines and programming languages.
+providing flexibility across other computation engines and programming languages.
 
 The library provides a concise and dynamic way to track completeness and accuracy of data produced from source through
-a pipeline of Spark applications. All metrics are calculated at a Dataframe level using various aggregation functions 
+a pipeline of Spark applications. All metrics are calculated at a DataFrame level using various aggregation functions 
 and are stored as metadata together with the data between Spark applications in pipeline. Comparing control metrics 
 for various checkpoints is not only helpful for complying with strict regulatory frameworks, but also helps during 
 development and debugging.
@@ -37,7 +37,7 @@ During such transformations, sometimes data can get corrupted (e.g. during casti
 get added or lost. For instance, *outer joining* a table holding duplicate keys can result in records explosion.
 And *inner joining* a table which has no matching keys for some records will result in loss of records.
 
-In regulated industries it is crutial to ensure data integrity and accuracy. For instance, in the banking industry
+In regulated industries it is crucial to ensure data integrity and accuracy. For instance, in the banking industry
 the BCBS set of regulations requires analysis and reporting to be based on data accuracy and integrity principles.
 Thus it is critical at the ingestion stage to preserve the accuracy and integrity of the data gathered from a
 source system.    
@@ -67,7 +67,7 @@ Features:
 *   Create checkpoints
 *   Store sequences of checkpoints in info files alongside data.
 *   Automatically infer info file names by analyzing logical execution plans.
-*   Provide an initial info file content generator routine (**ControlMeasureBuilder.builder(...).build.asJson**) for Spark dataframes 
+*   Provide an initial info file content generator routine (**ControlMeasureBuilder.forDf(...).build.asJson**) for Spark dataframes 
 *   Field rename is supported, but if a field is part of a control measurements calculation the renaming should be
     explicitly stated using the **spark.registerColumnRename()** method.
 *   Plugin support
@@ -81,7 +81,7 @@ Limitations:
 *   If there are several data sources involved in a computation only one of them should have an _INFO file.
 If that is not the case the location of the _INFO file needs to be specified explicitly to resolve the ambiguity.
 *   Several batch blocks, each having an info file, cannot be processed together. Batch blocks should be processed
-indepedently.
+independently.
  
 
 ## Usage
@@ -109,11 +109,11 @@ For project using Scala 2.12
 Atum provides helper methods for initial creation of info files from a Spark dataframe. It can be used as is or can
 serve as a reference implementation for calculating control measurements.
 
-The `ControlMeasureBuilder.builder` accepts some metadata via optional setters. In addition it accepts the list of fields for which control
-measurements should be generated. Depending on the data type of a field the method will generate a different
-control measurement. For numeric types it will generate **controlType.absAggregatedTotal**, e.g. **SUM(ABS(X))**. 
-For non-numeric types it will generate **controlType.HashCrc32** e.g. **SUM(CRC32(x))**. Non-primitive data types 
-are not supoprted.   
+The builder instance obtained by `ControlMeasureBuilder.forDf()` accepts some metadata via optional setters. 
+In addition it accepts the list of fields for which control measurements should be generated. Depending on the data type 
+of a field the method will generate a different control measurement. For numeric types it will generate 
+**controlType.absAggregatedTotal**, e.g. **SUM(ABS(X))**. For non-numeric types it will generate 
+**controlType.HashCrc32** e.g. **SUM(CRC32(x))**. Non-primitive data types are not supported.   
 
 ```scala
 import java.net.URI
@@ -139,7 +139,7 @@ val aggregateColumns = List("employeeId", "address", "dealId") // these columns 
 
 // builder-like fluent API to construct a ControlMeasureBuilder and yield the `controlMeasure` with `build`
 val controlMeasure: ControlMeasure =
-  ControlMeasureBuilder.builder(df, aggregateColumns)
+  ControlMeasureBuilder.forDf(df, aggregateColumns)
     .withInputPath(inputPath)
     .withSourceApplication(dataSourceName)
     .withReportDate(batchDate)
@@ -325,7 +325,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | -------------- |:-------------------- |:---------------|
 | enableControlMeasuresTracking(sourceInfoFile: *String*, destinationInfoFile: *String*) | Enable control measurements tracking. Source and destination info file paths can be omitted. If omitted, they will be automatically inferred from the input/output data sources. | spark.enableControlMeasurementsTracking() |
 | enableControlMeasuresTrackingForSdkS3(sourceS3Location: *Option[S3Location]*, destinationS3Config: *Option[(S3Location, S3KmsSettings)]*) | Enable control measurements tracking in S3. Source and destination parameters can be omitted. If omitted, the loading/storing part will not be used | spark.enableControlMeasuresTrackingForS3(optionalSourceS3Location, optionalDestinationS3Config) |
-| isControlMeasuresTrackingEnabled: *Boolean* | Retruns true if control measurements tracking is enabled. |  if (spark.isControlMeasuresTrackingEnabled) {/*do something*/} |
+| isControlMeasuresTrackingEnabled: *Boolean* | Returns true if control measurements tracking is enabled. |  if (spark.isControlMeasuresTrackingEnabled) {/*do something*/} |
 | disableControlMeasuresTracking() | Explicitly turn off control measurements tracking. | spark.disableControlMeasurementsTracking() |
 | setCheckpoint(name: *String*) | Calculates the control measurements and appends a new checkpoint. | df.setCheckpoint("Conformance Started") |
 | writeInfoFile(outputFileName: *String*) | Write only an info file to a given HDFS location (could be a directory of a file). | df.writeInfoFile("/project/test/_INFO") |
@@ -335,7 +335,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 | setControlMeasuresWorkflow(workflowName: *String*) | Sets workflow name for the set of checkpoints that will follow. | spark.setControlMeasuresWorkflow("Conformance") |
 | setControlMeasurementError(jobStep: *String*, errorDescription: *String*, techDetails: *String*) | Sets up an error message that can be used by plugins (e.g. Menas) to track the status of the job. | setControlMeasurementError("Conformance", "Validation error", stackTrace) |
 | setAllowUnpersistOldDatasets(allowUnpersist: *Boolean)* | Turns on a performance optimization that unpersists old checkpoints after new onces are materialized. | Atum.setAllowUnpersistOldDatasets(true) |
-| enableCaching(cacheStorageLevel: *StorageLevel*) | Turns on caching that happens every time a checkpoint is generated (default behavior). A specific storagle level can be set as well (see `setCachingStorageLevel()`) | enableCaching() |
+| enableCaching(cacheStorageLevel: *StorageLevel*) | Turns on caching that happens every time a checkpoint is generated (default behavior). A specific storage level can be set as well (see `setCachingStorageLevel()`) | enableCaching() |
 | disableCaching() | Turns off caching that happens every time a checkpoint is generated. | disableCaching() |
 | setCachingStorageLevel(cacheStorageLevel: *StorageLevel*) | Specifies a Spark storage level to use for caching. Can be one of following: `NONE`, `DISK_ONLY`, `DISK_ONLY_2`, `MEMORY_ONLY`, `MEMORY_ONLY_2`, `MEMORY_ONLY_SER`, `MEMORY_ONLY_SER_2`, `MEMORY_AND_DISK`, `MEMORY_AND_DISK_2`, `MEMORY_AND_DISK_SER`, `MEMORY_AND_DISK_SER_2`, `MEMORY_AND_DISK_SER_2`, `OFF_HEAP`. | setCachingStorageLevel(StorageLevel.MEMORY_AND_DISK) |
 

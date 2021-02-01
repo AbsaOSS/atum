@@ -123,7 +123,7 @@ object ControlMeasureUtils {
     *
     * @return The content of the _INFO file.
     */
-  @deprecated("Use ControlMeasureBuilder.builder(...) ... .build & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
+  @deprecated("Use ControlMeasureBuilder.forDf(...) ... .build & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
   def createInfoFile(ds: Dataset[Row],
                      sourceApplication: String,
                      inputPathName: String,
@@ -140,7 +140,7 @@ object ControlMeasureUtils {
 
     // Calculate the measurements
     val cm: ControlMeasure = ControlMeasureBuilder
-      .builder(ds, aggregateColumns)
+      .forDF(ds, aggregateColumns)
       .withSourceApplication(sourceApplication)
       .withInputPath(inputPathName)
       .withReportDate(reportDate)

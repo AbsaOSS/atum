@@ -1,24 +1,24 @@
 package za.co.absa.atum.utils.controlmeasure
 
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.DataFrame
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
-import ControlMeasureUtilsSpec._
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtilsSpec._
 
 class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matchers {
 
   import spark.implicits._
 
   val colNames = Seq("col1", "col2")
-  val testingDf: Dataset[Row] = Seq(
+  val testingDf: DataFrame = Seq(
     ("example", 11),
     ("another", 12)
   ).toDF(colNames: _*)
 
   "ControlMeasureBuilder" should "give default ControlMeasure" in {
-    val defaultCm = ControlMeasureBuilder.builder(testingDf, colNames).build
+    val defaultCm = ControlMeasureBuilder.forDF(testingDf, colNames).build
 
     val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
@@ -35,7 +35,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
   }
 
   "ControlMeasureBuilder" should "give customized ControlMeasure" in {
-    val customCm = ControlMeasureBuilder.builder(testingDf, colNames)
+    val customCm = ControlMeasureBuilder.forDF(testingDf, colNames)
       .withSourceApplication("SourceApp1")
       .withInputPath("input/path1")
       .withReportDate("2020-10-20")
@@ -62,10 +62,10 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
 
   "ControlMeasureBuilder" should "refuse incompatible df+columns" in {
     val message = intercept[IllegalArgumentException] {
-      ControlMeasureBuilder.builder(testingDf, Seq("nonExistentColName"))
+      ControlMeasureBuilder.forDF(testingDf, Seq("nonExistentColName"))
     }.getMessage
 
-    message should include("Aggregated columns must be present in dataset, but 'nonExistentColName' was not found there. Columns found: col1, col2.")
+    message should include("Aggregate columns must be present in dataframe, but 'nonExistentColName' was not found there. Columns found: col1, col2.")
   }
 
 }
