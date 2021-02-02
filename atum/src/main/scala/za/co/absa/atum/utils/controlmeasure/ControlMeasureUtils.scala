@@ -170,8 +170,8 @@ object ControlMeasureUtils {
    *
    * @param cm        control measure
    * @param outputDir dir on `outputFs`, usual choice is `cm.metadata.dataFileName`
-   *                  @param jsonType          `JsonType.Minified` for compact json (no whitespaces) or `JsonType.Pretty` for indented
-   *                  @param outputFs          hadoop FS. For regular HDFS, use e.g. `FileSystem.get(sparkSession.sparkContext.hadoopConfiguration)` or your S3 FS
+   * @param jsonType  `JsonType.Minified` for compact json (no whitespaces) or `JsonType.Pretty` for indented
+   * @param outputFs  hadoop FS. For regular HDFS, use e.g. `FileSystem.get(sparkSession.sparkContext.hadoopConfiguration)` or your S3 FS
    *                  (or rely on e.g. [[za.co.absa.atum.utils.InfoFile#convertFullPathToFsAndRelativePath(java.lang.String, org.apache.hadoop.conf.Configuration]]))
    **/
   def writeControlMeasureInfoFileToHadoopFs(cm: ControlMeasure, outputDir: Path, jsonType: JsonType = JsonType.Minified)(implicit outputFs: FileSystem): Unit = {

@@ -56,18 +56,21 @@ object InfoFile {
   }
 }
 
-private[atum] case class InfoFile(infoFile: String) {
+private[atum] case class InfoFile(infoFilePath: String) {
+  require(infoFilePath.nonEmpty, "Empty info file path cannot be used to construct control info stror/loader!")
 
-  private val validatedInfoFile: Option[String] = if (infoFile.isEmpty) None else Some(infoFile)
-
-  def toOptFsPath(implicit hadoopConfiguration: Configuration): Option[(FileSystem, Path)] = {
-    validatedInfoFile.map (InfoFile.convertFullPathToFsAndRelativePath)
+  def toFsPath(implicit hadoopConfiguration: Configuration): (FileSystem, Path) = {
+    InfoFile.convertFullPathToFsAndRelativePath(infoFilePath)
   }
 
-  def toOptDefaultControlInfoLoader(implicit hadoopConfiguration: Configuration): Option[DefaultControlInfoLoader] =
-    toOptFsPath.map { case (fs, path) => new DefaultControlInfoLoader(path)(fs)}
+  def toDefaultControlInfoLoader(implicit hadoopConfiguration: Configuration): DefaultControlInfoLoader = {
+    val (fs, path) =  toFsPath
+    new DefaultControlInfoLoader(path)(fs)
+  }
 
-  def toOptDefaultControlInfoStorer(implicit hadoopConfiguration: Configuration): Option[DefaultControlInfoStorer] =
-    toOptFsPath.map { case (fs, path) => new DefaultControlInfoStorer(path)(fs)}
+  def toDefaultControlInfoStorer(implicit hadoopConfiguration: Configuration): DefaultControlInfoStorer = {
+    val (fs, path) =  toFsPath
+    new DefaultControlInfoStorer(path)(fs)
+  }
 
 }

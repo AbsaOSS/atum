@@ -62,15 +62,6 @@ trait AtumImplicitsBase {
   implicit class SparkSessionWrapper(sparkSession: SparkSession)(implicit atum: Atum) {
 
     /**
-      * Enable control measurements tracking.
-      * Input and output info file names will be inferred automatically based on data source and destination paths
-      *
-      */
-    def enableControlMeasuresTracking()(implicit outputFs: FileSystem): SparkSession = {
-      enableControlMeasuresTracking(None, None)
-    }
-
-    /**
       * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
       * Both input and output info file paths need to be provided
       *
@@ -79,18 +70,40 @@ trait AtumImplicitsBase {
       * @param sourceInfoFile      Pathname to a json-formatted info file containing control measurements
       * @param destinationInfoFile Pathname to save the control measurement results to
       */
+    @deprecated("Use enableControlMeasuresTracking(Option[String], Option[String]) instead", "3.4.0")
     def enableControlMeasuresTracking(sourceInfoFile: String = "",
                                       destinationInfoFile: String = ""): SparkSession = {
-      implicit val hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration
 
-      val loader: Option[ControlMeasuresLoader] = InfoFile(sourceInfoFile).toOptDefaultControlInfoLoader
-      val storer: Option[ControlMeasuresStorer] = InfoFile(destinationInfoFile).toOptDefaultControlInfoStorer
+      def toOptInfoFilePath(infoFilePath: String) = if (infoFilePath.isEmpty) None else Some(infoFilePath)
 
-      enableControlMeasuresTracking(loader, storer)
+      // wrapper for the newer API until deprecated method is removed
+      enableControlMeasuresTracking(
+        toOptInfoFilePath(sourceInfoFile),
+        toOptInfoFilePath(destinationInfoFile)
+      )
     }
 
     /**
-     * Enable control measurements tracking.
+     * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
+     * Input and output info file names will be inferred automatically based on data source and destination paths if not provided
+     *
+     * Example info file path name: "data/input/wikidata.csv.info" or "s3://bucket1/folder1/wikidata.csv.info"
+     *
+     * @param sourceInfoFilePath      Pathname to a json-formatted info file containing control measurements
+     * @param destinationInfoFilePath Pathname to save the control measurement results to
+     */
+    def enableControlMeasuresTracking(sourceInfoFilePath: Option[String],
+                                      destinationInfoFilePath: Option[String]): SparkSession = {
+      implicit val hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration
+
+      val loader: Option[ControlMeasuresLoader] = sourceInfoFilePath.map(InfoFile(_).toDefaultControlInfoLoader)
+      val storer: Option[ControlMeasuresStorer] = destinationInfoFilePath.map(InfoFile(_).toDefaultControlInfoStorer)
+
+      enableControlMeasuresTrackingDirectly(loader, storer)
+    }
+
+    /**
+     * Enable control measurements tracking with loader and/or storer directly.
      * This is a generic way to enable control measurements tracking enabling to provide a custom
      * control measurements loader and storer objects
      *
@@ -98,8 +111,8 @@ trait AtumImplicitsBase {
      * @param storer  An object responsible for storing the result control measurements
      *
      */
-    def enableControlMeasuresTracking(loader: Option[ControlMeasuresLoader],
-                                      storer: Option[ControlMeasuresStorer]): SparkSession =
+    private[atum] def enableControlMeasuresTrackingDirectly(loader: Option[ControlMeasuresLoader],
+                                                            storer: Option[ControlMeasuresStorer]): SparkSession =
       sparkSession.synchronized {
         atum.init(sparkSession)
 

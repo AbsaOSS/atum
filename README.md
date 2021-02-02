@@ -196,7 +196,7 @@ object ExampleSparkJob {
     implicit val localHdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/_INFO")
+    spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/_INFO"), destinationInfoFilePath = None)
       .setControlMeasuresWorkflow("Example processing")
 
     // Reading data from a CSV file and creating a checkpoint 
@@ -323,7 +323,7 @@ The summary of common control framework routines you can use as Spark and Datafr
 
 | Routine        | Description          | Example usage  |
 | -------------- |:-------------------- |:---------------|
-| enableControlMeasuresTracking(sourceInfoFile: *String*, destinationInfoFile: *String*) | Enable control measurements tracking. Source and destination info file paths can be omitted. If omitted, they will be automatically inferred from the input/output data sources. | spark.enableControlMeasurementsTracking() |
+| enableControlMeasuresTracking(sourceInfoFilePath: *Option[String]*, destinationInfoFilePath: *Option[String]*) | Enable control measurements tracking. Source and destination info file paths can be omitted. If omitted (`None`), they will be automatically inferred from the input/output data sources. | spark.enableControlMeasurementsTracking() |
 | enableControlMeasuresTrackingForSdkS3(sourceS3Location: *Option[S3Location]*, destinationS3Config: *Option[(S3Location, S3KmsSettings)]*) | Enable control measurements tracking in S3. Source and destination parameters can be omitted. If omitted, the loading/storing part will not be used | spark.enableControlMeasuresTrackingForS3(optionalSourceS3Location, optionalDestinationS3Config) |
 | isControlMeasuresTrackingEnabled: *Boolean* | Returns true if control measurements tracking is enabled. |  if (spark.isControlMeasuresTrackingEnabled) {/*do something*/} |
 | disableControlMeasuresTracking() | Explicitly turn off control measurements tracking. | spark.disableControlMeasurementsTracking() |

@@ -51,7 +51,7 @@ object AtumImplicitsSdkS3 extends AtumImplicitsBase {
         ControlMeasuresSdkS3StorerJsonFile(destLoc, kms)
       }
 
-      sparkSession.enableControlMeasuresTracking(loader, storer)
+      sparkSession.enableControlMeasuresTrackingDirectly(loader, storer)
     }
 
   }
