@@ -24,7 +24,7 @@ import za.co.absa.atum.location.S3Location.StringS3LocationExt
 
 object InfoFile {
   /**
-   * Sanitizes (removes ?s and *s) and converts string full path to Hadoop FS and Path, e.g.
+   * Sanitizes (removes `?`s and `*`s) and converts string full path to Hadoop FS and Path, e.g.
    * `s3://mybucket1/path/to/file` -> S3 FS + `path/to/file`
    * `/path/on/hdfs/to/file` -> local HDFS + `/path/on/hdfs/to/file`
    *
