@@ -140,7 +140,8 @@ object ControlMeasureUtils {
 
     // Calculate the measurements
     val cm: ControlMeasure = ControlMeasureBuilder
-      .forDF(ds, aggregateColumns)
+      .forDF(ds)
+      .withAggregateColumns(aggregateColumns)
       .withSourceApplication(sourceApplication)
       .withInputPath(inputPathName)
       .withReportDate(reportDate)

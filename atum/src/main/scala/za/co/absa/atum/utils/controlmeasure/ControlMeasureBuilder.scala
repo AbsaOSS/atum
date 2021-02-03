@@ -27,6 +27,7 @@ import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.getTimestampAsSt
 import scala.util.Try
 
 trait ControlMeasureBuilder {
+  def withAggregateColumns(aggregateColumns: Seq[String]): ControlMeasureBuilder
   def withSourceApplication(sourceApplication: String): ControlMeasureBuilder
   def withInputPath(inputPath: String): ControlMeasureBuilder
   def withReportDate(reportDate: String): ControlMeasureBuilder
@@ -46,11 +47,10 @@ object ControlMeasureBuilder {
    * Get builder instance
    *
    * @param df               dataframe to build ControlMeasure from
-   * @param aggregateColumns Columns to be aggregated, must be part of `ds`
    * @return ControlMeasureBuilder to continue with
    */
-  def forDF(df: DataFrame, aggregateColumns: Seq[String]): ControlMeasureBuilder =
-    ControlMeasureBuilderImpl(df, aggregateColumns)
+  def forDF(df: DataFrame): ControlMeasureBuilder =
+    ControlMeasureBuilderImpl(df)
 
 
   /**
@@ -73,7 +73,7 @@ object ControlMeasureBuilder {
    *
    */
   private case class ControlMeasureBuilderImpl(df: DataFrame,
-                                               aggregateColumns: Seq[String],
+                                               aggregateColumns: Seq[String] = Seq.empty,
                                                sourceApplication: String = "",
                                                inputPathName: String = "",
                                                reportDate: String = ControlMeasureUtils.getTodayAsString,
@@ -97,6 +97,7 @@ object ControlMeasureBuilder {
     def withSourceApplication(sourceApplication: String): ControlMeasureBuilderImpl = this.copy(sourceApplication = sourceApplication)
     def withInputPath(inputPath: String): ControlMeasureBuilderImpl = this.copy(inputPathName = inputPath)
 
+    def withAggregateColumns(aggregateColumns: Seq[String]): ControlMeasureBuilderImpl = this.copy(aggregateColumns = aggregateColumns)
     def withReportDate(reportDate: String): ControlMeasureBuilderImpl = {
       if (Try(ControlMeasureUtils.dateFormat.parse(reportDate)).isFailure) {
         logger.error(s"Report date $reportDate does not validate against format ${ControlMeasureUtils.dateFormat}." +
@@ -104,7 +105,6 @@ object ControlMeasureBuilder {
       }
       this.copy(reportDate = reportDate)
     }
-
     def withReportVersion(reportVersion: Int): ControlMeasureBuilderImpl = this.copy(reportVersion = reportVersion)
     def withCountry(country: String): ControlMeasureBuilderImpl = this.copy(country = country)
     def withHistoryType(historyType: String): ControlMeasureBuilderImpl = this.copy(historyType = historyType)

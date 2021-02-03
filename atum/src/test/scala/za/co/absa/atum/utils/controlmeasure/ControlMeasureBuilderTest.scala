@@ -18,16 +18,15 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
   ).toDF(colNames: _*)
 
   "ControlMeasureBuilder" should "give default ControlMeasure" in {
-    val defaultCm = ControlMeasureBuilder.forDF(testingDf, colNames).build
+    val defaultCm = ControlMeasureBuilder.forDF(testingDf).build
 
     val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
       None,
       List(
         Checkpoint("Source", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Source", 1, List(
-          Measurement("recordCount", "count", "*", "2"),
-          Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
-          Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")))
+          Measurement("recordCount", "count", "*", "2")
+        ))
       )
     )
 
@@ -35,7 +34,8 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
   }
 
   "ControlMeasureBuilder" should "give customized ControlMeasure" in {
-    val customCm = ControlMeasureBuilder.forDF(testingDf, colNames)
+    val customCm = ControlMeasureBuilder.forDF(testingDf)
+      .withAggregateColumns(colNames)
       .withSourceApplication("SourceApp1")
       .withInputPath("input/path1")
       .withReportDate("2020-10-20")
@@ -62,7 +62,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
 
   "ControlMeasureBuilder" should "refuse incompatible df+columns" in {
     val message = intercept[IllegalArgumentException] {
-      ControlMeasureBuilder.forDF(testingDf, Seq("nonExistentColName"))
+      ControlMeasureBuilder.forDF(testingDf).withAggregateColumns(Seq("nonExistentColName"))
     }.getMessage
 
     message should include("Aggregate columns must be present in dataframe, but 'nonExistentColName' was not found there. Columns found: col1, col2.")

@@ -109,18 +109,18 @@ For project using Scala 2.12
 Atum provides helper methods for initial creation of info files from a Spark dataframe. It can be used as is or can
 serve as a reference implementation for calculating control measurements.
 
+#### Obtaining a ControlMeasure
 The builder instance obtained by `ControlMeasureBuilder.forDf()` accepts some metadata via optional setters. 
 In addition it accepts the list of fields for which control measurements should be generated. Depending on the data type 
 of a field the method will generate a different control measurement. For numeric types it will generate 
 **controlType.absAggregatedTotal**, e.g. **SUM(ABS(X))**. For non-numeric types it will generate 
 **controlType.HashCrc32** e.g. **SUM(CRC32(x))**. Non-primitive data types are not supported.   
 
+
 ```scala
-import java.net.URI
-import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import za.co.absa.atum.model.ControlMeasure
-import za.co.absa.atum.utils.controlmeasure.{ControlMeasureBuilder, ControlMeasureUtils}
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureBuilder
 
 val dataSourceName = "Source Application"
 val inputPath = "/path/to/source"
@@ -139,7 +139,8 @@ val aggregateColumns = List("employeeId", "address", "dealId") // these columns 
 
 // builder-like fluent API to construct a ControlMeasureBuilder and yield the `controlMeasure` with `build`
 val controlMeasure: ControlMeasure =
-  ControlMeasureBuilder.forDf(df, aggregateColumns)
+  ControlMeasureBuilder.forDf(df)
+    .withAggregateColumns(aggregateColumns)
     .withInputPath(inputPath)
     .withSourceApplication(dataSourceName)
     .withReportDate(batchDate)
@@ -148,21 +149,31 @@ val controlMeasure: ControlMeasure =
 
 // convert to JSON using .asJson | asJsonPretty
 println("Generated control measure is: " + controlMeasure.asJson)
+```
 
-// write to HDFS
-{
-  implicit val hdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
-  ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(controlMeasure, new Path(inputPath))
-}
+#### Writing an _INFO file with the ControlMeasure to HDFS
+```scala
+import org.apache.hadoop.fs.{FileSystem, Path}
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
-// or write to S3:
-{
-  val s3Uri = new URI("s3://my-awesome-bucket123") // s3://<bucket> (or s3a://)
-  val s3Path = new Path(s"/$inputPath") // /<text-file-object-path>
+// assuming `spark`, `controlMeasure`, and `inputPath` from the previous example block
+implicit val hdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(controlMeasure, new Path(inputPath))
+```
 
-  implicit val s3fs = FileSystem.get(s3Uri, spark.sparkContext.hadoopConfiguration)
-  ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(controlMeasure, s3Path)
-}
+#### Writing an _INFO file with the ControlMeasure to S3 (using Hadoop FS)
+```scala
+import java.net.URI
+import org.apache.hadoop.fs.{FileSystem, Path}
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
+
+// assuming `spark`, `controlMeasure`, and `inputPath` from the previous example block
+val s3Uri = new URI("s3://my-awesome-bucket123") // s3://<bucket> (or s3a://)
+val s3Path = new Path(s"/$inputPath") // /<text-file-object-path>
+
+implicit val s3fs = FileSystem.get(s3Uri, spark.sparkContext.hadoopConfiguration)
+ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(controlMeasure, s3Path)
+
 ```
 
 ### An ETL job example 
