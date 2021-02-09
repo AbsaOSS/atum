@@ -20,7 +20,7 @@ import org.apache.spark.sql.types.{DecimalType, LongType, StringType}
 import org.apache.spark.sql.{Column, Dataset, Row}
 import za.co.absa.atum.core.ControlType._
 import za.co.absa.atum.model.Measurement
-import za.co.absa.atum.utils.ControlUtils
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /**
   * This class is used for processing Spark Dataset to calculate aggregates / control measures
@@ -90,7 +90,7 @@ class MeasurementProcessor(private var measurements: Seq[Measurement]) {
         }
       case HashCrc32.value =>
         (ds: Dataset[Row]) => {
-          val aggColName = ControlUtils.getTemporaryColumnName(ds)
+          val aggColName = ControlMeasureUtils.getTemporaryColumnName(ds)
           val v = ds.withColumn(aggColName, crc32(col(measurement.controlCol).cast("String")))
             .agg(sum(col(aggColName))).collect()(0)(0)
           if (v == null) "" else v.toString

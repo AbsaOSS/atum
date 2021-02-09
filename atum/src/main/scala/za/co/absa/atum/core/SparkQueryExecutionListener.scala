@@ -18,7 +18,7 @@ package za.co.absa.atum.core
 import java.io.{PrintWriter, StringWriter}
 
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import za.co.absa.atum.utils.{ExecutionPlanUtils, InfoFile}
@@ -54,9 +54,8 @@ class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecut
     val infoFileDir: Option[String] = ExecutionPlanUtils.inferOutputInfoFileDir(qe)
 
     implicit val hadoopConf: Configuration = qe.sparkSession.sparkContext.hadoopConfiguration
-    val fsWithDir = infoFileDir
-      .map(InfoFile)
-      .flatMap(_.toOptFsPath) // path + FS based on HDFS or S3 over hadoopFS
+    val fsWithDir: Option[(FileSystem, Path)] = infoFileDir
+      .map(InfoFile(_).toFsPath) // path + FS based on HDFS or S3 over hadoopFS
 
     // Write _INFO file to the output directory
     fsWithDir.foreach { case (fs, dir) =>

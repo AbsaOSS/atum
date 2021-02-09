@@ -20,7 +20,8 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser}
-import za.co.absa.atum.utils.{ControlUtils, SdkS3ClientUtils}
+import za.co.absa.atum.utils.SdkS3ClientUtils
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /**
  * A loader of control measurements from a JSON file stored in AWS S3.
@@ -37,7 +38,7 @@ case class ControlMeasuresSdkS3LoaderJsonFile(inputLocation: SimpleS3LocationWit
       .build()
 
     val controlInfoJson = s3Client.getObjectAsBytes(getRequest).asUtf8String()
-    ControlUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
+    ControlMeasureUtils.preprocessControlMeasure(ControlMeasuresParser fromJson controlInfoJson)
   }
 
   override def getInfo: String = {

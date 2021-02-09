@@ -49,16 +49,16 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     val outputPath = s"$tempDir/outputCheck1"
     // implicit variant only writes to derived outputPath, explicit writes to both implicit derived path and the explicit one, too.
     Seq(
-      ("implicit output _INFO path only", "", Seq(s"$outputPath/_INFO")),
-      ("implicit & explicit output _INFO path", s"$outputPath/extra/_INFO2", Seq(s"$outputPath/_INFO", s"$outputPath/extra/_INFO2"))
-    ).foreach { case (testCaseName, destinationInfoFilePath, expectedPaths) =>
+      ("implicit output _INFO path only", None, Seq(s"$outputPath/_INFO")),
+      ("implicit & explicit output _INFO path", Some(s"$outputPath/extra/_INFO2"), Seq(s"$outputPath/_INFO", s"$outputPath/extra/_INFO2"))
+    ).foreach { case (testCaseName, destinationOptInfoFilePath, expectedPaths) =>
 
       "_INFO" should s"be written on spark.write ($testCaseName)" in {
         val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
         implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
         // Initializing library to hook up to Apache Spark
-        spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info", destinationInfoFile = destinationInfoFilePath)
+        spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = destinationOptInfoFilePath)
           .setControlMeasuresWorkflow("Job 1")
 
         import spark.implicits._

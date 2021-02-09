@@ -15,32 +15,16 @@
 
 package za.co.absa.atum.persistence.hdfs
 
-import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresParser, HadoopFsControlMeasuresStorer}
-import za.co.absa.atum.utils.ARMImplicits
+import za.co.absa.atum.utils.HdfsFileUtils
 
 /** A storer of control measurements to hadoop filesystem as a JSON file . */
 case class ControlMeasuresHdfsStorerJsonFile(path: Path)(implicit val outputFs: FileSystem) extends HadoopFsControlMeasuresStorer {
   override def store(controlInfo: ControlMeasure): Unit = {
     val serialized =  ControlMeasuresParser asJson controlInfo
-    saveDataToFile(serialized)
-  }
-
-  private def saveDataToFile(data: String): Unit = {
-    import ARMImplicits._
-    for (fos <- outputFs.create(
-      path,
-      new FsPermission("777"),
-      true,
-      4096,
-      outputFs.getDefaultReplication(path),
-      outputFs.getDefaultBlockSize(path),
-      null)
-    ){
-      fos.write(data.getBytes)
-    }
+    HdfsFileUtils.saveStringDataToFile(path, serialized)
   }
 
   override def getInfo: String = {

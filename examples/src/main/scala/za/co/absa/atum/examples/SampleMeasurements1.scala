@@ -30,7 +30,7 @@ object SampleMeasurements1 {
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info")
+    spark.enableControlMeasuresTracking(Some("data/input/wikidata.csv.info"), None)
       .setControlMeasuresWorkflow("Job 1")
 
     // A business logic of a spark job ...

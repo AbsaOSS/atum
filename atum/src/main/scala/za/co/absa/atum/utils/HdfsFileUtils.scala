@@ -15,7 +15,10 @@
 
 package za.co.absa.atum.utils
 
+import java.io.IOException
+
 import org.apache.commons.io.IOUtils
+import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
 
 import scala.collection.JavaConverters._
@@ -28,6 +31,29 @@ object HdfsFileUtils {
       IOUtils.readLines(stream).asScala.mkString("\n")
     finally
       stream.close()
+  }
+
+  /**
+   * Writes string data to a HDFS Path
+   *
+   * @param path Path to write to
+   * @param data data to write
+   * @param outputFs hadoop FS to use
+   * @throws IOException when data write errors occur
+   */
+  def saveStringDataToFile(path: Path, data: String)(implicit outputFs: FileSystem): Unit = {
+    import ARMImplicits._
+    for (fos <- outputFs.create(
+      path,
+      new FsPermission("777"),
+      true,
+      4096,
+      outputFs.getDefaultReplication(path),
+      outputFs.getDefaultBlockSize(path),
+      null)
+         ) {
+      fos.write(data.getBytes)
+    }
   }
 
 }
