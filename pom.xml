@@ -307,13 +307,27 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <licenses>
+                                <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                                    <licenseFamilyCategory>AL20</licenseFamilyCategory>
+                                    <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
+                                    <notes></notes>
+                                    <patterns>
+                                        <pattern>Copyright [0-9]{4} ABSA Group Limited</pattern>
+                                    </patterns>
+                                </license>
+                            </licenses>
                             <excludes>
                                 <exclude>**/*.json</exclude>
                                 <exclude>**/*.csv</exclude>
                                 <exclude>**/*.txt</exclude>
                                 <exclude>**/*.info</exclude>
+                                <exclude>**/*.md</exclude>
+                                <exclude>**/_INFO</exclude>
+                                <exclude>**/_SUCCESS</exclude>
                                 <exclude>**/org.apache.spark.sql.sources.DataSourceRegister</exclude>
                                 <exclude>dependency-reduced-pom.xml</exclude>
+                                <exclude>**/org.mockito.plugins.MockMaker</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
