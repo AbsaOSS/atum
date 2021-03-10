@@ -22,7 +22,6 @@ on:
 
 jobs:
   build:
-    if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,6 +29,7 @@ jobs:
         scala: [2.11, 2.12]
         spark: [2.4.7]
     name: Test with Spark ${{ matrix.spark }} on Scala ${{ matrix.scala }}
+    if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
