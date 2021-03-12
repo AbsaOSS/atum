@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
 
 package za.co.absa.atum
 
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
-import za.co.absa.atum.core.Atum.controlFrameworkState
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
-import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, ControlMeasuresSdkS3StorerJsonFile}
 import za.co.absa.atum.utils.InfoFile
 
 import scala.language.implicitConversions
@@ -31,11 +29,10 @@ import scala.language.implicitConversions
   * The object contains implicit methods for Control Framework
   * Minimalistic example of enabling control measurements tracking:
   *   {{{
-  *   import za.co.absa.atum.Atum
   *   import za.co.absa.atum.AtumImplicits._
   *
   *   ...
-  *
+  *   // using basic Atum
   *   spark.enableControlFrameworkTracking(sourceInfoFile = "/source/info/file/path")
   *
   *   ...
@@ -47,7 +44,11 @@ import scala.language.implicitConversions
   * is in the path.
   *
   */
-object AtumImplicits {
+object AtumImplicits extends AtumImplicitsBase {
+  implicit val atum: Atum = Atum
+}
+
+trait AtumImplicitsBase {
   type DefaultControlInfoStorer = ControlMeasuresHdfsStorerJsonFile
   type DefaultControlInfoLoader = ControlMeasuresHdfsLoaderJsonFile
 
@@ -58,16 +59,7 @@ object AtumImplicits {
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.SparkSession]].
     */
-  implicit class SparkSessionWrapper(sparkSession: SparkSession) {
-
-    /**
-      * Enable control measurements tracking.
-      * Input and output info file names will be inferred automatically based on data source and destination paths
-      *
-      */
-    def enableControlMeasuresTracking()(implicit outputFs: FileSystem): SparkSession = {
-      enableControlMeasuresTracking(None, None)
-    }
+  implicit class SparkSessionWrapper(sparkSession: SparkSession)(implicit atum: Atum) {
 
     /**
       * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
@@ -78,39 +70,40 @@ object AtumImplicits {
       * @param sourceInfoFile      Pathname to a json-formatted info file containing control measurements
       * @param destinationInfoFile Pathname to save the control measurement results to
       */
+    @deprecated("Use enableControlMeasuresTracking(Option[String], Option[String]) instead", "3.4.0")
     def enableControlMeasuresTracking(sourceInfoFile: String = "",
                                       destinationInfoFile: String = ""): SparkSession = {
-      implicit val hadoopConfiguration = sparkSession.sparkContext.hadoopConfiguration
 
-      val loader = InfoFile(sourceInfoFile).toOptDefaultControlInfoLoader
-      val storer = InfoFile(destinationInfoFile).toOptDefaultControlInfoStorer
+      def toOptInfoFilePath(infoFilePath: String) = if (infoFilePath.isEmpty) None else Some(infoFilePath)
 
-      enableControlMeasuresTracking(loader, storer)
+      // wrapper for the newer API until deprecated method is removed
+      enableControlMeasuresTracking(
+        toOptInfoFilePath(sourceInfoFile),
+        toOptInfoFilePath(destinationInfoFile)
+      )
     }
 
     /**
-     * Enable S3-based control measurements tracking via SDK S3
+     * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
+     * Input and output info file names will be inferred automatically based on data source and destination paths if not provided
      *
-     * @param sourceS3Location    s3 location to load info files from in S3
-     * @param destinationS3Config s3 location and kms settings to save the data to in S3
-     * @param credentialsProvider If you do not have a specific Credentials provider, use the default
-     *                            { @link software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider#create()}
-     * @return spark session with atum tracking enabled
+     * Example info file path name: "data/input/wikidata.csv.info" or "s3://bucket1/folder1/wikidata.csv.info"
+     *
+     * @param sourceInfoFilePath      Pathname to a json-formatted info file containing control measurements
+     * @param destinationInfoFilePath Pathname to save the control measurement results to
      */
-    def enableControlMeasuresTrackingForSdkS3(sourceS3Location: Option[SimpleS3LocationWithRegion],
-                                              destinationS3Config: Option[(SimpleS3LocationWithRegion, S3KmsSettings)])
-                                             (implicit credentialsProvider: AwsCredentialsProvider): SparkSession = {
+    def enableControlMeasuresTracking(sourceInfoFilePath: Option[String],
+                                      destinationInfoFilePath: Option[String]): SparkSession = {
+      implicit val hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration
 
-      val loader = sourceS3Location.map(ControlMeasuresSdkS3LoaderJsonFile(_))
-      val storer = destinationS3Config.map { case (destLoc, kms) =>
-        ControlMeasuresSdkS3StorerJsonFile(destLoc, kms)
-      }
+      val loader: Option[ControlMeasuresLoader] = sourceInfoFilePath.map(InfoFile(_).toDefaultControlInfoLoader)
+      val storer: Option[ControlMeasuresStorer] = destinationInfoFilePath.map(InfoFile(_).toDefaultControlInfoStorer)
 
-      enableControlMeasuresTracking(loader, storer)
+      enableControlMeasuresTrackingDirectly(loader, storer)
     }
 
     /**
-     * Enable control measurements tracking.
+     * Enable control measurements tracking with loader and/or storer directly.
      * This is a generic way to enable control measurements tracking enabling to provide a custom
      * control measurements loader and storer objects
      *
@@ -118,17 +111,17 @@ object AtumImplicits {
      * @param storer  An object responsible for storing the result control measurements
      *
      */
-    def enableControlMeasuresTracking(loader: Option[ControlMeasuresLoader],
-                                      storer: Option[ControlMeasuresStorer]): SparkSession =
+    private[atum] def enableControlMeasuresTrackingDirectly(loader: Option[ControlMeasuresLoader],
+                                                            storer: Option[ControlMeasuresStorer]): SparkSession =
       sparkSession.synchronized {
-        Atum.init(sparkSession)
+        atum.init(sparkSession)
 
         if (loader.nonEmpty) {
-          Atum.setLoader(loader.get, sparkSession)
+          atum.setLoader(loader.get, sparkSession)
         }
 
         if (storer.nonEmpty) {
-          Atum.setStorer(storer.get)
+          atum.setStorer(storer.get)
         }
 
         sparkSession
@@ -141,7 +134,7 @@ object AtumImplicits {
       */
     def disableControlMeasuresTracking(): SparkSession =
       sparkSession.synchronized {
-        Atum.dispose(sparkSession)
+        atum.dispose(sparkSession)
 
         sparkSession
     }
@@ -171,7 +164,7 @@ object AtumImplicits {
       * @param fileName A file name for control measurements info
       */
     def setControlMeasuresInputFileName(fileName: String): SparkSession = {
-      Atum.setControlMeasuresInputFileName(fileName)
+      atum.setControlMeasuresInputFileName(fileName)
       sparkSession
     }
 
@@ -185,7 +178,7 @@ object AtumImplicits {
       * @param fileName A file name for control measurements info
       */
     def setControlMeasuresOutputFileName(fileName: String): SparkSession = {
-      Atum.setControlMeasuresOutputFileName(fileName)
+      atum.setControlMeasuresOutputFileName(fileName)
       sparkSession
     }
 
@@ -195,7 +188,7 @@ object AtumImplicits {
       * @param workflowName Name of the checkpoint
       */
     def setControlMeasuresWorkflow(workflowName: String): SparkSession = {
-      Atum.setWorkflowName(workflowName)
+      atum.setWorkflowName(workflowName)
       sparkSession
     }
 
@@ -225,7 +218,7 @@ object AtumImplicits {
       else
         techDetails
       if (sparkSession.sessionState.conf contains Constants.InitFlagKey) {
-        Atum.setControlFrameworkError(sparkSession, jobStep, errorDescriptionTrunc, techDetailsTrunc)
+        atum.setControlFrameworkError(sparkSession, jobStep, errorDescriptionTrunc, techDetailsTrunc)
       }
       sparkSession
     }
@@ -235,7 +228,7 @@ object AtumImplicits {
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.Dataset]].
     */
-  implicit class DataSetWrapper(dataset: Dataset[Row]) {
+  implicit class DataSetWrapper(dataset: Dataset[Row])(implicit atum: Atum) {
     /**
       * The method creates a new checkpoint by calculating control measurements of the dataset
       * On first checkpoint Spark Session Key ControlFrameworkKeys.InfoFileVersionKey is updated
@@ -246,12 +239,12 @@ object AtumImplicits {
     def setCheckpoint(name: String, persistInDatabase: Boolean = true)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
-      if (Atum.controlFrameworkState == null) {
-        Atum.log.error("Attempt to create checkpoint before control measurements are loaded. Please ensure the source data file has corresponding _INFO file")
+      if (atum.controlFrameworkState == null) {
+        atum.log.error("Attempt to create checkpoint before control measurements are loaded. Please ensure the source data file has corresponding _INFO file")
         dataset
       }
       else {
-        Atum.controlFrameworkState.calculateCheckpoint(dataset, name, !persistInDatabase)
+        atum.controlFrameworkState.calculateCheckpoint(dataset, name, !persistInDatabase)
       }
     }
 
@@ -265,12 +258,12 @@ object AtumImplicits {
     def lastCheckpointRowCount: Option[Long] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
-      if (Atum.controlFrameworkState == null) {
-        Atum.log.error("Attempt to create checkpoint before control measurements are loaded. Please ensure the source data file has corresponding _INFO file")
+      if (atum.controlFrameworkState == null) {
+        atum.log.error("Attempt to create checkpoint before control measurements are loaded. Please ensure the source data file has corresponding _INFO file")
         None
       }
       else {
-        Atum.controlFrameworkState.getRowCountOfLastCheckpoint
+        atum.controlFrameworkState.getRowCountOfLastCheckpoint
       }
     }
 
@@ -283,7 +276,7 @@ object AtumImplicits {
     def registerColumnRename(oldName: String, newName: String)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
-      controlFrameworkState.registerColumnRename(dataset, oldName, newName)
+      atum.controlFrameworkState.registerColumnRename(dataset, oldName, newName)
       dataset
     }
 
@@ -295,7 +288,7 @@ object AtumImplicits {
     def registerColumnDrop(columnName: String)(implicit inputFs: FileSystem): Dataset[Row] = {
       if (!(dataset.sparkSession.sessionState.conf contains Constants.InitFlagKey))
         throw new IllegalStateException("Control framework tracking is not initialized.")
-      controlFrameworkState.registerColumnDrop(dataset, columnName)
+      atum.controlFrameworkState.registerColumnDrop(dataset, columnName)
       dataset
     }
 
@@ -305,7 +298,7 @@ object AtumImplicits {
       *
       */
     def loadControlInfoFile(implicit inputFs: FileSystem): Dataset[Row] = {
-      Atum.controlFrameworkState.initializeControlInfo(dataset)
+      atum.controlFrameworkState.initializeControlInfo(dataset)
       dataset
     }
 
@@ -315,15 +308,8 @@ object AtumImplicits {
       * @param outputPath A directory or a file name to save the info file to.
       */
     def writeInfoFile(outputPath: String)(implicit outputFs: FileSystem): Dataset[Row] = {
-      Atum.controlFrameworkState.storeCurrentInfoFile(outputPath.toPath)
+      atum.controlFrameworkState.storeCurrentInfoFile(outputPath.toPath)
       dataset
     }
-
-    def writeInfoFileOnS3(s3Location: SimpleS3LocationWithRegion, s3KmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Dataset[Row] = {
-      Atum.controlFrameworkState.storeCurrentInfoFileOnSdkS3(s3Location, s3KmsSettings)
-      dataset
-    }
-
   }
-
 }

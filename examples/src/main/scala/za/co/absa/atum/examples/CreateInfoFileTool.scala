@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package za.co.absa.atum.examples
 
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
-import za.co.absa.atum.utils.{ARMImplicits, ControlUtils}
+import org.apache.spark.sql.SparkSession
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /**
   * The object is a Spark Job for creating an info file for a specific data file in a specific format
@@ -59,6 +59,6 @@ object CreateInfoFileTool {
 
     val ds = spark.read.format(rawFormat).load(inputFileName)
 
-    val strJson = ControlUtils.createInfoFile(ds, sourceApplication, inputFileName, dateInDMYFormat, infoVersion, aggregateColumns = columnNames.toSeq)
+    val strJson = ControlMeasureUtils.createInfoFile(ds, sourceApplication, inputFileName, dateInDMYFormat, infoVersion, aggregateColumns = columnNames.toSeq)
   }
 }

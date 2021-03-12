@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright 2018-2019 ABSA Group Limited
+  ~ Copyright 2018 ABSA Group Limited
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,13 +20,16 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent_2.11</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.4.2-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
     <modules>
         <module>atum</module>
+        <module>model</module>
         <module>examples</module>
+        <module>atum-s3-sdk-extension</module>
+        <module>examples-s3-sdk-extension</module>
     </modules>
 
     <name>Atum</name>
@@ -130,18 +133,6 @@
         <spark.version>${spark-24.version}</spark.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>bom</artifactId>
-                <version>${aws.java.sdk.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- scala -->
         <dependency>
@@ -169,10 +160,6 @@
             <groupId>org.json4s</groupId>
             <artifactId>json4s-ext_${scala.binary.version}</artifactId>
             <version>${json4s.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
         </dependency>
 
         <!-- scalatest -->
@@ -271,6 +258,7 @@
                 <version>2.4.2</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules> <!-- all modules to have the same version -->
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -340,13 +328,27 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <licenses>
+                                <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                                    <licenseFamilyCategory>AL20</licenseFamilyCategory>
+                                    <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
+                                    <notes></notes>
+                                    <patterns>
+                                        <pattern>Copyright [0-9]{4} ABSA Group Limited</pattern>
+                                    </patterns>
+                                </license>
+                            </licenses>
                             <excludes>
                                 <exclude>**/*.json</exclude>
                                 <exclude>**/*.csv</exclude>
                                 <exclude>**/*.txt</exclude>
                                 <exclude>**/*.info</exclude>
+                                <exclude>**/*.md</exclude>
+                                <exclude>**/_INFO</exclude>
+                                <exclude>**/_SUCCESS</exclude>
                                 <exclude>**/org.apache.spark.sql.sources.DataSourceRegister</exclude>
                                 <exclude>dependency-reduced-pom.xml</exclude>
+                                <exclude>**/org.mockito.plugins.MockMaker</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

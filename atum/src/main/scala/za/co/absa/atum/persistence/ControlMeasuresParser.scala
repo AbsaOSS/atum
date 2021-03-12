@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package za.co.absa.atum.persistence
 
 import za.co.absa.atum.model.ControlMeasure
-import za.co.absa.atum.utils.ControlUtils
+import za.co.absa.atum.utils.SerializationUtils
 
 /**
   * This object is used for [[za.co.absa.atum.model.ControlMeasure]] object serialization
@@ -26,21 +26,21 @@ object ControlMeasuresParser {
     * The method returns JSON representation of a [[za.co.absa.atum.model.ControlMeasure]] object
     */
   def asJson(controlMeasure: ControlMeasure): String = {
-    ControlUtils.asJson[ControlMeasure](controlMeasure)
+    SerializationUtils.asJson[ControlMeasure](controlMeasure)
   }
 
   /**
    * The method returns a prettified JSON representation of a [[za.co.absa.atum.model.ControlMeasure]] object
    */
   def asJsonPretty(controlMeasure: ControlMeasure): String = {
-    ControlUtils.asJsonPretty[ControlMeasure](controlMeasure)
+    SerializationUtils.asJsonPretty[ControlMeasure](controlMeasure)
   }
 
   /**
     * The method returns a [[za.co.absa.atum.model.ControlMeasure]] object parsed from JSON string.
     */
   def fromJson(jsonStr: String): ControlMeasure = {
-    ControlUtils.fromJson[ControlMeasure](jsonStr)
+    SerializationUtils.fromJson[ControlMeasure](jsonStr)
   }
 
 }

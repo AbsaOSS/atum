@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,12 @@ import za.co.absa.atum.plugins.EventListener
 /**
   * The object coordinates access to control measurements state
   */
-object Atum {
-  private var state: ControlFrameworkState = _
-  private var sparkListener: SparkListener = _
-  private var queryExecutionListener: QueryExecutionListener = _
+object Atum extends Atum
+
+trait Atum {
+  protected var state: ControlFrameworkState = _
+  protected var sparkListener: SparkListener = _
+  protected var queryExecutionListener: QueryExecutionListener = _
   private[atum] val log = LogManager.getLogger("Atum")
 
   /** There is one control framework state for now. */
@@ -149,8 +151,8 @@ object Atum {
 
     state = new ControlFrameworkState(sparkSession)
 
-    sparkListener = new SparkEventListener(Atum.controlFrameworkState)
-    queryExecutionListener = new SparkQueryExecutionListener(Atum.controlFrameworkState)
+    sparkListener = new SparkEventListener(controlFrameworkState)
+    queryExecutionListener = new SparkQueryExecutionListener(controlFrameworkState)
 
     sparkSession.sparkContext.addSparkListener(sparkListener)
     sparkSession.listenerManager.register(queryExecutionListener)
@@ -163,7 +165,7 @@ object Atum {
     preventNotInitialized(sparkSession)
 
     if (state.havePendingCheckpoints) {
-      Atum.log.info(s"Saving control framework checkpoints")
+      log.info(s"Saving control framework checkpoints")
       state.updateRunCheckpoints(saveInfoFile = true)
     }
 
@@ -235,7 +237,7 @@ object Atum {
       throw new IllegalStateException("Control framework tracking is not initialized.")
   }
 
-  private def preventDoubleInitialization(sparkSession: SparkSession): Unit = {
+  protected def preventDoubleInitialization(sparkSession: SparkSession): Unit = {
     val sessionConf = sparkSession.sessionState.conf
     if (sessionConf contains Constants.InitFlagKey)
       throw new IllegalStateException("Control framework tracking is already initialized.")

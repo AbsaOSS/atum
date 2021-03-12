@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package za.co.absa.atum
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
-import za.co.absa.atum.utils.{BuildProperties, ControlUtils}
+import za.co.absa.atum.utils.{BuildProperties, SerializationUtils}
+import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 /**
   * Unit tests for ControlInfo object serialization
@@ -114,20 +116,20 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
 
   "toJson" should "serialize a ControlInfo object" in
   {
-    val s = ControlUtils.asJson(exampleCtrlInfo)
+    val s = SerializationUtils.asJson(exampleCtrlInfo)
     s shouldEqual exampleOutputJson
   }
 
   "fromJson" should "deserialize a ControlInfo object" in
   {
-    val obj = ControlUtils.preprocessControlMeasure( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
+    val obj = ControlMeasureUtils.preprocessControlMeasure(SerializationUtils.fromJson[ControlMeasure](exampleInputJson))
     obj shouldEqual exampleCtrlInfo
   }
 
   "asJson" should "return the json with control values converted to strings and normalized control type" in
   {
-    val obj = ControlUtils.preprocessControlMeasure( ControlUtils.fromJson[ControlMeasure](exampleInputJson) )
-    val str = ControlUtils.asJson(obj)
+    val obj = ControlMeasureUtils.preprocessControlMeasure(SerializationUtils.fromJson[ControlMeasure](exampleInputJson))
+    val str = SerializationUtils.asJson(obj)
     str shouldEqual exampleOutputJson
   }
 }

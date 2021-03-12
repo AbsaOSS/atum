@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package za.co.absa.atum.core
 
 import za.co.absa.atum.core.Atum.log
 import za.co.absa.atum.model
-import za.co.absa.atum.model.{Checkpoint, ControlMeasure, Measurement}
-import za.co.absa.atum.utils.ControlUtils
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, ControlMeasuresStorer}
 import za.co.absa.atum.model._
+import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 import scala.util.control.NonFatal
 
@@ -30,7 +30,7 @@ import scala.util.control.NonFatal
 class Accumulator() {
   private var controlMeasure: ControlMeasure = _
   private var storer: ControlMeasuresStorer = _
-  private var lastProcessingDate: String = ControlUtils.getTimestampAsString
+  private var lastProcessingDate: String = ControlMeasureUtils.getTimestampAsString
 
   def isControlMeasuresLoaded: Boolean = controlMeasure != null
   def isStorerLoaded: Boolean = storer != null
@@ -117,7 +117,7 @@ class Accumulator() {
                     controls: Seq[Measurement]
                    ): Checkpoint = this.synchronized {
     val order = controlMeasure.checkpoints.map(c => c.order).fold(0)(Math.max) + 1
-    val timestampStr = ControlUtils.getTimestampAsString
+    val timestampStr = ControlMeasureUtils.getTimestampAsString
     val checkpoint = model.Checkpoint(name = name,
       processStartTime = lastProcessingDate,
       processEndTime = timestampStr,

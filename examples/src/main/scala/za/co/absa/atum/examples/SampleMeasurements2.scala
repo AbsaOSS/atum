@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package za.co.absa.atum.examples
 
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
 object SampleMeasurements2 {
   def main(args: Array[String]) {
@@ -25,7 +25,6 @@ object SampleMeasurements2 {
     // This example is intended to run AFTER SampleMeasurements1, otherwise it will fail on input file absence
 
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 2 Job")
-    //val spark = sparkBuilder.master("local").getOrCreate()
     val spark = sparkBuilder.getOrCreate()
     import spark.implicits._
 
@@ -45,8 +44,8 @@ object SampleMeasurements2 {
     // An example - a column rename
     // If the renamed column is one of control measurement columns, the rename need to be registered in Control Framework
     sourceDS.as("target")
-      .withColumnRenamed("total_response_size", "trs")   // Renaming the column
-      .registerColumnRename("total_response_size","trs") // Registering the rename, from now on the new name for the column is 'trs'
+      .withColumnRenamed("total_response_size", "trs") // Renaming the column
+      .registerColumnRename("total_response_size", "trs") // Registering the rename, from now on the new name for the column is 'trs'
       .filter($"trs" > 1000)
       .setCheckpoint("checkpoint2")
       .write.mode(SaveMode.Overwrite)

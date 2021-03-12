@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,20 @@ package za.co.absa.atum.examples
 
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
 object SampleMeasurements1 {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 1 Job")
     val spark = sparkBuilder
-//      .master("local")
       .getOrCreate()
 
     import spark.implicits._
-
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(sourceInfoFile = "data/input/wikidata.csv.info")
+    spark.enableControlMeasuresTracking(Some("data/input/wikidata.csv.info"), None)
       .setControlMeasuresWorkflow("Job 1")
 
     // A business logic of a spark job ...
