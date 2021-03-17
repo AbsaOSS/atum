@@ -88,6 +88,7 @@
         <!-- Common project properties -->
         <encoding>UTF-8</encoding>
         <timestamp>${maven.build.timestamp}</timestamp>
+        <span.scale.factor>1</span.scale.factor>
 
         <!-- Build and plugins properties -->
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssX</maven.build.timestamp.format>
@@ -229,6 +230,7 @@
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     <junitxml>.</junitxml>
                     <filereports>WDF TestSuite.txt</filereports>
+                    <spanScaleFactor>${span.scale.factor}</spanScaleFactor>
                 </configuration>
                 <executions>
                     <execution>

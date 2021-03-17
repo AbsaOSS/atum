@@ -50,4 +50,4 @@ jobs:
         run: mvn scala-cross-build:change-version -Pscala-${{ matrix.scala }}
       - name: Build and unit test
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
-        run: mvn clean install -Pspark-${{ matrix.spark }}
+        run: mvn clean install -Pspark-${{ matrix.spark }} -Dspan.scale.factor=6
