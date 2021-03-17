@@ -120,7 +120,7 @@
 
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
-        <scalatest.maven.version>1.0</scalatest.maven.version>
+        <scalatest.maven.version>2.0.2</scalatest.maven.version>
         <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <specs.version>2.5</specs.version>
