@@ -128,7 +128,7 @@
 
         <!-- Spark versions -->
         <spark-24.version>2.4.6</spark-24.version>
-        <spark-30.version>3.0.1</spark-30.version>
+        <spark-31.version>3.1.1</spark-31.version>
 
         <spark.version>${spark-24.version}</spark.version>
     </properties>
@@ -302,12 +302,14 @@
             <id>spark-2.4</id>
             <properties>
                 <spark.version>${spark-24.version}</spark.version>
+                <json4s.version>3.5.3</json4s.version>
             </properties>
         </profile>
         <profile>
-            <id>spark-3.0</id>
+            <id>spark-3.1</id>
             <properties>
-                <spark.version>${spark-30.version}</spark.version>
+                <spark.version>${spark-31.version}</spark.version>
+                <json4s.version>3.7.0-M5</json4s.version>
             </properties>
         </profile>
 
