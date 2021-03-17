@@ -15,11 +15,17 @@
 
 package za.co.absa.atum.examples
 
+import java.io.File
+import java.nio.file.{Files, Path, Paths}
+
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
+import org.scalatest.concurrent.Eventually
+import za.co.absa.atum.AtumImplicits._
 
-object SampleMeasurements1 {
+import scala.concurrent.duration.DurationInt // using basic Atum without extensions
+
+object SampleMeasurements1 extends Eventually {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 1 Job")
     val spark = sparkBuilder
@@ -46,5 +52,10 @@ object SampleMeasurements1 {
       .parquet("data/output/stage1_job_results")
 
     spark.disableControlMeasuresTracking()
+
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+      if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO")))
+        throw new Exception("_INFO file not found at data/output/stage1_job_results")
+    }
   }
 }
