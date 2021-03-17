@@ -309,7 +309,24 @@ The rest of the processing logic and programmatic approach to the library remain
 In cases you only want to work with Atum's model (`ControlMeasure`-related case classes and `S3Location`), you may find
 Atum's model artifact sufficient as your dependency.
 
-In your POM, just include:
+First, if not provided by Spark or other library, you will need to provide json4s dependencies. This project is tested 
+with `3.5.3` and `3.7.0-M51`.
+```xml
+<dependency>
+    <groupId>org.json4s</groupId>
+    <artifactId>json4s-core_2.11</artifactId> <!-- or 2.12 -->
+    <version>${json4s.version}</version>
+    <scope>provided</scope>
+</dependency>
+<dependency>
+    <groupId>org.json4s</groupId>
+    <artifactId>json4s-jackson_2.11</artifactId> <!-- or 2.12 -->
+    <version>${json4s.version}</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+Then, just include the model library
 ```xml
 <dependency>
     <groupId>za.co.absa</groupId>
