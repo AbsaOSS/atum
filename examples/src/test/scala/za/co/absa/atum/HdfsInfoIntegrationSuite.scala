@@ -15,6 +15,8 @@
 
 package za.co.absa.atum
 
+import java.nio.file.{Files, Paths}
+
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
@@ -47,9 +49,15 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     .option("inferSchema", "true")
     .csv(inputCsvPath)
 
-  private def writeSparkData(df: DataFrame, outputPath: String): Unit =
+  private def writeSparkData(df: DataFrame, outputPath: String): Unit = {
     df.write.mode(SaveMode.Overwrite)
       .parquet(outputPath)
+
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+      if (!Files.exists(Paths.get(outputPath)))
+        throw new Exception("_INFO file not found at " + outputPath)
+    }
+  }
 
   {
     val outputPath = s"$tempDir/outputCheck1"
@@ -79,7 +87,8 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         expectedPaths.foreach { expectedPath =>
           log.info(s"Checking $expectedPath to contain expected values")
 
-          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+            println("Trying path " + expectedPath)
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
           }
