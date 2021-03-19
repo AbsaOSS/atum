@@ -87,11 +87,11 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         expectedPaths.foreach { expectedPath =>
           log.info(s"Checking $expectedPath to contain expected values")
 
-//          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
-//            println(s"Trying path $expectedPath")
+          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+            Thread.sleep(1)
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
-          val infoControlMeasures =ControlMeasuresParser.fromJson(infoContentJson)
-//          }
+            ControlMeasuresParser.fromJson(infoContentJson)
+          }
 
           infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
           val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
