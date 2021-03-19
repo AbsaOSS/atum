@@ -34,7 +34,7 @@ import za.co.absa.atum.AtumImplicits._
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, Future}
 
-class HdfsInfoIntegrationSuite extends AsyncFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
+class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
 
   private val log = LogManager.getLogger(this.getClass)
   val tempDir: String = LocalFsTestUtils.createLocalTemporaryDirectory("hdfsTestOutput")
@@ -56,6 +56,8 @@ class HdfsInfoIntegrationSuite extends AsyncFlatSpec with SparkTestBase with Mat
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
       if (!Files.exists(Paths.get(outputPath)))
         throw new Exception("_INFO file not found at " + outputPath)
+
+      println(Thread.currentThread().getId)
     }
   }
 
@@ -88,6 +90,8 @@ class HdfsInfoIntegrationSuite extends AsyncFlatSpec with SparkTestBase with Mat
           log.info(s"Checking $expectedPath to contain expected values")
 
           val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+            println(Thread.currentThread().getId)
+
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
           }
