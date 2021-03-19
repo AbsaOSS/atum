@@ -88,7 +88,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
           log.info(s"Checking $expectedPath to contain expected values")
 
           val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
-            Thread.sleep(1)
+            "a" + "b"
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
           }
