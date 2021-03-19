@@ -23,7 +23,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
 import org.scalatest.matchers.should.Matchers
 import org.specs2.matcher.Matchers.concurrentExecutionContext
 import za.co.absa.atum.model.{Checkpoint, Measurement}
@@ -34,7 +34,7 @@ import za.co.absa.atum.AtumImplicits._
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, Future}
 
-class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
+class HdfsInfoIntegrationSuite extends AsyncFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
 
   private val log = LogManager.getLogger(this.getClass)
   val tempDir: String = LocalFsTestUtils.createLocalTemporaryDirectory("hdfsTestOutput")
@@ -88,7 +88,6 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
           log.info(s"Checking $expectedPath to contain expected values")
 
           val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
-            "a" + "b"
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
           }
