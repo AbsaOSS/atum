@@ -15,18 +15,26 @@
 
 package za.co.absa.atum
 
+import java.nio.file.{Files, Paths}
+
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.concurrent.Eventually
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
+import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
 import org.scalatest.matchers.should.Matchers
+import org.specs2.matcher.Matchers.concurrentExecutionContext
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
 import za.co.absa.atum.AtumImplicits._
 
-class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll {
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.{Await, Future}
+
+class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
 
   private val log = LogManager.getLogger(this.getClass)
   val tempDir: String = LocalFsTestUtils.createLocalTemporaryDirectory("hdfsTestOutput")
@@ -41,9 +49,15 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     .option("inferSchema", "true")
     .csv(inputCsvPath)
 
-  private def writeSparkData(df: DataFrame, outputPath: String): Unit =
+  private def writeSparkData(df: DataFrame, outputPath: String): Unit = {
     df.write.mode(SaveMode.Overwrite)
       .parquet(outputPath)
+
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+      if (!Files.exists(Paths.get(outputPath)))
+        throw new Exception("_INFO file not found at " + outputPath)
+    }
+  }
 
   {
     val outputPath = s"$tempDir/outputCheck1"
@@ -73,8 +87,10 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         expectedPaths.foreach { expectedPath =>
           log.info(s"Checking $expectedPath to contain expected values")
 
-          val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
-          val infoControlMeasures = ControlMeasuresParser.fromJson(infoContentJson)
+          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+            val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
+            ControlMeasuresParser.fromJson(infoContentJson)
+          }
 
           infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
           val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get

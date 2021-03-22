@@ -25,7 +25,9 @@ trait SparkTestBase {
   Logger.getLogger("org").setLevel(Level.WARN)
   Logger.getLogger("akka").setLevel(Level.WARN)
 
-  implicit val spark: SparkSession = SparkSession.builder().master("local[*]").appName("test")
+  implicit val spark: SparkSession = SparkSession.builder()
+    .master("local[1]") // Spark3 has async writes. When we move to AsyncFlatSpec, we will change this back to *
+    .appName("test")
     .config("spark.sql.codegen.wholeStage", value = false)
     .config("spark.driver.bindAddress", "127.0.0.1")
     .config("spark.driver.host", "127.0.0.1")
