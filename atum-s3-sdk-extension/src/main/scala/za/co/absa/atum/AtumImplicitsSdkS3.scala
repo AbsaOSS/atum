@@ -31,7 +31,7 @@ object AtumImplicitsSdkS3 extends AtumImplicitsBase {
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.SparkSession]].
     */
-  implicit class SparkSessionWrapperSdkS3(sparkSession: SparkSession)(implicit atum: AtumSdkS3) {
+  implicit class AtumSparkSessionWrapperSdkS3(sparkSession: SparkSession)(implicit atum: AtumSdkS3) {
 
     /**
      * Enable S3-based control measurements tracking via SDK S3
