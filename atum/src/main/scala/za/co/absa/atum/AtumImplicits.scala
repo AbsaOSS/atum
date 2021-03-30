@@ -59,7 +59,7 @@ trait AtumImplicitsBase {
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.SparkSession]].
     */
-  implicit class SparkSessionWrapper(sparkSession: SparkSession)(implicit atum: Atum) {
+  implicit class AtumSparkSessionWrapper(sparkSession: SparkSession)(implicit atum: Atum) {
 
     /**
       * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
