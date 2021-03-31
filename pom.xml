@@ -126,6 +126,7 @@
         <specs.version>2.5</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
         <mockito.scala.version>1.15.0</mockito.scala.version>
+        <commons.version>0.0.27-SNAPSHOT</commons.version>
 
         <!-- Spark versions -->
         <spark-24.version>2.4.6</spark-24.version>

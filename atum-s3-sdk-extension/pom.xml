@@ -48,6 +48,12 @@
         </dependency>
 
         <dependency>
+            <groupId>za.co.absa.commons</groupId>
+            <artifactId>commons_${scala.binary.version}</artifactId>
+            <version>${commons.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
         </dependency>

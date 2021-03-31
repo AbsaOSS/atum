@@ -36,6 +36,13 @@
         </dependency>
 
         <dependency>
+            <groupId>za.co.absa.commons</groupId>
+            <artifactId>commons_${scala.binary.version}</artifactId>
+            <version>${commons.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
             <version>1.6</version>

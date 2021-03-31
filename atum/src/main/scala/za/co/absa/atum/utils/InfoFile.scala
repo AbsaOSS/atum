@@ -20,7 +20,7 @@ import java.net.URI
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.AtumImplicits.{DefaultControlInfoLoader, DefaultControlInfoStorer, StringPathExt}
-import za.co.absa.atum.location.S3Location.StringS3LocationExt
+import za.co.absa.commons.s3.S3Location.StringS3LocationExt
 
 object InfoFile {
   /**

@@ -17,7 +17,7 @@ package za.co.absa.atum.persistence.s3
 
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption
-import za.co.absa.atum.location.S3Location
+import za.co.absa.commons.s3.S3Location
 
 trait Regional {
   def region: Region

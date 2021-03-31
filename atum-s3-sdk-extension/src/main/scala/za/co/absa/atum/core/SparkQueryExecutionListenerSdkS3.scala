@@ -48,7 +48,7 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     }
   }
 
-   /** Write _INFO file with control measurements to the output directory based on the query plan */
+  /** Write _INFO file with control measurements to the output directory based on the query plan */
   private def writeInfoFileForQueryForSdkS3(qe: QueryExecution, region: Region, kmsSettings: S3KmsSettings)(implicit credentialsProvider: AwsCredentialsProvider): Unit = {
     val infoFilePath = ExecutionPlanUtils.inferOutputInfoFileNameOnS3(qe, cf.outputInfoFileName)
 
@@ -56,9 +56,12 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     infoFilePath.foreach(path => {
 
       import za.co.absa.atum.persistence.s3.S3LocationRegionImplicits.SimpleS3LocationRegionExt
-      import za.co.absa.atum.location.S3Location.StringS3LocationExt
+      import za.co.absa.commons.s3.S3Location._
 
-      val location = path.toS3LocationOrFail.withRegion(region)
+      val location = path.toS3Location match {
+        case Some(loc) => loc.withRegion(region)
+        case _ => throw new IllegalArgumentException(s"Could not parse S3 Location from $path!")
+      }
 
       AtumSdkS3.log.debug(s"Inferred _INFO Location = $location")
       cf.storeCurrentInfoFileOnSdkS3(location, kmsSettings)
