@@ -17,7 +17,7 @@ package za.co.absa.atum.persistence.s3
 
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption
-import za.co.absa.commons.s3.S3Location
+import za.co.absa.commons.s3.{S3Location, SimpleS3Location}
 
 trait Regional {
   def region: Region
@@ -25,6 +25,8 @@ trait Regional {
 
 case class SimpleS3LocationWithRegion(protocol: String, bucketName: String, path: String, region: Region) extends S3Location with Regional {
   def withRegion(region: Region): SimpleS3LocationWithRegion = this.copy(region = region)
+
+  override def s3String: String = SimpleS3Location(protocol, bucketName, path).s3String
 }
 
 case class S3KmsSettings(kmsKeyId: String, serverSideEncryption: ServerSideEncryption = ServerSideEncryption.AWS_KMS)
