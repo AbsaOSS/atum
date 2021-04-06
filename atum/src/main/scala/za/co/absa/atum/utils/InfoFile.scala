@@ -20,7 +20,7 @@ import java.net.URI
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import za.co.absa.atum.AtumImplicits.{DefaultControlInfoLoader, DefaultControlInfoStorer, StringPathExt}
-import za.co.absa.commons.s3.S3Location.StringS3LocationExt
+import za.co.absa.commons.s3.SimpleS3Location.SimpleS3LocationExt
 
 object InfoFile {
   /**
@@ -37,11 +37,11 @@ object InfoFile {
   def convertFullPathToFsAndRelativePath(fullPath: String)(implicit hadoopConfiguration: Configuration): (FileSystem, Path) = {
     val sanitizedFullPath = fullPath.replaceAll("[\\*\\?]", "")
 
-    sanitizedFullPath.toS3Location match {
+    sanitizedFullPath.toSimpleS3Location match {
 
       case Some(s3Location) =>
         // this is S3 over hadoop FS API, not SDK S3 approach
-        val s3Uri = new URI(s3Location.s3String) // s3://<bucket>
+        val s3Uri = new URI(s3Location.asSimpleS3LocationString) // s3://<bucket>
         val s3Path = new Path(s"/${s3Location.path}") // /<text-file-object-path>
 
         val fs = FileSystem.get(s3Uri, hadoopConfiguration)

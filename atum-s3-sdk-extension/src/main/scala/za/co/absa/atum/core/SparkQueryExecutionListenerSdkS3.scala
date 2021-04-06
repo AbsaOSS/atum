@@ -21,6 +21,7 @@ import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.persistence.S3ControlMeasuresStorer
 import za.co.absa.atum.persistence.s3.S3KmsSettings
 import za.co.absa.atum.utils.ExecutionPlanUtils
+import za.co.absa.commons.s3.SimpleS3Location
 
 /**
  * The class is responsible for listening to DataSet save events and outputting corresponding control measurements.
@@ -33,7 +34,7 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
       // adding s3 processing
       cf.accumulator.getStorer match {
         case Some(s3storer: S3ControlMeasuresStorer) =>
-          AtumSdkS3.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.s3String}")
+          AtumSdkS3.log.debug(s"SparkQueryExecutionListener.onSuccess for S3ControlMeasuresStorer: writing to ${s3storer.outputLocation.asSimpleS3LocationString}")
           writeInfoFileForQueryForSdkS3(qe, s3storer.outputLocation.region, s3storer.kmsSettings)(s3storer.credentialsProvider)
 
           // Notify listeners
@@ -56,12 +57,9 @@ class SparkQueryExecutionListenerSdkS3(cf: ControlFrameworkStateSdkS3) extends S
     infoFilePath.foreach(path => {
 
       import za.co.absa.atum.persistence.s3.S3LocationRegionImplicits.SimpleS3LocationRegionExt
-      import za.co.absa.commons.s3.S3Location._
 
-      val location = path.toS3Location match {
-        case Some(loc) => loc.withRegion(region)
-        case _ => throw new IllegalArgumentException(s"Could not parse S3 Location from $path!")
-      }
+      val location = SimpleS3Location(path) // would throw IAE on apply (parse error)
+          .withRegion(region)
 
       AtumSdkS3.log.debug(s"Inferred _INFO Location = $location")
       cf.storeCurrentInfoFileOnSdkS3(location, kmsSettings)

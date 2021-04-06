@@ -28,6 +28,6 @@ class ControlFrameworkStateSdkS3(sparkSession: SparkSession) extends ControlFram
     val storer = ControlMeasuresSdkS3StorerJsonFile(s3Location, s3KmsSettings)
 
     storer.store(accumulator.getControlMeasure)
-    AtumSdkS3.log.info(s"Control measurements saved to ${s3Location.s3String}")
+    AtumSdkS3.log.info(s"Control measurements saved to ${s3Location.asSimpleS3LocationString}")
   }
 }

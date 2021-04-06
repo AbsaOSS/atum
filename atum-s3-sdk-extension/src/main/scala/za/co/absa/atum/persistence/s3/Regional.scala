@@ -26,7 +26,7 @@ trait Regional {
 case class SimpleS3LocationWithRegion(protocol: String, bucketName: String, path: String, region: Region) extends S3Location with Regional {
   def withRegion(region: Region): SimpleS3LocationWithRegion = this.copy(region = region)
 
-  override def s3String: String = SimpleS3Location(protocol, bucketName, path).s3String
+  override def asSimpleS3LocationString: String = SimpleS3Location(protocol, bucketName, path).asSimpleS3LocationString
 }
 
 case class S3KmsSettings(kmsKeyId: String, serverSideEncryption: ServerSideEncryption = ServerSideEncryption.AWS_KMS)

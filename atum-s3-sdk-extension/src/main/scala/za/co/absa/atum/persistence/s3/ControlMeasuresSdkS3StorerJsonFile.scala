@@ -58,7 +58,7 @@ case class ControlMeasuresSdkS3StorerJsonFile(outputLocation: SimpleS3LocationWi
   }
 
   override def getInfo: String = {
-    s"JSON serializer for Storer to ${outputLocation.s3String}"
+    s"JSON serializer for Storer to ${outputLocation.asSimpleS3LocationString}"
   }
 
   private[s3] def getS3Client: S3Client = SdkS3ClientUtils.getS3Client(outputLocation.region, credentialsProvider)
