@@ -20,7 +20,7 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent_2.11</artifactId>
-    <version>3.5.0</version>
+    <version>3.5.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -69,7 +69,7 @@
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developerConnection}</developerConnection>
         <url>${scm.url}</url>
-        <tag>v3.5.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
