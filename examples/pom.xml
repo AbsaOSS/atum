@@ -43,6 +43,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Commons -->
+        <dependency>
+            <groupId>za.co.absa.commons</groupId>
+            <artifactId>commons_${scala.binary.version}</artifactId>
+            <version>${commons.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Scalatest is added as a provided scope so it won't be included to the uber jar -->
         <dependency>
             <groupId>org.scalatest</groupId>
