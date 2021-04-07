@@ -39,7 +39,6 @@
             <groupId>za.co.absa.commons</groupId>
             <artifactId>commons_${scala.binary.version}</artifactId>
             <version>${commons.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
