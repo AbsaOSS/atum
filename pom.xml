@@ -20,7 +20,7 @@
 
     <groupId>za.co.absa</groupId>
     <artifactId>atum-parent_2.11</artifactId>
-    <version>3.4.2-SNAPSHOT</version>
+    <version>3.5.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -337,7 +337,7 @@
                                 <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
                                     <licenseFamilyCategory>AL20</licenseFamilyCategory>
                                     <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
-                                    <notes></notes>
+                                    <notes />
                                     <patterns>
                                         <pattern>Copyright [0-9]{4} ABSA Group Limited</pattern>
                                     </patterns>
