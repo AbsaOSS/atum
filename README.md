@@ -310,7 +310,7 @@ In cases you only want to work with Atum's model (`ControlMeasure`-related case 
 Atum's model artifact sufficient as your dependency.
 
 First, if not provided by Spark or other library, you will need to provide json4s dependencies. This project is tested 
-with `3.5.3` and `3.7.0-M51`.
+with `3.5.3` and `3.7.0-M15`.
 ```xml
 <dependency>
     <groupId>org.json4s</groupId>
