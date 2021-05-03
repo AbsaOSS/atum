@@ -92,7 +92,7 @@ For project using Scala 2.11
 <dependency>
     <groupId>za.co.absa</groupId>
     <artifactId>atum_2.11</artifactId>
-    <version>3.3.0</version>
+    <version>3.5.0</version>
 </dependency>
 ```
 For project using Scala 2.12
@@ -100,7 +100,7 @@ For project using Scala 2.12
 <dependency>
     <groupId>za.co.absa</groupId>
     <artifactId>atum_2.12</artifactId>
-    <version>3.3.0</version>
+    <version>3.5.0</version>
 </dependency>
 ```
 
@@ -331,7 +331,7 @@ Then, just include the model library
 <dependency>
     <groupId>za.co.absa</groupId>
     <artifactId>atum-model_2.11</artifactId> <!-- or 2.12 -->
-    <version>3.3.0</version>
+    <version>3.5.0</version>
 </dependency>
 ```
 
