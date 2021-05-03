@@ -25,4 +25,19 @@ case class ControlMeasure
 ) {
   def asJson: String = SerializationUtils.asJson(this)
   def asJsonPretty: String = SerializationUtils.asJsonPretty(this)
+
+  /**
+   * A new ControlMeasure will be constructed with the supplied `checkpoint1` as the new first checkpoint (with order:0).
+   * Any existing checkpoints will be shifted behind with their indices increased by 1.
+   *
+   * @param checkpoint1 a new checkpoint preceding all the existing
+   */
+  def withPrecedingCheckpoint(checkpoint1: Checkpoint): ControlMeasure = {
+    val shiftedCheckpoints = checkpoints.map { cp =>
+      cp.copy(order = cp.order + 1)
+    }
+
+    this.copy(checkpoints = checkpoint1 :: shiftedCheckpoints)
+
+  }
 }
