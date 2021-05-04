@@ -151,6 +151,25 @@ val controlMeasure: ControlMeasure =
 println("Generated control measure is: " + controlMeasure.asJson)
 ```
 
+#### Customizing ControlMeasure
+In case you need to change the data the ControlMeasure holds, you can do this in a usual scala way - the model comprises
+of case classes, so the built-in copy methods are available, e.g. `cm.copy(metadata = cm.metadata.copy(sourceApplication = "UpdatedAppName"))`
+
+However, to make things slightly easier in the checkpoint department, ControlMeasure's helper method `withPrecedingCheckpoint()`
+to prepend a custom checkpoint has been added shifting existing checkpoint behind while also increasing their order:
+
+```scala
+import za.co.absa.atum.model._
+
+val cm: ControlMeasure = ... // existing ControlMeasure with 2 checkpoints
+val cpToBePrepended: Checkpoint = Checkpoint(..., order = 1, ...)
+
+cm.checkpoints.map(_.order) // List(1, 2)
+cpToBePrepended.order // 1
+val updatedCm = cm.withPrecedingCheckpoint(cpToBePrepended)
+updatedCm.checkpoints.map(_.order) // List(1, 2, 3)
+```
+
 #### Writing an _INFO file with the ControlMeasure to HDFS
 ```scala
 import org.apache.hadoop.fs.{FileSystem, Path}
