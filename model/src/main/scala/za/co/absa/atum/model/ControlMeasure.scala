@@ -27,8 +27,9 @@ case class ControlMeasure
   def asJsonPretty: String = SerializationUtils.asJsonPretty(this)
 
   /**
-   * A new ControlMeasure will be constructed with the supplied `checkpoint1` as the new first checkpoint (with order:0).
-   * Any existing checkpoints will be shifted behind with their indices increased by 1.
+   * A new ControlMeasure will be constructed with the supplied `checkpoint1` as the new first checkpoint (as-is,
+   * e.g. its order value is neither checked nor adjusted).
+   * Any existing checkpoints will be shifted behind with their order indices increased by 1.
    *
    * @param checkpoint1 a new checkpoint preceding all the existing
    */
