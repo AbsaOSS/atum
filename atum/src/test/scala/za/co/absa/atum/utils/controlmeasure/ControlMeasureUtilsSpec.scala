@@ -25,6 +25,7 @@ import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
 
 object ControlMeasureUtilsSpec {
   val testingVersion = "1.2.3"
+  val testingSoftware = "Atum"
   val testingDate = "20-02-2020"
   val testingDateTime1 = "20-02-2020 10:20:30 +0100"
   val testingDateTime2 = "20-02-2020 10:20:40 +0100"
@@ -42,6 +43,7 @@ object ControlMeasureUtilsSpec {
       .replaceAll("""(?<="processStartTime"\s?:\s?")([-+: \d]+)""", testingDateTime1)
       .replaceAll("""(?<="processEndTime"\s?:\s?")([-+: \d]+)""", testingDateTime2)
       .replaceAll("""(?<="version"\s?:\s?")([-\d\.A-z]+)""", testingVersion)
+      .replaceAll("""(?<="software"\s?:\s?")([\d\.A-z_]+)""", testingSoftware)
       .replaceAll("\r\n", "\n") // Windows guard
   }
 
@@ -51,12 +53,14 @@ object ControlMeasureUtilsSpec {
     def updateCheckpoints(fn: Checkpoint => Checkpoint): ControlMeasure = cm.copy(checkpoints = cm.checkpoints.map(fn))
 
     def replaceCheckpointsVersion(newVersion: Option[String]): ControlMeasure = cm.updateCheckpoints(_.copy(version = newVersion))
+    def replaceCheckpointsSoftware(newSoftware: Option[String]): ControlMeasure = cm.updateCheckpoints(_.copy(software = newSoftware))
     def replaceCheckpointsProcessStartTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processStartTime = newDateTime))
     def replaceCheckpointsProcessEndTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processEndTime = newDateTime))
 
     def stabilizeTestingControlMeasure: ControlMeasure = {
       cm.replaceInformationDate(testingDate)
         .replaceCheckpointsVersion(Some(testingVersion))
+        .replaceCheckpointsSoftware(Some(testingSoftware))
         .replaceCheckpointsProcessStartTime(testingDateTime1)
         .replaceCheckpointsProcessEndTime(testingDateTime2)
     }

@@ -39,7 +39,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
       None,
       List(
-        Checkpoint("Source", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Source", 1, List(
+        Checkpoint("Source", Some(testingSoftware), Some(testingVersion), testingDateTime1, testingDateTime2, "Source", 1, List(
           Measurement("recordCount", "count", "*", "2")
         ))
       )
@@ -65,7 +65,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
       None,
       List(
-        Checkpoint("InitCheckpoint1", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Workflow1", 1, List(
+        Checkpoint("InitCheckpoint1", Some(testingSoftware), Some(testingVersion), testingDateTime1, testingDateTime2, "Workflow1", 1, List(
           Measurement("recordCount", "count", "*", "2"),
           Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
           Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")))
