@@ -26,7 +26,10 @@ import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
   * Unit tests for ControlInfo object serialization
   */
 class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
-  val exampleCtrlInfo = ControlMeasure(
+  private val version = BuildProperties.buildVersion
+  private val software = BuildProperties.projectName
+
+  private val exampleCtrlInfo = ControlMeasure(
     metadata = ControlMeasureMetadata(
       sourceApplication = "FrontArena",
       country = "ZA",
@@ -79,9 +82,8 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     ).withBuildProperties
     )
   )
-  val version = BuildProperties.buildVersion
-  val software = BuildProperties.projectName
-  val exampleInputJson: String = s"""{
+
+  private val exampleInputJson: String = s"""{
      |"metadata":{
      |"sourceApplication":"FrontArena",
      |"country":"ZA",
@@ -136,7 +138,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |}]
      |}""".stripMargin.filter(_ >= ' ')
 
-  val exampleOutputJson: String = s"""{
+  private val exampleOutputJson: String = s"""{
      |"metadata":{
      |"sourceApplication":"FrontArena",
      |"country":"ZA",

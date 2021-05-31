@@ -18,13 +18,14 @@ package za.co.absa.atum.utils.controlmeasure
 import org.apache.spark.sql.DataFrame
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.BaseTestSuite
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
-import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtilsSpec._
 
 class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matchers {
 
   import spark.implicits._
+  import za.co.absa.atum.BaseTestSuite._
 
   val colNames = Seq("col1", "col2")
   val testingDf: DataFrame = Seq(
@@ -36,12 +37,19 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
     val defaultCm = ControlMeasureBuilder.forDF(testingDf).build
 
     val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
-      ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
+      ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, BaseTestSuite.testingDate, Map()),
       None,
       List(
-        Checkpoint("Source", Some(testingSoftware), Some(testingVersion), testingDateTime1, testingDateTime2, "Source", 1, List(
-          Measurement("recordCount", "count", "*", "2")
-        ))
+        Checkpoint(
+          "Source",
+          Some(BaseTestSuite.testingSoftware),
+          Some(BaseTestSuite.testingVersion),
+          BaseTestSuite.testingDateTime1,
+          BaseTestSuite.testingDateTime2,
+          "Source",
+          1,
+          List(Measurement("recordCount", "count", "*", "2"))
+        )
       )
     )
 
@@ -62,13 +70,23 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       .build
 
     val expectedCustomControlMeasure: ControlMeasure = ControlMeasure(
-      ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
+      ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, BaseTestSuite.testingDate, Map()),
       None,
       List(
-        Checkpoint("InitCheckpoint1", Some(testingSoftware), Some(testingVersion), testingDateTime1, testingDateTime2, "Workflow1", 1, List(
-          Measurement("recordCount", "count", "*", "2"),
-          Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
-          Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")))
+        Checkpoint(
+          "InitCheckpoint1",
+          Some(BaseTestSuite.testingSoftware),
+          Some(BaseTestSuite.testingVersion),
+          BaseTestSuite.testingDateTime1,
+          BaseTestSuite.testingDateTime2,
+          "Workflow1",
+          1,
+          List(
+            Measurement("recordCount", "count", "*", "2"),
+            Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
+            Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")
+          )
+        )
       )
     )
 
