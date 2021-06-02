@@ -16,25 +16,27 @@
 package za.co.absa.atum
 
 import java.nio.file.{Files, Paths}
-
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
+import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
-import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.specs2.matcher.Matchers.concurrentExecutionContext
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
 import za.co.absa.atum.AtumImplicits._
 
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.DurationInt
 
-class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
+
+class HdfsInfoIntegrationSuite extends AnyFlatSpec
+  with SparkTestBase
+  with Matchers
+  with BeforeAndAfterAll
+  with Eventually {
 
   private val log = LogManager.getLogger(this.getClass)
   val tempDir: String = LocalFsTestUtils.createLocalTemporaryDirectory("hdfsTestOutput")
@@ -84,21 +86,27 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
 
         spark.disableControlMeasuresTracking()
 
-        expectedPaths.foreach { expectedPath =>
-          log.info(s"Checking $expectedPath to contain expected values")
+        spark.sparkContext.addSparkListener(new SparkListener() {
+          override def onTaskEnd(taskEnd: SparkListenerTaskEnd) {
+            synchronized {
+              expectedPaths.foreach { expectedPath =>
+                log.info(s"Checking $expectedPath to contain expected values")
 
-          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
-            val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
-            ControlMeasuresParser.fromJson(infoContentJson)
+                val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+                  val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
+                  ControlMeasuresParser.fromJson(infoContentJson)
+                }
+
+                infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
+                val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
+                checkpoint0.controls should contain(Measurement("recordCount", "count", "*", "5000"))
+
+                val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
+                checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
+              }
+            }
           }
-
-          infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
-          val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
-          checkpoint0.controls should contain(Measurement("recordCount", "count", "*", "5000"))
-
-          val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
-          checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
-        }
+        })
       }
     }
   }
