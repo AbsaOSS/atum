@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure}
 
-object BaseTestSuite {
+trait ControlMeasureBaseTestSuite {
   val testingVersion = "1.2.3"
   val testingSoftware = "Atum"
   val testingDate = "20-02-2020"
@@ -26,7 +26,7 @@ object BaseTestSuite {
 
   /**
    * Replaces metadata.informationDate, checkpoints.[].{version, processStartTime, processEndTime} with ControlUtilsSpec.testing* values
-   * (and replaces CRLF endings with LF if found, too) in JSON (regarless
+   * (and replaces CRLF endings with LF if found, too) in JSON
    *
    * @param actualJson
    * @return updated json

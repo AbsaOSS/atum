@@ -21,9 +21,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
 import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
-import za.co.absa.atum.BaseTestSuite
+import za.co.absa.atum.ControlMeasureBaseTestSuite
 
-class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
+class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSuite with Matchers with SparkTestBase {
 
   import spark.implicits._
 
@@ -35,9 +35,9 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   private val expectedJsonForSingleIntColumn =
     s"""{"metadata":{"sourceApplication":"Test","country":"ZA","historyType":"Snapshot","dataFilename":"_testOutput/data",
-       |"sourceType":"Source","version":1,"informationDate":"${BaseTestSuite.testingDate}","additionalInfo":{}},
-       |"checkpoints":[{"name":"Source","software":"${BaseTestSuite.testingSoftware}","version":"${BaseTestSuite.testingVersion}",
-       |"processStartTime":"${BaseTestSuite.testingDateTime1}","processEndTime":"${BaseTestSuite.testingDateTime2}",
+       |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
+       |"checkpoints":[{"name":"Source","software":"$testingSoftware","version":"$testingVersion",
+       |"processStartTime":"$testingDateTime1","processEndTime":"$testingDateTime2",
        |"workflowName":"Source","order":1,"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*",
        |"controlValue":"4"},{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value",
        |"controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
@@ -51,15 +51,15 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
        |    "dataFilename" : "_testOutput/data",
        |    "sourceType" : "Source",
        |    "version" : 1,
-       |    "informationDate" : "${BaseTestSuite.testingDate}",
+       |    "informationDate" : "$testingDate",
        |    "additionalInfo" : { }
        |  },
        |  "checkpoints" : [ {
        |    "name" : "Source",
-       |    "software" : "${BaseTestSuite.testingSoftware}",
-       |    "version" : "${BaseTestSuite.testingVersion}",
-       |    "processStartTime" : "${BaseTestSuite.testingDateTime1}",
-       |    "processEndTime" : "${BaseTestSuite.testingDateTime2}",
+       |    "software" : "$testingSoftware",
+       |    "version" : "$testingVersion",
+       |    "processStartTime" : "$testingDateTime1",
+       |    "processEndTime" : "$testingDateTime2",
        |    "workflowName" : "Source",
        |    "order" : 1,
        |    "controls" : [ {
@@ -89,14 +89,14 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data",
         writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
       // replace non-stable fields (date/time, version) using rx lookbehind
-      val actualStabilized = BaseTestSuite.stabilizeJsonOutput(actual)
+      val actualStabilized = stabilizeJsonOutput(actual)
 
       // testing the generated jsons
       assert(actualStabilized == expectedMeasureJson, "Generated json does not match")
 
       // check the what's actually written to "HDFS"
       val actual2 = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(BaseTestSuite.stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+      assert(stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
 
       hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
     }
@@ -121,7 +121,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
       // check the what's actually written to "HDFS"
       val actual = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(BaseTestSuite.stabilizeJsonOutput(actual) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+      assert(stabilizeJsonOutput(actual) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
 
       hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
     }

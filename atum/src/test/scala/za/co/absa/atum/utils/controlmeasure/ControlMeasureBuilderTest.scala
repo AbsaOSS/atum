@@ -18,14 +18,13 @@ package za.co.absa.atum.utils.controlmeasure
 import org.apache.spark.sql.DataFrame
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import za.co.absa.atum.BaseTestSuite
+import za.co.absa.atum.ControlMeasureBaseTestSuite
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
 
-class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matchers {
+class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestSuite with SparkTestBase with Matchers {
 
   import spark.implicits._
-  import za.co.absa.atum.BaseTestSuite._
 
   val colNames = Seq("col1", "col2")
   val testingDf: DataFrame = Seq(
@@ -37,21 +36,27 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
     val defaultCm = ControlMeasureBuilder.forDF(testingDf).build
 
     val expectedDefaultControlMeasure: ControlMeasure = ControlMeasure(
-      ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, BaseTestSuite.testingDate, Map()),
+      ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
       None,
       List(
         Checkpoint(
           "Source",
-          Some(BaseTestSuite.testingSoftware),
-          Some(BaseTestSuite.testingVersion),
-          BaseTestSuite.testingDateTime1,
-          BaseTestSuite.testingDateTime2,
+          Some(testingSoftware),
+          Some(testingVersion),
+          testingDateTime1,
+          testingDateTime2,
           "Source",
           1,
           List(Measurement("recordCount", "count", "*", "2"))
         )
       )
     )
+
+    // prior to stabilization, let's check the actual by-default generated software fields:
+    defaultCm.checkpoints.map(_.software).foreach { swName =>
+      swName shouldBe defined
+      swName.get should fullyMatch regex("""^atum_(2\.11|2\.12)$""")
+    }
 
     defaultCm.stabilizeTestingControlMeasure shouldBe expectedDefaultControlMeasure
   }
@@ -70,15 +75,15 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       .build
 
     val expectedCustomControlMeasure: ControlMeasure = ControlMeasure(
-      ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, BaseTestSuite.testingDate, Map()),
+      ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
       None,
       List(
         Checkpoint(
           "InitCheckpoint1",
-          Some(BaseTestSuite.testingSoftware),
-          Some(BaseTestSuite.testingVersion),
-          BaseTestSuite.testingDateTime1,
-          BaseTestSuite.testingDateTime2,
+          Some(testingSoftware),
+          Some(testingVersion),
+          testingDateTime1,
+          testingDateTime2,
           "Workflow1",
           1,
           List(
@@ -89,6 +94,12 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
         )
       )
     )
+
+    // prior to stabilization, let's check the actual by-default generated software fields:
+    customCm.checkpoints.map(_.software).foreach { swName =>
+      swName shouldBe defined
+      swName.get should fullyMatch regex("""^atum_(2\.11|2\.12)$""")
+    }
 
     customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
   }
