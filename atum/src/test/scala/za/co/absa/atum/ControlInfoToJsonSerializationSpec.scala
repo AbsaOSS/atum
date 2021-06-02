@@ -26,7 +26,10 @@ import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
   * Unit tests for ControlInfo object serialization
   */
 class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
-  val exampleCtrlInfo = ControlMeasure(
+  private val version = BuildProperties.buildVersion
+  private val software = BuildProperties.projectName
+
+  private val exampleCtrlInfo = ControlMeasure(
     metadata = ControlMeasureMetadata(
       sourceApplication = "FrontArena",
       country = "ZA",
@@ -79,40 +82,116 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     ).withBuildProperties
     )
   )
-  val version = BuildProperties.buildVersion
-  val exampleInputJson: String = "{\"metadata\":{\"sourceApplication\":\"FrontArena\",\"country\":\"ZA\"," +
-    "\"historyType\":\"Snapshot\",\"dataFilename\":\"example.dat\",\"sourceType\":\"\"," +
-    "\"version\":1,\"informationDate\":\"01-01-2017\",\"additionalInfo\":{\"key1\":\"value1\",\"key2\":\"value2\"}}," +
-    "\"checkpoints\":[{\"name\":\"Source\"," +
-    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
-    "\"processStartTime\":\"01-01-2017 08:00:00\"," +
-    "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
-    "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"type.aggregatedTotal\"," +
-    "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
-    "\"controlType\":\"type.Count\",\"controlCol\":\"id\",\"controlValue\":243}]},{\"name\":\"Raw\"," +
-    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
-    "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
-    "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
-    "\"controlType\":\"type.aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
-    "{\"controlName\":\"recordCount\",\"controlType\":\"type.Count\",\"controlCol\":\"id\"," +
-    "\"controlValue\":243}]}]}"
 
-  val exampleOutputJson: String = "{\"metadata\":{\"sourceApplication\":\"FrontArena\",\"country\":\"ZA\"," +
-    "\"historyType\":\"Snapshot\",\"dataFilename\":\"example.dat\",\"sourceType\":\"\"," +
-    "\"version\":1,\"informationDate\":\"01-01-2017\",\"additionalInfo\":{\"key1\":\"value1\",\"key2\":\"value2\"}}," +
-    "\"checkpoints\":[{\"name\":\"Source\"," +
-    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
-    "\"processStartTime\":\"01-01-2017 08:00:00\"," +
-    "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
-    "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"aggregatedTotal\"," +
-    "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
-    "\"controlType\":\"count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
-    "\"software\":\"Atum\",\"version\":\""+ version + "\"," +
-    "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
-    "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
-    "\"controlType\":\"aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
-    "{\"controlName\":\"recordCount\",\"controlType\":\"count\",\"controlCol\":\"id\"," +
-    "\"controlValue\":\"243\"}]}]}"
+  private val exampleInputJson: String = s"""{
+     |"metadata":{
+     |"sourceApplication":"FrontArena",
+     |"country":"ZA",
+     |"historyType":"Snapshot",
+     |"dataFilename":"example.dat",
+     |"sourceType":"",
+     |"version":1,
+     |"informationDate":"01-01-2017",
+     |"additionalInfo":{
+     |"key1":"value1",
+     |"key2":"value2"
+     |}
+     |},
+     |"checkpoints":[{
+     |"name":"Source",
+     |"software":"$software",
+     |"version":"$version",
+     |"processStartTime":"01-01-2017 08:00:00",
+     |"processEndTime":"01-01-2017 08:00:00",
+     |"workflowName":"Source",
+     |"order":1,
+     |"controls":[{
+     |"controlName":"pvControlTotal",
+     |"controlType":"type.aggregatedTotal",
+     |"controlCol":"pv",
+     |"controlValue":"32847283324.324324"
+     |},{
+     |"controlName":"recordCount",
+     |"controlType":"type.Count",
+     |"controlCol":"id",
+     |"controlValue":243
+     |}]
+     |},{
+     |"name":"Raw",
+     |"software":"$software",
+     |"version":"$version",
+     |"processStartTime":"01-01-2017 08:00:00",
+     |"processEndTime":"01-01-2017 08:00:00",
+     |"workflowName":"Raw",
+     |"order":2,
+     |"controls":[{
+     |"controlName":"pvControlTotal",
+     |"controlType":"type.aggregatedTotal",
+     |"controlCol":"pv",
+     |"controlValue":"32847283324.324324"
+     |},{
+     |"controlName":"recordCount",
+     |"controlType":"type.Count",
+     |"controlCol":"id",
+     |"controlValue":243
+     |}]
+     |}]
+     |}""".stripMargin.filter(_ >= ' ')
+
+  private val exampleOutputJson: String = s"""{
+     |"metadata":{
+     |"sourceApplication":"FrontArena",
+     |"country":"ZA",
+     |"historyType":"Snapshot",
+     |"dataFilename":"example.dat",
+     |"sourceType":"",
+     |"version":1,
+     |"informationDate":"01-01-2017",
+     |"additionalInfo":{
+     |"key1":"value1",
+     |"key2":"value2"
+     |}
+     |},
+     |"checkpoints":[{
+     |"name":"Source",
+     |"software":"$software",
+     |"version":"$version",
+     |"processStartTime":"01-01-2017 08:00:00",
+     |"processEndTime":"01-01-2017 08:00:00",
+     |"workflowName":"Source",
+     |"order":1,
+     |"controls":[{
+     |"controlName":"pvControlTotal",
+     |"controlType":"aggregatedTotal",
+     |"controlCol":"pv",
+     |"controlValue":"32847283324.324324"
+     |},{
+     |"controlName":"recordCount",
+     |"controlType":"count",
+     |"controlCol":"id",
+     |"controlValue":"243"
+     |}]
+     |},{
+     |"name":"Raw",
+     |"software":"$software",
+     |"version":"$version",
+     |"processStartTime":"01-01-2017 08:00:00",
+     |"processEndTime":"01-01-2017 08:00:00",
+     |"workflowName":"Raw",
+     |"order":2,
+     |"controls":[{
+     |"controlName":"pvControlTotal",
+     |"controlType":"aggregatedTotal",
+     |"controlCol":"pv",
+     |"controlValue":"32847283324.324324"
+     |},{
+     |"controlName":"recordCount",
+     |"controlType":"count",
+     |"controlCol":"id",
+     |"controlValue":"243"
+     |}]
+     |}]
+     |}""".stripMargin.filter(_ >= ' ')
 
   "toJson" should "serialize a ControlInfo object" in
   {

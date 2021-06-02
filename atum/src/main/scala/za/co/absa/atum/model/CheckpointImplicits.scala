@@ -21,7 +21,7 @@ object CheckpointImplicits {
 
   implicit class CheckpointExt(checkpoint: Checkpoint) {
     def withBuildProperties: Checkpoint = {
-      checkpoint.copy(software = Some("Atum"), version = Some(BuildProperties.buildVersion))
+      checkpoint.copy(software = Some(BuildProperties.projectName), version = Some(BuildProperties.buildVersion))
     }
   }
 

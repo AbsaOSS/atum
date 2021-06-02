@@ -18,11 +18,11 @@ package za.co.absa.atum.utils.controlmeasure
 import org.apache.spark.sql.DataFrame
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.ControlMeasureBaseTestSuite
 import za.co.absa.atum.model._
 import za.co.absa.atum.utils.SparkTestBase
-import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtilsSpec._
 
-class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matchers {
+class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestSuite with SparkTestBase with Matchers {
 
   import spark.implicits._
 
@@ -39,11 +39,24 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       ControlMeasureMetadata("", "ZA", "Snapshot", "", "Source", 1, testingDate, Map()),
       None,
       List(
-        Checkpoint("Source", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Source", 1, List(
-          Measurement("recordCount", "count", "*", "2")
-        ))
+        Checkpoint(
+          "Source",
+          Some(testingSoftware),
+          Some(testingVersion),
+          testingDateTime1,
+          testingDateTime2,
+          "Source",
+          1,
+          List(Measurement("recordCount", "count", "*", "2"))
+        )
       )
     )
+
+    // prior to stabilization, let's check the actual by-default generated software fields:
+    defaultCm.checkpoints.map(_.software).foreach { swName =>
+      swName shouldBe defined
+      swName.get should fullyMatch regex("""^atum_(2\.11|2\.12)$""")
+    }
 
     defaultCm.stabilizeTestingControlMeasure shouldBe expectedDefaultControlMeasure
   }
@@ -65,12 +78,28 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with SparkTestBase with Matc
       ControlMeasureMetadata("SourceApp1", "CZ", "HistoryType1", "input/path1", "SourceType1", 1, testingDate, Map()),
       None,
       List(
-        Checkpoint("InitCheckpoint1", Some("Atum"), Some(testingVersion), testingDateTime1, testingDateTime2, "Workflow1", 1, List(
-          Measurement("recordCount", "count", "*", "2"),
-          Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
-          Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")))
+        Checkpoint(
+          "InitCheckpoint1",
+          Some(testingSoftware),
+          Some(testingVersion),
+          testingDateTime1,
+          testingDateTime2,
+          "Workflow1",
+          1,
+          List(
+            Measurement("recordCount", "count", "*", "2"),
+            Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
+            Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")
+          )
+        )
       )
     )
+
+    // prior to stabilization, let's check the actual by-default generated software fields:
+    customCm.checkpoints.map(_.software).foreach { swName =>
+      swName shouldBe defined
+      swName.get should fullyMatch regex("""^atum_(2\.11|2\.12)$""")
+    }
 
     customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
   }
