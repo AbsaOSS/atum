@@ -21,10 +21,12 @@ import java.util.Properties
 object BuildProperties {
   private val properties = new Properties()
   private val buildVersionKey = "build.version"
+  private val buildSoftwareKey = "build.software"
 
   /** Returns the version of the build. */
   lazy val buildVersion: String = properties.getProperty(buildVersionKey)
-  val projectName = "Atum"
+  /** Returns the name of the build. */
+  lazy val projectName: String = properties.getProperty(buildSoftwareKey)
 
   loadConfig()
 

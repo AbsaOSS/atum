@@ -19,54 +19,12 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import za.co.absa.atum.model.{Checkpoint, ControlMeasure}
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
 import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
+import za.co.absa.atum.ControlMeasureBaseTestSuite
 
-object ControlMeasureUtilsSpec {
-  val testingVersion = "1.2.3"
-  val testingDate = "20-02-2020"
-  val testingDateTime1 = "20-02-2020 10:20:30 +0100"
-  val testingDateTime2 = "20-02-2020 10:20:40 +0100"
+class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSuite with Matchers with SparkTestBase {
 
-  /**
-   * Replaces metadata.informationDate, checkpoints.[].{version, processStartTime, processEndTime} with ControlUtilsSpec.testing* values
-   * (and replaces CRLF endings with LF if found, too) in JSON (regarless
-   *
-   * @param actualJson
-   * @return updated json
-   */
-  def stabilizeJsonOutput(actualJson: String): String = {
-    actualJson
-      .replaceFirst("""(?<="informationDate"\s?:\s?")(\d{2}-\d{2}-\d{4})""", testingDate)
-      .replaceAll("""(?<="processStartTime"\s?:\s?")([-+: \d]+)""", testingDateTime1)
-      .replaceAll("""(?<="processEndTime"\s?:\s?")([-+: \d]+)""", testingDateTime2)
-      .replaceAll("""(?<="version"\s?:\s?")([-\d\.A-z]+)""", testingVersion)
-      .replaceAll("\r\n", "\n") // Windows guard
-  }
-
-  implicit class ControlMeasureStabilizationExt(cm: ControlMeasure) {
-    def replaceInformationDate(newDate: String): ControlMeasure = cm.copy(metadata = cm.metadata.copy(informationDate = newDate))
-
-    def updateCheckpoints(fn: Checkpoint => Checkpoint): ControlMeasure = cm.copy(checkpoints = cm.checkpoints.map(fn))
-
-    def replaceCheckpointsVersion(newVersion: Option[String]): ControlMeasure = cm.updateCheckpoints(_.copy(version = newVersion))
-    def replaceCheckpointsProcessStartTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processStartTime = newDateTime))
-    def replaceCheckpointsProcessEndTime(newDateTime: String): ControlMeasure = cm.updateCheckpoints(_.copy(processEndTime = newDateTime))
-
-    def stabilizeTestingControlMeasure: ControlMeasure = {
-      cm.replaceInformationDate(testingDate)
-        .replaceCheckpointsVersion(Some(testingVersion))
-        .replaceCheckpointsProcessStartTime(testingDateTime1)
-        .replaceCheckpointsProcessEndTime(testingDateTime2)
-    }
-  }
-
-}
-
-class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
-
-  import ControlMeasureUtilsSpec._
   import spark.implicits._
 
   private val singleStringColumnDF = spark.sparkContext.parallelize(List("987987", "example", "example", "another example")).toDF
@@ -78,10 +36,11 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
   private val expectedJsonForSingleIntColumn =
     s"""{"metadata":{"sourceApplication":"Test","country":"ZA","historyType":"Snapshot","dataFilename":"_testOutput/data",
        |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
-       |"checkpoints":[{"name":"Source","software":"Atum","version":"$testingVersion","processStartTime":"$testingDateTime1",
-       |"processEndTime":"$testingDateTime2","workflowName":"Source","order":1,
-       |"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*","controlValue":"4"},
-       |{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value","controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
+       |"checkpoints":[{"name":"Source","software":"$testingSoftware","version":"$testingVersion",
+       |"processStartTime":"$testingDateTime1","processEndTime":"$testingDateTime2",
+       |"workflowName":"Source","order":1,"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*",
+       |"controlValue":"4"},{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value",
+       |"controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
 
   private val expectedPrettyJsonForSingleIntColumn =
     s"""{
@@ -97,7 +56,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
        |  },
        |  "checkpoints" : [ {
        |    "name" : "Source",
-       |    "software" : "Atum",
+       |    "software" : "$testingSoftware",
        |    "version" : "$testingVersion",
        |    "processStartTime" : "$testingDateTime1",
        |    "processEndTime" : "$testingDateTime2",
@@ -127,7 +86,8 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       implicit val hdfs = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
-      val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data", writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
+      val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data",
+        writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
       // replace non-stable fields (date/time, version) using rx lookbehind
       val actualStabilized = stabilizeJsonOutput(actual)
 
