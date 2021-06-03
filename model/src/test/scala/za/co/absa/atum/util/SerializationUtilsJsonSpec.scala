@@ -21,7 +21,7 @@ import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata
 import za.co.absa.atum.utils.SerializationUtils
 
 /**
- * Unit tests for ControlMeasure SerializationUtils-based object serialization
+ * Unit tests for ControlMeasure and RunStatus SerializationUtils-based object serialization
  */
 class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
 
@@ -134,6 +134,15 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
 
   it should "serialize via asJsonPretty and deserialize back" in {
     SerializationUtils.fromJson[Seq[RunStatus]](SerializationUtils.asJsonPretty(runStatuses)) shouldEqual runStatuses
+  }
+
+  // jackson serialization support (notice the `runStatusesJson` being reused):
+  it should "serialize via Jackson's toJson" in {
+    JacksonJsonSerializer.toJson(runStatuses) shouldBe runStatusesJson
+  }
+
+  it should "deserialize via Jackson's fromJson" in {
+    JacksonJsonSerializer.fromJson[Array[RunStatus]](runStatusesJson) shouldBe runStatuses // Array to overcome runtime erasure
   }
 
 }
