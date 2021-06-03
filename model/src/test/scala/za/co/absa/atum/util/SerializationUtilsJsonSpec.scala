@@ -17,13 +17,14 @@ package za.co.absa.atum.util
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
+import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement, RunError, RunState, RunStatus}
 import za.co.absa.atum.utils.SerializationUtils
 
 /**
-  * Unit tests for ControlMeasure SerializationUtils-based object serialization
-  */
+ * Unit tests for ControlMeasure SerializationUtils-based object serialization
+ */
 class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
+
   val exampleCtrlInfo = ControlMeasure(
     metadata = ControlMeasureMetadata(
       sourceApplication = "FrontArena",
@@ -81,7 +82,6 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
     )
     )
   )
-
   val exampleOutputJson: String = "{\"metadata\":{\"sourceApplication\":\"FrontArena\",\"country\":\"ZA\"," +
     "\"historyType\":\"Snapshot\",\"dataFilename\":\"example.dat\",\"sourceType\":\"\"," +
     "\"version\":1,\"informationDate\":\"01-01-2017\",\"additionalInfo\":{\"key1\":\"value1\",\"key2\":\"value2\"}}," +
@@ -99,18 +99,41 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
     "{\"controlName\":\"recordCount\",\"controlType\":\"count\",\"controlCol\":\"id\"," +
     "\"controlValue\":\"243\"}]}]}"
 
-  "asJson" should "serialize a ControlInfo object" in {
+  "ControlInfo" should "serialize a ControlInfo object via asJson" in {
     val s = SerializationUtils.asJson(exampleCtrlInfo)
     s shouldEqual exampleOutputJson
   }
 
-  "fromJson" should "deserialize a ControlInfo object" in {
+  it should "deserialize a ControlInfo object via fromJson" in {
     val s = SerializationUtils.fromJson[ControlMeasure](exampleOutputJson)
     s shouldEqual exampleCtrlInfo
   }
 
-  "asJsonPretty" should "be no worse than asJson" in {
+  it should "serialize via asJsonPretty and deserialize back" in {
     SerializationUtils.fromJson[ControlMeasure](SerializationUtils.asJsonPretty(exampleCtrlInfo)) shouldEqual exampleCtrlInfo
+  }
+
+  val runStatuses = Seq(
+    RunStatus(RunState.failed, Some(RunError("job1", "step1", "example job1", "X=1, Z=ABC"))),
+    RunStatus(RunState.allSucceeded, None)
+  )
+
+  val runStatusesJson =
+    """[
+      |{"status":"failed","error":{"job":"job1","step":"step1","description":"example job1","technicalDetails":"X=1, Z=ABC"}},
+      |{"status":"allSucceeded"}
+      |]""".stripMargin.replaceAll("\n", "")
+
+  "RunStatus" should "serialize via asJson" in {
+    SerializationUtils.asJson(runStatuses) shouldBe runStatusesJson
+  }
+
+  it should "deserialize via fromJson" in {
+    SerializationUtils.fromJson[Seq[RunStatus]](runStatusesJson) shouldBe runStatuses
+  }
+
+  it should "serialize via asJsonPretty and deserialize back" in {
+    SerializationUtils.fromJson[Seq[RunStatus]](SerializationUtils.asJsonPretty(runStatuses)) shouldEqual runStatuses
   }
 
 }
