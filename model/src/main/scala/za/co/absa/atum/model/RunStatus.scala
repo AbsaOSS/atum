@@ -15,10 +15,15 @@
 
 package za.co.absa.atum.model
 
+import com.fasterxml.jackson.core.`type`.TypeReference
+import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
 import za.co.absa.atum.model.RunState.RunState
+
+class RunStateType extends TypeReference[RunState.type]
 
 case class RunStatus
 (
+  @JsonScalaEnumeration(classOf[RunStateType])
   status: RunState,
   error: Option[RunError]
 )
