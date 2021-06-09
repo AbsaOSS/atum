@@ -55,7 +55,7 @@ object CreateInfoFileToolCSV {
           " country historyType [columns for aggregation...]")
         System.exit(1)
       } else {
-        (args(0), args(1), args(2).toInt, args(3), args(4), args(5), args(6), args(7), args.slice(8, args.length))
+        (args(0), args(1), args(2).toInt, args(3), args(4), args(5).toBoolean, args(6), args(7), args.slice(8, args.length))
       }
     }
 
