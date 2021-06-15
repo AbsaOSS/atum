@@ -18,7 +18,7 @@ package za.co.absa.atum.utils
 
 import java.util.Properties
 
-object BuildProperties {
+object DefaultBuildProperties extends BuildProperties {
   private val properties = new Properties()
   private val buildVersionKey = "build.version"
   private val buildSoftwareKey = "build.software"
@@ -35,4 +35,9 @@ object BuildProperties {
     try properties.load(is)
     finally if (is != null) is.close()
   }
+}
+
+trait BuildProperties {
+  val buildVersion: String
+  val projectName: String
 }

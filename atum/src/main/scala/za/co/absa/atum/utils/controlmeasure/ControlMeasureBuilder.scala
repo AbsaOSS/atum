@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory
 import za.co.absa.atum.core.ControlType
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
+import za.co.absa.atum.utils.DefaultBuildProperties
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.getTimestampAsString
 
 import scala.util.Try
@@ -37,6 +38,7 @@ trait ControlMeasureBuilder {
   def withSourceType(sourceType: String): ControlMeasureBuilder
   def withInitialCheckpointName(initialCheckpointName: String): ControlMeasureBuilder
   def withWorkflowName(workflowName: String): ControlMeasureBuilder
+  def withSoftware(name: String, version: String): ControlMeasureBuilder
 
   def build: ControlMeasure
 }
@@ -82,7 +84,9 @@ object ControlMeasureBuilder {
                                                historyType: String = "Snapshot",
                                                sourceType: String = "Source",
                                                initialCheckpointName: String = "Source",
-                                               workflowName: String = "Source"
+                                               workflowName: String = "Source",
+                                               softwareName: String = DefaultBuildProperties.projectName,
+                                               softwareVersion: String = DefaultBuildProperties.buildVersion
                                               ) extends ControlMeasureBuilder {
 
     aggregateColumns.foreach { aggCol =>
@@ -111,6 +115,7 @@ object ControlMeasureBuilder {
     def withSourceType(sourceType: String): ControlMeasureBuilderImpl = this.copy(sourceType = sourceType)
     def withInitialCheckpointName(initialCheckpointName: String): ControlMeasureBuilderImpl = this.copy(initialCheckpointName = initialCheckpointName)
     def withWorkflowName(workflowName: String): ControlMeasureBuilderImpl = this.copy(workflowName = workflowName)
+    def withSoftware(name: String, version: String): ControlMeasureBuilder = this.copy(softwareName = name, softwareVersion = version)
 
     /**
      * Constructs a [[ControlMeasure]] data object (to be used for content as source _INFO file)
@@ -199,7 +204,7 @@ object ControlMeasureBuilder {
             controlCol = "*",
             controlValue = rowCount.toString
           ) :: aggegatedMeasurements.toList
-        ).withBuildProperties :: Nil)
+        ).withSoftware(softwareName, softwareVersion) :: Nil)
     }
   }
 

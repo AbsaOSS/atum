@@ -15,13 +15,14 @@
 
 package za.co.absa.atum.model
 
-import za.co.absa.atum.utils.BuildProperties
+import za.co.absa.atum.utils.DefaultBuildProperties
 
 object CheckpointImplicits {
 
   implicit class CheckpointExt(checkpoint: Checkpoint) {
-    def withBuildProperties: Checkpoint = {
-      checkpoint.copy(software = Some(BuildProperties.projectName), version = Some(BuildProperties.buildVersion))
+    def withSoftware(name: String = DefaultBuildProperties.projectName,
+                     version: String = DefaultBuildProperties.buildVersion): Checkpoint = {
+      checkpoint.copy(software = Some(name), version = Some(version))
     }
   }
 

@@ -18,7 +18,7 @@ package za.co.absa.atum
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.{Checkpoint, ControlMeasure, ControlMeasureMetadata, Measurement}
-import za.co.absa.atum.utils.{BuildProperties, SerializationUtils}
+import za.co.absa.atum.utils.{DefaultBuildProperties, SerializationUtils}
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
@@ -26,8 +26,8 @@ import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
   * Unit tests for ControlInfo object serialization
   */
 class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
-  private val version = BuildProperties.buildVersion
-  private val software = BuildProperties.projectName
+  private val version = DefaultBuildProperties.buildVersion
+  private val software = DefaultBuildProperties.projectName
 
   private val exampleCtrlInfo = ControlMeasure(
     metadata = ControlMeasureMetadata(
@@ -59,7 +59,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
           controlCol = "id",
           controlValue = "243"
         ))
-    ).withBuildProperties, Checkpoint(
+    ).withSoftware(), Checkpoint(
       name = "Raw",
       processStartTime = "01-01-2017 08:00:00",
       processEndTime = "01-01-2017 08:00:00",
@@ -79,7 +79,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
           controlValue = "243"
         )
       )
-    ).withBuildProperties
+    ).withSoftware()
     )
   )
 

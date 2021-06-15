@@ -25,6 +25,7 @@ import za.co.absa.atum.model.{RunError, RunState, _}
 import za.co.absa.atum.persistence.hdfs.ControlMeasuresHdfsStorerJsonFile
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer}
 import za.co.absa.atum.plugins.EventListener
+import za.co.absa.atum.utils.BuildProperties
 import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFilePath
 
 import scala.util.control.NonFatal
@@ -50,6 +51,10 @@ class ControlFrameworkState(sparkSession: SparkSession) {
 
   private[atum] def setStorer(storer: ControlMeasuresStorer): Unit = {
     accumulator.setStorer(storer)
+  }
+
+  private[atum] def setBuildProperties(buildProperties: BuildProperties): Unit = {
+    accumulator.setBuildProperties(buildProperties)
   }
 
   private[atum] def setAllowUnpersistOldDatasets(allowUnpersist: Boolean): Unit = {

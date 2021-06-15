@@ -24,6 +24,7 @@ import org.apache.spark.storage.StorageLevel
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresStorer}
 import za.co.absa.atum.plugins.EventListener
+import za.co.absa.atum.utils.BuildProperties
 
 /**
   * The object coordinates access to control measurements state
@@ -190,6 +191,11 @@ trait Atum {
   private[atum] def setStorer(storer: ControlMeasuresStorer): Unit = {
     preventNotInitialized()
     controlFrameworkState.setStorer(storer)
+  }
+
+  private[atum] def setBuildProperties(buildProperties: BuildProperties): Unit = {
+    preventNotInitialized()
+    controlFrameworkState.setBuildProperties(buildProperties)
   }
 
   private[atum] def setControlMeasuresInputFileName(fileName: String): Unit = {
