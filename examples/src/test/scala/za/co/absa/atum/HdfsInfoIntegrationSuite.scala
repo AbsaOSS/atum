@@ -45,12 +45,12 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     .option("inferSchema", "true")
     .csv(inputCsvPath)
 
-  private def writeSparkData(df: DataFrame, outputPath: String): Unit = {
+  private def writeSparkData(df: DataFrame, outputPath: String, implicitPath: Option[String] = None): Unit = {
     df.write.mode(SaveMode.Overwrite)
       .parquet(outputPath)
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get(outputPath)))
+      if (!Files.exists(Paths.get(outputPath)) || implicitPath.exists(x => !Files.exists(Paths.get(x))))
         throw new Exception("_INFO file not found at " + outputPath)
     }
   }
@@ -62,20 +62,18 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
-    synchronized {
-      // Initializing library to hook up to Apache Spark
-      spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = None)
-        .setControlMeasuresWorkflow("Job 1")
+    // Initializing library to hook up to Apache Spark
+    spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = None)
+      .setControlMeasuresWorkflow("Job 1")
 
-      import spark.implicits._
-      val df1 = readSparkInputCsv(inputCsv)
-      df1.setCheckpoint("Checkpoint0")
-      val filteredDf1 = df1.filter($"total_response_size" > 1000)
-      filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
-      writeSparkData(filteredDf1, outputPath) // implicit output _INFO file path is derived from this path passed to spark.write
+    import spark.implicits._
+    val df1 = readSparkInputCsv(inputCsv)
+    df1.setCheckpoint("Checkpoint0")
+    val filteredDf1 = df1.filter($"total_response_size" > 1000)
+    filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
+    writeSparkData(filteredDf1, outputPath) // implicit output _INFO file path is derived from this path passed to spark.write
 
-      spark.disableControlMeasuresTracking()
-    }
+    spark.disableControlMeasuresTracking()
 
     log.info(s"Checking $expectedPath to contain expected values")
 
@@ -97,20 +95,18 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
-    synchronized {
-      // Initializing library to hook up to Apache Spark
-      spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = Some(s"$outputPath/extra/_INFO2"))
-        .setControlMeasuresWorkflow("Job 1")
+    // Initializing library to hook up to Apache Spark
+    spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = Some(s"$outputPath/extra/_INFO2"))
+      .setControlMeasuresWorkflow("Job 1")
 
-      import spark.implicits._
-      val df1 = readSparkInputCsv(inputCsv)
-      df1.setCheckpoint("Checkpoint0")
-      val filteredDf1 = df1.filter($"total_response_size" > 1000)
-      filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
-      writeSparkData(filteredDf1, outputPath) // implicit output _INFO file path is derived from this path passed to spark.write
+    import spark.implicits._
+    val df1 = readSparkInputCsv(inputCsv)
+    df1.setCheckpoint("Checkpoint0")
+    val filteredDf1 = df1.filter($"total_response_size" > 1000)
+    filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
+    writeSparkData(filteredDf1, outputPath, Some(s"$outputPath/extra/_INFO2")) // implicit output _INFO file path is derived from this path passed to spark.write
 
-      spark.disableControlMeasuresTracking()
-    }
+    spark.disableControlMeasuresTracking()
 
     Seq(s"$outputPath/_INFO", s"$outputPath/extra/_INFO2").foreach { expectedPath =>
       log.info(s"Checking $expectedPath to contain expected values")
