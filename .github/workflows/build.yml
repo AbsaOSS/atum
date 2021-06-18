@@ -17,7 +17,7 @@ name: Automatic build
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ master , 'releases/**' ]
     types: [assigned, opened, synchronize, reopened, labeled]
 
 jobs:
