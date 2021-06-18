@@ -58,6 +58,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
   val outputPath = s"$tempDir/outputCheck1"
 
   "_INFO" should s"be written on spark.write (implicit output _INFO path only)" in {
+    val expectedPath = s"$outputPath/_INFO"
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
@@ -74,22 +75,20 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
 
     spark.disableControlMeasuresTracking()
 
-    Seq(s"$outputPath/_INFO").foreach { expectedPath =>
-      log.info(s"Checking $expectedPath to contain expected values")
+    log.info(s"Checking $expectedPath to contain expected values")
 
-      val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
-        log.info(s"Reading $expectedPath")
-        val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
-        ControlMeasuresParser.fromJson(infoContentJson)
-      }
-
-      infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
-      val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
-      checkpoint0.controls should contain(Measurement("recordCount", "count", "*", "5000"))
-
-      val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
-      checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
+    val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+      log.info(s"Reading $expectedPath")
+      val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
+      ControlMeasuresParser.fromJson(infoContentJson)
     }
+
+    infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
+    val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
+    checkpoint0.controls should contain(Measurement("recordCount", "count", "*", "5000"))
+
+    val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
+    checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
   }
 
   "_INFO" should s"be written on spark.write (implicit & explicit output _INFO path)" in {
