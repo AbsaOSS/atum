@@ -17,9 +17,9 @@ name: License Check
 
 on:
   push:
-    branches: [ master, 'releases/**' ]
+    branches: [ master, 'release/**' ]
   pull_request:
-    branches: [ master, 'releases/**' ]
+    branches: [ master, 'release/**' ]
 
 jobs:
   license-test:
