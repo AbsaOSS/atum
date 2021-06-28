@@ -105,6 +105,7 @@ trait AtumImplicitsBase {
      *
      * @param sourceInfoFilePath      Pathname to a json-formatted info file containing control measurements
      * @param destinationInfoFilePath Pathname to save the control measurement results to
+     * @param buildProperties         Build properties to be used while creating _INFO and adding checkpoints
      */
     def enableControlMeasuresTracking(sourceInfoFilePath: Option[String],
                                       destinationInfoFilePath: Option[String],

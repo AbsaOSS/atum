@@ -16,27 +16,6 @@
 
 package za.co.absa.atum.utils
 
-import java.util.Properties
-
-object DefaultBuildProperties extends BuildProperties {
-  private val properties = new Properties()
-  private val buildVersionKey = "build.version"
-  private val buildSoftwareKey = "build.software"
-
-  /** Returns the version of the build. */
-  lazy val buildVersion: String = properties.getProperty(buildVersionKey)
-  /** Returns the name of the build. */
-  lazy val projectName: String = properties.getProperty(buildSoftwareKey)
-
-  loadConfig()
-
-  private def loadConfig(): Unit = {
-    val is = getClass.getResourceAsStream("/atum_build.properties")
-    try properties.load(is)
-    finally if (is != null) is.close()
-  }
-}
-
 trait BuildProperties {
   val buildVersion: String
   val projectName: String

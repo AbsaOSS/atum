@@ -77,7 +77,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         df1.setCheckpoint("Checkpoint0")
         val filteredDf1 = df1.filter($"total_response_size" > 1000)
         filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
-        writeSparkData(filteredDf1, outputPath) // implicit output _INFO file path is derived from this path passed to spark.write
+        writeSparkData(filteredDf1, outputPath, destinationOptInfoFilePath) // implicit output _INFO file path is derived from this path passed to spark.write
 
         spark.disableControlMeasuresTracking()
 
