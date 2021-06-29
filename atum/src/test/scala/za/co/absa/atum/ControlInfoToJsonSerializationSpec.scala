@@ -146,7 +146,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"controlValue":243
      |}]
      |}]
-     |}""".stripMargin.filter(_ >= ' ')
+     |}""".stripMargin.filter(_ >= ' ') // this works as the json is not expect to have any whitespaces in the values
 
   private val exampleInputJsonCustomSoftware: String = s"""{
     |"metadata":{
@@ -201,7 +201,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     |"controlValue":243
     |}]
     |}]
-    |}""".stripMargin.filter(_ >= ' ')
+    |}""".stripMargin.filter(_ >= ' ') // this works as the json is not expect to have any whitespaces in the values
 
   private val exampleOutputJson: String = s"""{
      |"metadata":{
@@ -256,7 +256,7 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"controlValue":"243"
      |}]
      |}]
-     |}""".stripMargin.filter(_ >= ' ')
+     |}""".stripMargin.filter(_ >= ' ') // this works as the json is not expect to have any whitespaces in the values
 
   "toJson" should "serialize a ControlInfo object" in
   {
