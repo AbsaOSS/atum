@@ -20,6 +20,7 @@ import za.co.absa.atum.model
 import za.co.absa.atum.persistence.{ControlMeasuresLoader, ControlMeasuresParser, ControlMeasuresStorer}
 import za.co.absa.atum.model._
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
+import za.co.absa.atum.utils.BuildProperties
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
 
 import scala.util.control.NonFatal
@@ -30,6 +31,7 @@ import scala.util.control.NonFatal
 class Accumulator() {
   private var controlMeasure: ControlMeasure = _
   private var storer: ControlMeasuresStorer = _
+  private var buildProperties: BuildProperties = _
   private var lastProcessingDate: String = ControlMeasureUtils.getTimestampAsString
 
   def isControlMeasuresLoaded: Boolean = controlMeasure != null
@@ -49,6 +51,10 @@ class Accumulator() {
   /** Sets a persistor object for saving control checkpoints. */
   def setStorer(storerIn: ControlMeasuresStorer): Unit = {
     storer = storerIn
+  }
+
+  def setBuildProperties(buildPropertiesIn: BuildProperties): Unit = {
+    buildProperties = buildPropertiesIn
   }
 
   /** Gets information about the storer. */
@@ -124,7 +130,7 @@ class Accumulator() {
       workflowName = workflowName,
       order = order,
       controls = controls.toList)
-      .withBuildProperties
+      .withSoftware(buildProperties.projectName, buildProperties.buildVersion)
     lastProcessingDate = timestampStr
     controlMeasure = ControlMeasure(controlMeasure.metadata, controlMeasure.runUniqueId, checkpoint :: controlMeasure.checkpoints)
     checkpoint

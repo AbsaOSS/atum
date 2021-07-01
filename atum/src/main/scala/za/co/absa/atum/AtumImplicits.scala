@@ -21,7 +21,7 @@ import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
-import za.co.absa.atum.utils.InfoFile
+import za.co.absa.atum.utils.{BuildProperties, DefaultBuildProperties, InfoFile}
 
 import scala.language.implicitConversions
 
@@ -94,13 +94,31 @@ trait AtumImplicitsBase {
      */
     def enableControlMeasuresTracking(sourceInfoFilePath: Option[String],
                                       destinationInfoFilePath: Option[String]): SparkSession = {
+      enableControlMeasuresTracking(sourceInfoFilePath, destinationInfoFilePath, DefaultBuildProperties)
+    }
+
+    /**
+     * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
+     * Input and output info file names will be inferred automatically based on data source and destination paths if not provided
+     *
+     * Example info file path name: "data/input/wikidata.csv.info" or "s3://bucket1/folder1/wikidata.csv.info"
+     *
+     * @param sourceInfoFilePath      Pathname to a json-formatted info file containing control measurements
+     * @param destinationInfoFilePath Pathname to save the control measurement results to
+     * @param buildProperties         Build properties to be used while creating _INFO and adding checkpoints
+     */
+    def enableControlMeasuresTracking(sourceInfoFilePath: Option[String],
+                                      destinationInfoFilePath: Option[String],
+                                      buildProperties: BuildProperties): SparkSession = {
       implicit val hadoopConfiguration: Configuration = sparkSession.sparkContext.hadoopConfiguration
 
       val loader: Option[ControlMeasuresLoader] = sourceInfoFilePath.map(InfoFile(_).toDefaultControlInfoLoader)
       val storer: Option[ControlMeasuresStorer] = destinationInfoFilePath.map(InfoFile(_).toDefaultControlInfoStorer)
 
-      enableControlMeasuresTrackingDirectly(loader, storer)
+      enableControlMeasuresTrackingDirectly(loader, storer, buildProperties)
     }
+
+
 
     /**
      * Enable control measurements tracking with loader and/or storer directly.
@@ -112,7 +130,8 @@ trait AtumImplicitsBase {
      *
      */
     private[atum] def enableControlMeasuresTrackingDirectly(loader: Option[ControlMeasuresLoader],
-                                                            storer: Option[ControlMeasuresStorer]): SparkSession =
+                                                            storer: Option[ControlMeasuresStorer],
+                                                            buildProperties: BuildProperties = DefaultBuildProperties): SparkSession =
       sparkSession.synchronized {
         atum.init(sparkSession)
 
@@ -123,6 +142,8 @@ trait AtumImplicitsBase {
         if (storer.nonEmpty) {
           atum.setStorer(storer.get)
         }
+
+        atum.setBuildProperties(buildProperties)
 
         sparkSession
       }

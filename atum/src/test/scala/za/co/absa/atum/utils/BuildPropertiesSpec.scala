@@ -21,8 +21,8 @@ import za.co.absa.commons.version.Version
 import scala.util.{Failure, Success, Try}
 
 class BuildPropertiesSpec extends AnyFlatSpec  {
-  private val version = BuildProperties.buildVersion
-  private val name = BuildProperties.projectName
+  private val version = DefaultBuildProperties.buildVersion
+  private val name = DefaultBuildProperties.projectName
 
   "Project version" should "be parsable by the semVer" in {
     Try {

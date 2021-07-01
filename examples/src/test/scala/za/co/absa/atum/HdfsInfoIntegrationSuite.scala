@@ -15,24 +15,20 @@
 
 package za.co.absa.atum
 
-import java.nio.file.{Files, Paths}
-
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
-import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.specs2.matcher.Matchers.concurrentExecutionContext
+import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
-import za.co.absa.atum.AtumImplicits._
 
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, Future}
+import java.nio.file.{Files, Paths}
+import scala.concurrent.duration.DurationInt
 
 class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
 
@@ -44,17 +40,18 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
   }
 
   private val inputCsv = "data/input/wikidata.csv"
+
   private def readSparkInputCsv(inputCsvPath: String): DataFrame = spark.read
     .option("header", "true")
     .option("inferSchema", "true")
     .csv(inputCsvPath)
 
-  private def writeSparkData(df: DataFrame, outputPath: String): Unit = {
+  private def writeSparkData(df: DataFrame, outputPath: String, implicitPath: Option[String] = None): Unit = {
     df.write.mode(SaveMode.Overwrite)
       .parquet(outputPath)
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get(outputPath)))
+      if (!Files.exists(Paths.get(outputPath)) || implicitPath.exists(x => !Files.exists(Paths.get(x))))
         throw new Exception("_INFO file not found at " + outputPath)
     }
   }
@@ -80,14 +77,14 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         df1.setCheckpoint("Checkpoint0")
         val filteredDf1 = df1.filter($"total_response_size" > 1000)
         filteredDf1.setCheckpoint("Checkpoint1") // stateful, do not need return value
-        writeSparkData(filteredDf1, outputPath) // implicit output _INFO file path is derived from this path passed to spark.write
+        writeSparkData(filteredDf1, outputPath, destinationOptInfoFilePath) // implicit output _INFO file path is derived from this path passed to spark.write
 
         spark.disableControlMeasuresTracking()
 
         expectedPaths.foreach { expectedPath =>
           log.info(s"Checking $expectedPath to contain expected values")
 
-          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+          val infoControlMeasures = eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
             log.info(s"Reading $expectedPath")
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
@@ -100,8 +97,8 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
           val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
           checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
         }
+
       }
     }
   }
-
 }
