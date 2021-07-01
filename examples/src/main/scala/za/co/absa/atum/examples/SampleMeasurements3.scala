@@ -61,9 +61,8 @@ object SampleMeasurements3 extends Eventually {
     val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](jsonInfoFile)
     val checkpoint = measureObject1.checkpoints.filter(_.name == "checkpoint1").head
 
-    if (checkpoint.software.isEmpty || checkpoint.version.isEmpty ||
-      !checkpoint.software.contains("MySoftware") || !checkpoint.version.contains("v007")) {
-      throw new Exception(s"Software or Version was not set properly. Gor name ${checkpoint.software} and version ${checkpoint.version}")
+    if (!checkpoint.software.contains("MySoftware") || !checkpoint.version.contains("v007")) {
+      throw new Exception(s"Software or Version was not set properly. Got name ${checkpoint.software} and version ${checkpoint.version}")
     }
 
     spark.disableControlMeasuresTracking()
