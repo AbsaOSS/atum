@@ -39,55 +39,46 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   val measurementsIntOferflow = List(
     Measurement(
-      controlName = "RecordCount",
       controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "id",
       controlValue = "9223372036854775808"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "id",
       controlValue = "9223372036854775808"
     ),
     Measurement(
-      controlName = "pvControlTotal2",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.2"
     ),
     Measurement(
-      controlName = "pvControlTotal2",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.2"
     ),
     Measurement(
-      controlName = "pvControlTotal3",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "9223372036854775808"
     ),
     Measurement(
-      controlName = "pvControlTotal3",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "9223372036854775808"
     ),
     Measurement(
-      controlName = "pvControlTotal4",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2147483648"
     ),
     Measurement(
-      controlName = "pvControlTotal4",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2147483648"
@@ -114,55 +105,46 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   val measurementsAggregation = List(
     Measurement(
-      controlName = "RecordCount",
       controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "id",
       controlValue = "-1"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "id",
       controlValue = "18446744073709551615"
     ),
     Measurement(
-      controlName = "pvControlTotal2",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "price",
       controlValue = "0.1"
     ),
     Measurement(
-      controlName = "pvControlTotal2",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "price",
       controlValue = "2000.1"
     ),
     Measurement(
-      controlName = "pvControlTotal3",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "0"
     ),
     Measurement(
-      controlName = "pvControlTotal3",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.orderid",
       controlValue = "2"
     ),
     Measurement(
-      controlName = "pvControlTotal4",
       controlType = ControlType.AggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "0"
     ),
     Measurement(
-      controlName = "pvControlTotal4",
       controlType = ControlType.AbsAggregatedTotal.value,
       controlCol = "order.items",
       controlValue = "2"
@@ -198,25 +180,21 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
     val measurements2 = List(
       Measurement(
-        controlName = "t1",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "id",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "t2",
         controlType = ControlType.DistinctCount.value,
         controlCol = "id",
         controlValue = "2"
       ),
       Measurement(
-        controlName = "t3",
         controlType = ControlType.AbsAggregatedTotal.value,
         controlCol = "price",
         controlValue = "2000.1"
       ),
       Measurement(
-        controlName = "t4",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "amount",
         controlValue = "0"
@@ -251,43 +229,36 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
     val measurements3 = List(
       Measurement(
-        controlName = "pvControlTotal0",
         controlType = ControlType.HashCrc32.value,
         controlCol = "h1",
         controlValue = ""
       ),
       Measurement(
-        controlName = "pvControlTotal1",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h1",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "pvControlTotal2",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h2",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "pvControlTotal3",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h3",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "pvControlTotal4",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h4",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "pvControlTotal5",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h5",
         controlValue = "0"
       ),
       Measurement(
-        controlName = "pvControlTotal6",
         controlType = ControlType.AggregatedTotal.value,
         controlCol = "h6",
         controlValue = "0"
@@ -306,25 +277,21 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   val measurementsWithHash = List(
     Measurement(
-      controlName = "RecordCount",
       controlType = ControlType.Count.value,
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.HashCrc32.value,
       controlCol = "id",
       controlValue = "2662510020"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.HashCrc32.value,
       controlCol = "name",
       controlValue = "7205431484"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = ControlType.HashCrc32.value,
       controlCol = "price",
       controlValue = "4651009593"
@@ -355,25 +322,21 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   val measurementsAggregationShort = List(
     Measurement(
-      controlName = "RecordCount",
       controlType = "count",
       controlCol = "*",
       controlValue = "2"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = "aggregatedTotal",
       controlCol = "id",
       controlValue = "-1"
     ),
     Measurement(
-      controlName = "pvControlTotal1",
       controlType = "absAggregatedTotal",
       controlCol = "id",
       controlValue = "18446744073709551615"
     ),
     Measurement(
-      controlName = "pvControlTotal2",
       controlType = "hashCrc32",
       controlCol = "id",
       controlValue = "3993968105"

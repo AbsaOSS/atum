@@ -44,13 +44,11 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
       order = 1,
       controls = List(
         Measurement(
-          controlName = "pvControlTotal",
           controlType = "aggregatedTotal",
           controlCol = "pv",
           controlValue = "32847283324.324324"
         ),
         Measurement(
-          controlName = "recordCount",
           controlType = "count",
           controlCol = "id",
           controlValue = "243"
@@ -65,13 +63,11 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
       order = 2,
       controls = List(
         Measurement(
-          controlName = "pvControlTotal",
           controlType = "aggregatedTotal",
           controlCol = "pv",
           controlValue = "32847283324.324324"
         ),
         Measurement(
-          controlName = "recordCount",
           controlType = "count",
           controlCol = "id",
           controlValue = "243"
@@ -89,14 +85,14 @@ class SerializationUtilsJsonSpec extends AnyFlatSpec with Matchers {
     "\"software\":\"ExampleSoftware\",\"version\":\"1.2.3\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\"," +
     "\"processEndTime\":\"01-01-2017 08:00:00\",\"workflowName\":\"Source\",\"order\":1," +
-    "\"controls\":[{\"controlName\":\"pvControlTotal\",\"controlType\":\"aggregatedTotal\"," +
-    "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{\"controlName\":\"recordCount\"," +
+    "\"controls\":[{\"controlType\":\"aggregatedTotal\"," +
+    "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"},{" +
     "\"controlType\":\"count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]},{\"name\":\"Raw\"," +
     "\"software\":\"AnotherExampleSoftware\",\"version\":\"3.4.5\"," +
     "\"processStartTime\":\"01-01-2017 08:00:00\",\"processEndTime\":\"01-01-2017 08:00:00\"," +
-    "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{\"controlName\":\"pvControlTotal\"," +
+    "\"workflowName\":\"Raw\",\"order\":2,\"controls\":[{" +
     "\"controlType\":\"aggregatedTotal\",\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
-    "{\"controlName\":\"recordCount\",\"controlType\":\"count\",\"controlCol\":\"id\"," +
+    "{\"controlType\":\"count\",\"controlCol\":\"id\"," +
     "\"controlValue\":\"243\"}]}]}"
 
   "ControlInfo" should "serialize a ControlInfo object via asJson" in {

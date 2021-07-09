@@ -38,8 +38,8 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
        |"sourceType":"Source","version":1,"informationDate":"$testingDate","additionalInfo":{}},
        |"checkpoints":[{"name":"Source","software":"$testingSoftware","version":"$testingVersion",
        |"processStartTime":"$testingDateTime1","processEndTime":"$testingDateTime2",
-       |"workflowName":"Source","order":1,"controls":[{"controlName":"recordCount","controlType":"count","controlCol":"*",
-       |"controlValue":"4"},{"controlName":"valueControlTotal","controlType":"absAggregatedTotal","controlCol":"value",
+       |"workflowName":"Source","order":1,"controls":[{"controlType":"count","controlCol":"*",
+       |"controlValue":"4"},{"controlType":"absAggregatedTotal","controlCol":"value",
        |"controlValue":"21099"}]}]}""".stripMargin.replaceAll("\n", "")
 
   private val expectedPrettyJsonForSingleIntColumn =
@@ -63,12 +63,10 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
        |    "workflowName" : "Source",
        |    "order" : 1,
        |    "controls" : [ {
-       |      "controlName" : "recordCount",
        |      "controlType" : "count",
        |      "controlCol" : "*",
        |      "controlValue" : "4"
        |    }, {
-       |      "controlName" : "valueControlTotal",
        |      "controlType" : "absAggregatedTotal",
        |      "controlCol" : "value",
        |      "controlValue" : "21099"
@@ -128,7 +126,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   }
 
   "createInfoFile" should "handle integer columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
+    val expected = "{\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
     val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
@@ -151,7 +149,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   }
 
   "createInfoFile" should "handle string columns" in {
-    val expected = "{\"controlName\":\"valueControlTotal\",\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
+    val expected = "{\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
     val actual = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
