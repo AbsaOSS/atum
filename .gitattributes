@@ -11,53 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# use glob syntax.
-syntax: glob
-*.ser
-*.class
-*~
-*.bak
-*.old
+###############################
+# Git Line Endings            #
+###############################
 
-# eclipse conf file
-.settings
-.classpath
-.project
-.manager
-.scala_dependencies
-.scalastyle
+# Set default behaviour to automatically normalize line endings.
+* text=auto
 
-# idea
-.idea
-*.iml
+# Force the following filetypes to have unix eols, Windows can usually handle it well
+*.* text eol=lf
 
-# building
-target
-build
-null
-tmp*
-temp*
-dist
-test-output
-build.log
-
-# other scm
-.svn
-.CVS
-.hg*
-
-.cache*
-dependency-reduced-pom.xml
-
-_testOutput
-myTestCheckpoints
-examples/data/output
-
-# switch to regexp syntax.
-#  syntax: regexp
-#  ^\.pc/
-/examples-s3-sdk-extension/data/output_s3/
-
-pom.xml.bkp
+# Force batch scripts to always use CRLF line endings as they in some cases might not work correctly.
+# Also if a repo is accessed in Windows via a file share from Linux, the scripts will work too
+*.cmd text eol=crlf
+*.bat text eol=crlf
