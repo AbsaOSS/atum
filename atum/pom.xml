@@ -27,6 +27,10 @@
         <version>3.5.1-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <scalastyle.configLocation>${project.parent.basedir}/scalastyle-config.xml</scalastyle.configLocation>
+    </properties>
+
     <dependencies>
         <!-- Atum -->
         <dependency>
@@ -81,6 +85,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
