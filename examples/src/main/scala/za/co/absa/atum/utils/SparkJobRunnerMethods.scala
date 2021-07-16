@@ -30,7 +30,7 @@ trait SparkJobRunnerMethods {
     val jobClassSymbol = universe runtimeMirror jobClass.getClassLoader classSymbol jobClass
     val jobInstance =
       if (jobClassSymbol.isModuleClass) jobClass getField "MODULE$" get jobClass
-      else jobClass.newInstance
+      else jobClass.getDeclaredConstructor().newInstance()
 
     jobInstance.asInstanceOf[MainClass].main(Array.empty)
   }

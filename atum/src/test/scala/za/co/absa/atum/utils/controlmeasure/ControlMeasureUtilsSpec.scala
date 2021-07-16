@@ -20,8 +20,9 @@ import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
-import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
+import za.co.absa.atum.utils.{HdfsFileUtils, InfoFile, SparkTestBase}
 import za.co.absa.atum.ControlMeasureBaseTestSuite
+import za.co.absa.atum.model.ControlMeasure
 
 class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSuite with Matchers with SparkTestBase {
 
@@ -84,8 +85,29 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
-      val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data",
-        writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
+      val cm: ControlMeasure = ControlMeasureBuilder
+        .forDF(singleIntColumnDF)
+        .withAggregateColumns(Seq("value"))
+        .withSourceApplication("Test")
+        .withInputPath("_testOutput/data")
+        .withReportDate(ControlMeasureUtils.getTodayAsString)
+        .withReportVersion(1)
+        .withCountry("ZA")
+        .withHistoryType("Snapshot")
+        .withSourceType("Source")
+        .withInitialCheckpointName("Source")
+        .withWorkflowName("Source")
+        .build
+
+      val hadoopConfiguration = singleIntColumnDF.sparkSession.sparkContext.hadoopConfiguration
+      val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath("_testOutput/data")(hadoopConfiguration)
+
+      val jsonType = if (isJsonPretty) JsonType.Pretty else JsonType.Minified
+      ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, path, jsonType)(fs)
+
+      val actual = if (isJsonPretty) cm.asJsonPretty else cm.asJson
+
+
       // replace non-stable fields (date/time, version) using rx lookbehind
       val actualStabilized = stabilizeJsonOutput(actual)
 
@@ -128,9 +150,20 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
-    val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-
-    assert(actual.contains(expected))
+    val actual: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
+    assert(actual.asJson.contains(expected))
   }
 
   "createInfoFile" should "handle numeric values cancellations" in {
@@ -138,11 +171,37 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
     // For example, if SUM() is used as an aggregator opposite values will cancel each other and
     // the final control value will be the same for datasets containing two values and for a dataset containing none at all
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlMeasureUtils.createInfoFile(singleIntColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
-    val matcher(value1) = json1
-    val matcher(value2) = json2
+    val json1: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
+
+    val json2: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF2)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
+
+    val matcher(value1) = json1.asJson
+    val matcher(value2) = json2.asJson
 
     // control values generated for these 2 datasets should not be the same
     assert(value1 != value2)
@@ -151,9 +210,21 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   "createInfoFile" should "handle string columns" in {
     val expected = "{\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
-    val actual = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val actual: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
 
-    assert(actual.contains(expected))
+    assert(actual.asJson.contains(expected))
   }
 
   "createInfoFile" should "handle string hash cancellations" in {
@@ -162,11 +233,36 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
     // the final hash will be the same for datasets containing a duplicate values and containing no such values at all
 
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlMeasureUtils.createInfoFile(singleStringColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json1: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
 
-    val matcher(value1) = json1
-    val matcher(value2) = json2
+    val json2: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF2)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .withReportDate(ControlMeasureUtils.getTodayAsString)
+      .withReportVersion(1)
+      .withCountry("ZA")
+      .withHistoryType("Snapshot")
+      .withSourceType("Source")
+      .withInitialCheckpointName("Source")
+      .withWorkflowName("Source")
+      .build
+
+    val matcher(value1) = json1.asJson
+    val matcher(value2) = json2.asJson
 
     // control values generated for these 2 datasets should not be the same
     assert(value1 != value2)
