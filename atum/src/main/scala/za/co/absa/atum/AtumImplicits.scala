@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
@@ -267,6 +267,13 @@ trait AtumImplicitsBase {
       else {
         atum.controlFrameworkState.calculateCheckpoint(dataset, name, !persistInDatabase)
       }
+    }
+
+    def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean = false): DataFrame = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.setAdditionalInfo(kv, replaceIfExists)
+
+      dataset
     }
 
     /**
