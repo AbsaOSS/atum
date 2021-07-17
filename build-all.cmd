@@ -15,18 +15,24 @@
 
 SETLOCAL EnableDelayedExpansion
 
+SET STATUS=0
 CALL mvn clean
+IF %ERRORLEVEL% NEQ 0 GOTO end
 
 CALL :cross_build 2.11 2.4
+IF %ERRORLEVEL% NEQ 0 GOTO end
 CALL :cross_build 2.12 2.4
+IF %ERRORLEVEL% NEQ 0 GOTO end
 CALL :cross_build 2.12 3.1
+IF %ERRORLEVEL% NEQ 0 GOTO end
 
 ECHO ===============================================================================
 ECHO Restoring version
 ECHO ===============================================================================
 CALL mvn scala-cross-build:restore-version
 
-EXIT /B 0
+:end
+EXIT /B %ERRORLEVEL%
 
 :cross_build
     SET SCALA_VER=%~1
@@ -36,4 +42,4 @@ EXIT /B 0
     ECHO ===============================================================================
     CALL mvn scala-cross-build:change-version -Pscala-%SCALA_VER%
     CALL mvn clean install -Pspark-%SPARK_VER%
-EXIT /B 0
+EXIT /B %ERRORLEVEL%

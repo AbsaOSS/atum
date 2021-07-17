@@ -18,6 +18,8 @@
 # THIS SCRIPT IS INTENDED FOR LOCAL DEV USAGE ONLY
 #
 
+set -e
+
 BASE_DIR=$(dirname "$0")
 
 cross_build() {
