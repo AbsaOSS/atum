@@ -37,13 +37,11 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     order = 1,
     controls = List(
       Measurement(
-        controlName = "pvControlTotal",
         controlType = "aggregatedTotal",
         controlCol = "pv",
         controlValue = "32847283324.324324"
       ),
       Measurement(
-        controlName = "recordCount",
         controlType = "count",
         controlCol = "id",
         controlValue = "243"
@@ -58,13 +56,11 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     order = 2,
     controls = List(
       Measurement(
-        controlName = "pvControlTotal",
         controlType = "aggregatedTotal",
         controlCol = "pv",
         controlValue = "32847283324.324324"
       ),
       Measurement(
-        controlName = "recordCount",
         controlType = "count",
         controlCol = "id",
         controlValue = "243"
@@ -116,12 +112,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"workflowName":"Source",
      |"order":1,
      |"controls":[{
-     |"controlName":"pvControlTotal",
      |"controlType":"type.aggregatedTotal",
      |"controlCol":"pv",
      |"controlValue":"32847283324.324324"
      |},{
-     |"controlName":"recordCount",
      |"controlType":"type.Count",
      |"controlCol":"id",
      |"controlValue":243
@@ -135,12 +129,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"workflowName":"Raw",
      |"order":2,
      |"controls":[{
-     |"controlName":"pvControlTotal",
      |"controlType":"type.aggregatedTotal",
      |"controlCol":"pv",
      |"controlValue":"32847283324.324324"
      |},{
-     |"controlName":"recordCount",
      |"controlType":"type.Count",
      |"controlCol":"id",
      |"controlValue":243
@@ -171,12 +163,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     |"workflowName":"Source",
     |"order":1,
     |"controls":[{
-    |"controlName":"pvControlTotal",
     |"controlType":"type.aggregatedTotal",
     |"controlCol":"pv",
     |"controlValue":"32847283324.324324"
     |},{
-    |"controlName":"recordCount",
     |"controlType":"type.Count",
     |"controlCol":"id",
     |"controlValue":243
@@ -190,12 +180,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
     |"workflowName":"Raw",
     |"order":2,
     |"controls":[{
-    |"controlName":"pvControlTotal",
     |"controlType":"type.aggregatedTotal",
     |"controlCol":"pv",
     |"controlValue":"32847283324.324324"
     |},{
-    |"controlName":"recordCount",
     |"controlType":"type.Count",
     |"controlCol":"id",
     |"controlValue":243
@@ -226,12 +214,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"workflowName":"Source",
      |"order":1,
      |"controls":[{
-     |"controlName":"pvControlTotal",
      |"controlType":"aggregatedTotal",
      |"controlCol":"pv",
      |"controlValue":"32847283324.324324"
      |},{
-     |"controlName":"recordCount",
      |"controlType":"count",
      |"controlCol":"id",
      |"controlValue":"243"
@@ -245,12 +231,10 @@ class ControlInfoToJsonSerializationSpec extends AnyFlatSpec with Matchers {
      |"workflowName":"Raw",
      |"order":2,
      |"controls":[{
-     |"controlName":"pvControlTotal",
      |"controlType":"aggregatedTotal",
      |"controlCol":"pv",
      |"controlValue":"32847283324.324324"
      |},{
-     |"controlName":"recordCount",
      |"controlType":"count",
      |"controlCol":"id",
      |"controlValue":"243"

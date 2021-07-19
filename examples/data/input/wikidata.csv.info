@@ -18,19 +18,16 @@
       "order": 1,
       "controls": [
         {
-          "controlName": "recordCount",
           "controlType": "controlType.Count",
           "controlCol": "*",
           "controlValue": 4964
         },
         {
-          "controlName": "pvControlTotal",
           "controlType": "controlType.aggregatedTotal",
           "controlCol": "count_views",
           "controlValue": 5819
         },
         {
-          "controlName": "SumOfReponseSize",
           "controlType": "controlType.aggregatedTotal",
           "controlCol": "total_response_size",
           "controlValue": 97729547
@@ -45,19 +42,16 @@
       "order": 2,
       "controls": [
         {
-          "controlName": "recordCount",
           "controlType": "controlType.Count",
           "controlCol": "*",
           "controlValue": 4964
         },
         {
-          "controlName": "pvControlTotal",
           "controlType": "controlType.aggregatedTotal",
           "controlCol": "count_views",
           "controlValue": 5819
         },
         {
-          "controlName": "SumOfReponseSize",
           "controlType": "controlType.aggregatedTotal",
           "controlCol": "total_response_size",
           "controlValue": 97729547

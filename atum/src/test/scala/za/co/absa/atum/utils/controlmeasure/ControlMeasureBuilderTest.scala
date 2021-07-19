@@ -47,7 +47,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
           testingDateTime2,
           "Source",
           1,
-          List(Measurement("recordCount", "count", "*", "2"))
+          List(Measurement("count", "*", "2"))
         )
       )
     )
@@ -87,9 +87,9 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
           "Workflow1",
           1,
           List(
-            Measurement("recordCount", "count", "*", "2"),
-            Measurement("col1ControlTotal", "hashCrc32", "col1", "4497723351"),
-            Measurement("col2ControlTotal", "absAggregatedTotal", "col2", "23")
+            Measurement("count", "*", "2"),
+            Measurement("hashCrc32", "col1", "4497723351"),
+            Measurement("absAggregatedTotal", "col2", "23")
           )
         )
       )

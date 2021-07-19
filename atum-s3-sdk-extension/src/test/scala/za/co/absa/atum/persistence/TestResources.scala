@@ -27,7 +27,7 @@ object TestResources {
       ControlMeasureMetadata("AtumTest", "CZ", "Snapshot", "example_input.csv", "public", 1, "01-01-2020", Map.empty),
       runUniqueId = None,
       List(Checkpoint("checkpointA", None, None, "01-01-2020 08:00:00", "01-01-2020 08:00:10", "wf1", 1, List(
-        Measurement("control1", "someControlType", "column1", "1234")
+        Measurement("someControlType", "column1", "1234")
       )))
     )
   }

@@ -92,10 +92,10 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
 
           infoControlMeasures.checkpoints.map(_.name) shouldBe Seq("Source", "Raw", "Checkpoint0", "Checkpoint1")
           val checkpoint0 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint0" => c }.get
-          checkpoint0.controls should contain(Measurement("recordCount", "count", "*", "5000"))
+          checkpoint0.controls should contain(Measurement("count", "*", "5000"))
 
           val checkpoint1 = infoControlMeasures.checkpoints.collectFirst { case c: Checkpoint if c.name == "Checkpoint1" => c }.get
-          checkpoint1.controls should contain(Measurement("recordCount", "count", "*", "4964"))
+          checkpoint1.controls should contain(Measurement("count", "*", "4964"))
         }
 
       }

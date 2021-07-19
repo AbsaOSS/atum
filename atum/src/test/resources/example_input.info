@@ -18,7 +18,6 @@
       "order": 1,
       "controls": [
         {
-          "controlName": "control1",
           "controlType": "someControlType",
           "controlCol": "column1",
           "controlValue": "1234"
