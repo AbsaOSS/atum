@@ -19,7 +19,7 @@
 #
 
 set -e
-build.yml
+
 BASE_DIR=$(dirname "$0")
 
 cross_build() {
