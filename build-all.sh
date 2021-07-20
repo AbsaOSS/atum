@@ -18,13 +18,18 @@
 # THIS SCRIPT IS INTENDED FOR LOCAL DEV USAGE ONLY
 #
 
+set -e
+
 BASE_DIR=$(dirname "$0")
 
 cross_build() {
   SCALA_VER=$1
-  echo "Building with Scala $SCALA_VER"
+  SPARK_VER=$2
+  echo "==============================================================================="
+  echo "Building with Scala $SCALA_VER for Spark $SPARK_VER"
+  echo "==============================================================================="
   mvn scala-cross-build:change-version -Pscala-"$SCALA_VER"
-  mvn install
+  mvn install -Pspark-"$SPARK_VER"
 }
 
 # ------------------------------------------------
@@ -32,7 +37,11 @@ cross_build() {
 mvn clean
 find "$BASE_DIR" -name target -type d -exec rm -rf {} \;
 
-cross_build 2.11
-cross_build 2.12
+cross_build 2.11 2.4
+cross_build 2.12 2.4
+cross_build 2.12 3.1
 
+echo "==============================================================================="
+echo Restoring version
+echo "==============================================================================="
 mvn scala-cross-build:restore-version

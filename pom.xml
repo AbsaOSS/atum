@@ -130,9 +130,13 @@
 
         <!-- Spark versions -->
         <spark-24.version>2.4.6</spark-24.version>
-        <spark-31.version>3.1.1</spark-31.version>
+        <spark-31.version>3.1.2</spark-31.version>
 
         <spark.version>${spark-24.version}</spark.version>
+
+        <!-- Scalastyle-->
+        <quiet.scalastyle.check>true</quiet.scalastyle.check>
+        <scalastyle.configLocation>${project.basedir}/scalastyle-config.xml</scalastyle.configLocation>
     </properties>
 
     <dependencies>
@@ -182,6 +186,33 @@
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.scalastyle</groupId>
+                    <artifactId>scalastyle-maven-plugin</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <quiet>${quiet.scalastyle.check}</quiet>
+                        <verbose>false</verbose>
+                        <failOnViolation>true</failOnViolation>
+                        <failOnWarning>false</failOnWarning>
+                        <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                        <sourceDirectory>${project.basedir}/src/main/scala</sourceDirectory>
+                        <testSourceDirectory>${project.basedir}/src/test/scala</testSourceDirectory>
+                        <configLocation>${scalastyle.configLocation}</configLocation>
+                        <outputFile>${project.basedir}/target/scalastyle-output.xml</outputFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- the Maven Scala plugin -->
             <plugin>
@@ -359,6 +390,12 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>scalastyle</id>
+            <properties>
+                <quiet.scalastyle.check>false</quiet.scalastyle.check>
+            </properties>
         </profile>
 
         <profile>
