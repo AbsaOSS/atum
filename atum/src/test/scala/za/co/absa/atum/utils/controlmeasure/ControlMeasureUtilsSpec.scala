@@ -81,7 +81,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
     "createInfoFile" should s"generates a complete info file and file content $testCaseName" in {
 
       val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs = FileSystem.get(hadoopConf)
+      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
       val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data",
@@ -107,7 +107,7 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   ).foreach { case (testCaseName, jsonType, expectedMeasureJson) =>
     "writeControlMeasureInfoFileToHadoopFs" should s"correctly write data to hdfs $testCaseName" in {
       val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs = FileSystem.get(hadoopConf)
+      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
       hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
 
       val cm = ControlMeasureBuilder.forDF(singleIntColumnDF)

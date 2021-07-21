@@ -27,7 +27,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
 
   import spark.implicits._
 
-  val schema = StructType(
+  private val schema = StructType(
     Array(
       StructField("id", LongType, nullable = false),
       StructField("price", DecimalType(10, 6)),
@@ -37,7 +37,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       )
     ))
 
-  val measurementsIntOferflow = List(
+  private val measurementsIntOferflow = List(
     Measurement(
       controlType = ControlType.Count.value,
       controlCol = "*",
@@ -103,7 +103,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     assert(newMeasurements == measurementsIntOferflow)
   }
 
-  val measurementsAggregation = List(
+  private val measurementsAggregation = List(
     Measurement(
       controlType = ControlType.Count.value,
       controlCol = "*",
@@ -275,7 +275,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     assert(newMeasurements == measurements3)
   }
 
-  val measurementsWithHash = List(
+  private val measurementsWithHash = List(
     Measurement(
       controlType = ControlType.Count.value,
       controlCol = "*",
@@ -320,7 +320,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     assert(newMeasurements == measurementsWithHash)
   }
 
-  val measurementsAggregationShort = List(
+  private val measurementsAggregationShort = List(
     Measurement(
       controlType = "count",
       controlCol = "*",

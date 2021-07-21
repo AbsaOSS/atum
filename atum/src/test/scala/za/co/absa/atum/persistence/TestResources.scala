@@ -23,7 +23,7 @@ object TestResources {
     val localPath: String = getClass.getResource("/example_input.info").getPath
 
     // conforms to the content of the Resource file `example_input.info`
-    val controlMeasure = ControlMeasure(
+    val controlMeasure: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata("AtumTest", "CZ", "Snapshot", "example_input.csv", "public", 1, "01-01-2020", Map.empty),
       runUniqueId = None,
       List(Checkpoint("checkpointA", None, None, "01-01-2020 08:00:00", "01-01-2020 08:00:10", "wf1", 1, List(

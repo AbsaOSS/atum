@@ -90,7 +90,7 @@ object SampleSdkS3Measurements2 {
 
   private def extractCheckpointsRecordCounts(controlMeasure: ControlMeasure): Seq[(String, Int)] = {
     controlMeasure.checkpoints.map { checkpoint =>
-      val count: Int = checkpoint.controls.collectFirst { case Measurement(ControlType.Count.value, _, value) => value.toString.toInt }.getOrElse(0)
+      val count: Int = checkpoint.controls.collectFirst { case Measurement(ControlType.Count.value, "*", value) => value.toString.toInt }.getOrElse(0)
       (checkpoint.name, count)
     }
   }
