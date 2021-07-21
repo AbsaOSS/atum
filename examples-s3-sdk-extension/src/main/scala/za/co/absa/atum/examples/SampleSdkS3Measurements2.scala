@@ -21,6 +21,7 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import za.co.absa.atum.AtumImplicitsSdkS3._
+import za.co.absa.atum.core.ControlType
 import za.co.absa.atum.model.{ControlMeasure, Measurement}
 import za.co.absa.atum.persistence.s3.{ControlMeasuresSdkS3LoaderJsonFile, S3KmsSettings, SimpleS3LocationWithRegion}
 import za.co.absa.atum.utils.SdkS3ClientUtils
@@ -89,7 +90,7 @@ object SampleSdkS3Measurements2 {
 
   private def extractCheckpointsRecordCounts(controlMeasure: ControlMeasure): Seq[(String, Int)] = {
     controlMeasure.checkpoints.map { checkpoint =>
-      val count: Int = checkpoint.controls.collectFirst { case Measurement("recordCount", _, _, value) => value.toString.toInt }.getOrElse(0)
+      val count: Int = checkpoint.controls.collectFirst { case Measurement(ControlType.Count.value, "*", value) => value.toString.toInt }.getOrElse(0)
       (checkpoint.name, count)
     }
   }

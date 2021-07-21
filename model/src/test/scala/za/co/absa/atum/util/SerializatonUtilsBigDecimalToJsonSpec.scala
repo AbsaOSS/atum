@@ -57,20 +57,18 @@ class SerializatonUtilsBigDecimalToJsonSpec extends AnyFlatSpec with Matchers {
   {
     val mearurements = Seq(
       Measurement(
-        controlName = "pvControlTotal",
         controlType = "controlType.aggregatedTotal",
         controlCol = "pv",
         controlValue = "32847283324.324324"
       ),
       Measurement(
-        controlName = "recordCount",
         controlType = "controlType.Count",
         controlCol = "id",
         controlValue = "243"
       )
     )
     val s = write(mearurements)
-    s shouldEqual "[{\"controlName\":\"pvControlTotal\",\"controlType\":\"controlType.aggregatedTotal\"," + "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
-                   "{\"controlName\":\"recordCount\",\"controlType\":\"controlType.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]"
+    s shouldEqual "[{\"controlType\":\"controlType.aggregatedTotal\"," + "\"controlCol\":\"pv\",\"controlValue\":\"32847283324.324324\"}," +
+                   "{\"controlType\":\"controlType.Count\",\"controlCol\":\"id\",\"controlValue\":\"243\"}]"
   }
 }
