@@ -50,14 +50,14 @@ object SampleMeasurements3 extends Eventually {
       .filter($"total_response_size" > 1000)
       .setCheckpoint("checkpoint1")
       .write.mode(SaveMode.Overwrite)
-      .parquet("data/output/stage1_job_results")
+      .parquet("data/output/stage3_job_results")
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO")))
-        throw new Exception("_INFO file not found at data/output/stage1_job_results")
+      if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO")))
+        throw new Exception("_INFO file not found at data/output/stage3_job_results")
     }
 
-    val jsonInfoFile = FileUtils.readFileToString("data/output/stage1_job_results/_INFO")
+    val jsonInfoFile = FileUtils.readFileToString("data/output/stage3_job_results/_INFO")
     val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](jsonInfoFile)
     val checkpoint = measureObject1.checkpoints.filter(_.name == "checkpoint1").head
 

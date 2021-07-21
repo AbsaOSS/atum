@@ -17,7 +17,6 @@ package za.co.absa.atum.model
 
 case class Measurement
 (
-  controlName: String,
   controlType: String,
   controlCol: String,
   controlValue: Any
