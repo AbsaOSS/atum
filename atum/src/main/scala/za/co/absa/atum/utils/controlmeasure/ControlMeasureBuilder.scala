@@ -141,7 +141,6 @@ object ControlMeasureBuilder {
 
         // This is the aggregated total calculation block
         var controlType = ControlType.AbsAggregatedTotal.value
-        var controlName = columnName + "Total"
         val aggregatedValue = dataType match {
           case _: LongType =>
             // This is protection against long overflow, e.g. Long.MaxValue = 9223372036854775807:
@@ -155,7 +154,6 @@ object ControlMeasureBuilder {
           case _ =>
             val aggColName = ControlMeasureUtils.getTemporaryColumnName(df)
             controlType = ControlType.HashCrc32.value
-            controlName = columnName + "Crc32"
             df.withColumn(aggColName, crc32(col(columnName).cast("String")))
               .agg(sum(col(aggColName)))
               .collect()(0)(0)
@@ -174,7 +172,6 @@ object ControlMeasureBuilder {
           case a => a
         }
         Measurement(
-          controlName = columnName + "ControlTotal",
           controlType = controlType,
           controlCol = columnName,
           controlValue = aggregatedValueFixed.toString)
@@ -199,7 +196,6 @@ object ControlMeasureBuilder {
           workflowName = workflowName,
           order = 1,
           controls = Measurement(
-            controlName = "recordCount",
             controlType = ControlType.Count.value,
             controlCol = "*",
             controlValue = rowCount.toString
