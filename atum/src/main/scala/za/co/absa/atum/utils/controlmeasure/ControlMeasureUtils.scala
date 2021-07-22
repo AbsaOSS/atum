@@ -61,32 +61,6 @@ object ControlMeasureUtils {
     dateFormat.format(now)
   }
 
-  /**
-   * The method returns arbitrary object as a Json string.
-   * Calls [[za.co.absa.atum.utils.SerializationUtils#asJson(java.lang.Object)]]
-   *
-   * @return A string representing the object in Json format
-   */
-  @deprecated("Use SerializationUtils.asJson instead", "3.3.0")
-  def asJson[T <: AnyRef](obj: T): String = SerializationUtils.asJson[T](obj)
-
-  /**
-   * The method returns arbitrary object as a pretty Json string.
-   * Calls [[za.co.absa.atum.utils.SerializationUtils#asJsonPretty(java.lang.Object)]]
-   *
-   * @return A string representing the object in Json format
-   */
-  @deprecated("Use SerializationUtils.asJsonPretty instead", "3.3.0")
-  def asJsonPretty[T <: AnyRef](obj: T): String = SerializationUtils.asJsonPretty[T](obj)
-
-  /**
-   * The method returns arbitrary object parsed from Json string.
-   * Calls [[za.co.absa.atum.utils.SerializationUtils#fromJson(java.lang.String, scala.reflect.Manifest)]]
-   *
-   * @return An object deserialized from the Json string
-   */
-  @deprecated("Use SerializationUtils.fromJson instead", "3.3.0")
-  def fromJson[T <: AnyRef](jsonStr: String)(implicit m: Manifest[T]): T = SerializationUtils.fromJson[T](jsonStr)
 
   /**
     * The method generates a temporary column name which does not exist in the specified `DataFrame`.
@@ -102,69 +76,6 @@ object ControlMeasureUtils {
     tempColumnName
   }
 
-  /**
-    * The method crates an _INFO file for a given dataset.
-    * The row count measurement is added automatically. You can also specify aggregation columns for
-    * aggregation measurements
-    *
-    * @param ds A dataset for which _INFO file to be created.
-    * @param sourceApplication The name of the application providing the data.
-    * @param inputPathName The path to the input file name. Can be a folder with file mask.
-    * @param reportDate The date of the data generation (default = today).
-    * @param reportVersion The version of the data generation for the date, new versions replace old  versions of data (default = 1).
-    * @param country Country name (default = "ZA").
-    * @param historyType History type (default = "Snapshot").
-    * @param sourceType Source type (default = "Source").
-    * @param initialCheckpointName The name of the initial checkpoint (default = "Source").
-    * @param workflowName A workflow name to group several checkpoint sth in the chain (default = "Source").
-    * @param writeToHDFS A flag specifying if saving _INFO file to HDFS needed. If false the _INFO file will not be saved to HDFS.
-    * @param prettyJSON Output pretty JSON.
-    * @param aggregateColumns Numeric column names for.
-    *
-    * @return The content of the _INFO file.
-    */
-  @deprecated("Use ControlMeasureBuilder.forDf(...) ... .build & ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(...) instead", "3.4.0")
-  def createInfoFile(ds: Dataset[Row],
-                     sourceApplication: String,
-                     inputPathName: String,
-                     reportDate: String = getTodayAsString,
-                     reportVersion: Int = 1,
-                     country: String = "ZA",
-                     historyType: String = "Snapshot",
-                     sourceType: String = "Source",
-                     initialCheckpointName: String = "Source",
-                     workflowName: String = "Source",
-                     writeToHDFS: Boolean = true,
-                     prettyJSON: Boolean = true,
-                     aggregateColumns: Seq[String]): String = {
-
-    // Calculate the measurements
-    val cm: ControlMeasure = ControlMeasureBuilder
-      .forDF(ds)
-      .withAggregateColumns(aggregateColumns)
-      .withSourceApplication(sourceApplication)
-      .withInputPath(inputPathName)
-      .withReportDate(reportDate)
-      .withReportVersion(reportVersion)
-      .withCountry(country)
-      .withHistoryType(historyType)
-      .withSourceType(sourceType)
-      .withInitialCheckpointName(initialCheckpointName)
-      .withWorkflowName(workflowName)
-      .build
-
-    if (writeToHDFS) {
-
-      // since this is deprecated wrapper, here we assume HDFS as the original, but generally, s3 would be available, too.
-      val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
-      val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath(inputPathName)(hadoopConfiguration)
-
-      val jsonType = if (prettyJSON) JsonType.Pretty else JsonType.Minified
-      writeControlMeasureInfoFileToHadoopFs(cm, path, jsonType)(fs)
-    }
-
-    if (prettyJSON) cm.asJsonPretty else cm.asJson // can afford slight duplication of efforts, because this method is a deprecated wrapper
-  }
 
   /**
    * Will write Control Measure `cm` as JSON to Hadoop FS (by default to into the dir specified in `cm.metadata.dataFileName`, file name: _INFO)
