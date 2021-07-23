@@ -249,7 +249,7 @@ trait AtumImplicitsBase {
   /**
     * The class contains implicit methods for [[org.apache.spark.sql.Dataset]].
     */
-  implicit class DataSetWrapper(dataset: Dataset[Row])(implicit atum: Atum) {
+  implicit class  DataSetWrapper(dataset: Dataset[Row])(implicit atum: Atum) {
     /**
       * The method creates a new checkpoint by calculating control measurements of the dataset
       * On first checkpoint Spark Session Key ControlFrameworkKeys.InfoFileVersionKey is updated
@@ -269,9 +269,12 @@ trait AtumImplicitsBase {
       }
     }
 
-    def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean = false): DataFrame = {
+    /**
+     * The method sets an additional info in metadata of the _INFO file with key - value pair
+     */
+    def setAdditionalInfo(keyAndValue: (String, String), replaceIfExists: Boolean = false): DataFrame = {
       atum.preventNotInitialized()
-      atum.controlFrameworkState.setAdditionalInfo(kv, replaceIfExists)
+      atum.controlFrameworkState.setAdditionalInfo(keyAndValue, replaceIfExists)
 
       dataset
     }
