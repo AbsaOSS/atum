@@ -86,16 +86,11 @@ object CreateInfoFileToolCSV {
       .withReportVersion(infoVersion)
       .withCountry(country)
       .withHistoryType(historyType)
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
     val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath(inputFileName)(hadoopConfiguration)
 
     ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, path, JsonType.Pretty)(fs)
-
-    val strJson = cm.asJsonPretty
   }
 }

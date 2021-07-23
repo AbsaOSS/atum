@@ -17,6 +17,7 @@ package za.co.absa.atum.utils
 
 import org.scalatest.funsuite.AnyFunSuiteLike
 
+import scala.language.reflectiveCalls
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe
 
@@ -27,10 +28,13 @@ trait SparkJobRunnerMethods {
     type MainClass = {def main(args: Array[String]): Unit}
 
     val jobClass = ct.runtimeClass
-    val jobClassSymbol = universe runtimeMirror jobClass.getClassLoader classSymbol jobClass
+    val jobClassSymbol = universe.runtimeMirror(jobClass.getClassLoader).classSymbol(jobClass)
     val jobInstance =
-      if (jobClassSymbol.isModuleClass) jobClass getField "MODULE$" get jobClass
-      else jobClass.getDeclaredConstructor().newInstance()
+      if (jobClassSymbol.isModuleClass) {
+        jobClass.getField("MODULE$").get(jobClass)
+      } else {
+        jobClass.getDeclaredConstructor().newInstance()
+      }
 
     jobInstance.asInstanceOf[MainClass].main(Array.empty)
   }

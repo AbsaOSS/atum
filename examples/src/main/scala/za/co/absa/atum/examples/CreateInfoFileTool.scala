@@ -69,11 +69,6 @@ object CreateInfoFileTool {
       .withInputPath(inputFileName)
       .withReportDate(dateInDMYFormat)
       .withReportVersion(infoVersion)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration

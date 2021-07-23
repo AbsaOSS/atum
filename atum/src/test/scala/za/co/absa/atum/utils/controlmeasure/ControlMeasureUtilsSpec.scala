@@ -76,72 +76,24 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
        |}""".stripMargin
 
   Seq(
-    ("as json", false, expectedJsonForSingleIntColumn),
-    ("as pretty json", true, expectedPrettyJsonForSingleIntColumn)
-  ).foreach { case (testCaseName, isJsonPretty, expectedMeasureJson) =>
-    "createInfoFile" should s"generates a complete info file and file content $testCaseName" in {
-
-      val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
-      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
-
-      val cm: ControlMeasure = ControlMeasureBuilder
-        .forDF(singleIntColumnDF)
-        .withAggregateColumns(Seq("value"))
-        .withSourceApplication("Test")
-        .withInputPath("_testOutput/data")
-        .withReportDate(ControlMeasureUtils.getTodayAsString)
-        .withReportVersion(1)
-        .withCountry("ZA")
-        .withHistoryType("Snapshot")
-        .withSourceType("Source")
-        .withInitialCheckpointName("Source")
-        .withWorkflowName("Source")
-        .build
-
-      val hadoopConfiguration = singleIntColumnDF.sparkSession.sparkContext.hadoopConfiguration
-      val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath("_testOutput/data")(hadoopConfiguration)
-
-      val jsonType = if (isJsonPretty) JsonType.Pretty else JsonType.Minified
-      ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, path, jsonType)(fs)
-
-      val actual = if (isJsonPretty) cm.asJsonPretty else cm.asJson
-
-
-      // replace non-stable fields (date/time, version) using rx lookbehind
-      val actualStabilized = stabilizeJsonOutput(actual)
-
-      // testing the generated jsons
-      assert(actualStabilized == expectedMeasureJson, "Generated json does not match")
-
-      // check the what's actually written to "HDFS"
-      val actual2 = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
-
-      hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
-    }
-  }
-
-  // builder-based version of the above, the above can be removed when the deprecated ControlMeasureUtils.createInfoFile is removed
-  Seq(
     ("as json", JsonType.Minified, expectedJsonForSingleIntColumn),
     ("as pretty json", JsonType.Pretty, expectedPrettyJsonForSingleIntColumn)
   ).foreach { case (testCaseName, jsonType, expectedMeasureJson) =>
     "writeControlMeasureInfoFileToHadoopFs" should s"correctly write data to hdfs $testCaseName" in {
-      val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
-      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
-
       val cm = ControlMeasureBuilder.forDF(singleIntColumnDF)
         .withAggregateColumns(Seq("value"))
         .withSourceApplication("Test")
         .withInputPath("_testOutput/data")
         .build
+
+      val hadoopConf = spark.sparkContext.hadoopConfiguration
+      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
+      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
       ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, new Path("_testOutput/data"), jsonType)
 
       // check the what's actually written to "HDFS"
-      val actual = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(stabilizeJsonOutput(actual) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+      val actualJson = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
+      assert(stabilizeJsonOutput(actualJson) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
 
       hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
     }
@@ -155,14 +107,8 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
+
     assert(actual.asJson.contains(expected))
   }
 
@@ -177,13 +123,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val json2: ControlMeasure = ControlMeasureBuilder
@@ -191,13 +130,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val matcher(value1) = json1.asJson
@@ -215,13 +147,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     assert(actual.asJson.contains(expected))
@@ -238,13 +163,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val json2: ControlMeasure = ControlMeasureBuilder
@@ -252,13 +170,6 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       .withAggregateColumns(Seq("value"))
       .withSourceApplication("Test")
       .withInputPath("/data")
-      .withReportDate(ControlMeasureUtils.getTodayAsString)
-      .withReportVersion(1)
-      .withCountry("ZA")
-      .withHistoryType("Snapshot")
-      .withSourceType("Source")
-      .withInitialCheckpointName("Source")
-      .withWorkflowName("Source")
       .build
 
     val matcher(value1) = json1.asJson
@@ -292,6 +203,4 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       case _ => fail(s"A temporaty column name '$colName' doesn't match the required pattern.")
     }
   }
-
-
 }
