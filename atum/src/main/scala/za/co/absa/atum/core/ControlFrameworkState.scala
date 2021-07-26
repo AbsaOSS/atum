@@ -253,14 +253,12 @@ class ControlFrameworkState(sparkSession: SparkSession) {
   }
 
   private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit outputFs: FileSystem): Unit = {
-    var isDirectory = false
-    try {
-      isDirectory = outputFs.getFileStatus(outputInfoFilePath).isDirectory
+    val isDirectory: Boolean = try {
+      outputFs.getFileStatus(outputInfoFilePath).isDirectory
+    } catch {
+      case _: FileNotFoundException => false
     }
-    catch {
-      case e: FileNotFoundException =>
-        isDirectory = false
-    }
+
     val outputFilePath = if (isDirectory) {
       new Path(outputInfoFilePath, outputInfoFileName)
     } else {
