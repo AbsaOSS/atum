@@ -17,7 +17,10 @@ package za.co.absa.atum.examples
 
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
-import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils
+import za.co.absa.atum.model.ControlMeasure
+import za.co.absa.atum.utils.InfoFile
+import za.co.absa.atum.utils.controlmeasure.{ControlMeasureBuilder, ControlMeasureUtils}
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
 
 /**
   * The object is a Spark Job for creating an info file for a specific CSV file.
@@ -73,13 +76,20 @@ object CreateInfoFileToolCSV {
       .option("header", haveHeaders)
       .load(inputFileName)
 
-    val strJson = ControlMeasureUtils.createInfoFile(ds,
-      sourceApplication,
-      inputFileName,
-      dateInDMYFormat,
-      infoVersion,
-      historyType = historyType,
-      country = country,
-      aggregateColumns = columnNames.toSeq)
+    val cm: ControlMeasure = ControlMeasureBuilder
+      .forDF(ds)
+      .withAggregateColumns(columnNames.toSeq)
+      .withSourceApplication(sourceApplication)
+      .withInputPath(inputFileName)
+      .withReportDate(dateInDMYFormat)
+      .withReportVersion(infoVersion)
+      .withCountry(country)
+      .withHistoryType(historyType)
+      .build
+
+    val hadoopConfiguration = ds.sparkSession.sparkContext.hadoopConfiguration
+    val (fs, path) = InfoFile.convertFullPathToFsAndRelativePath(inputFileName)(hadoopConfiguration)
+
+    ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, path, JsonType.Pretty)(fs)
   }
 }
