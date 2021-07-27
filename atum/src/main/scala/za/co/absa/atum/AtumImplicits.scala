@@ -275,9 +275,9 @@ trait AtumImplicitsBase {
      * @param replaceIfExists - flag to indicate if the value should be replaced in the case the key already exists
      * @return - the original `DataFrame` the method was called upon
      */
-    def setAdditionalInfo(keyAndValue: (String, String), replaceIfExists: Boolean = false): Dataset[Row] = {
+    def setAdditionalInfo(key: String, value: String, replaceIfExists: Boolean = false): Dataset[Row] = {
       atum.preventNotInitialized()
-      atum.controlFrameworkState.setAdditionalInfo(keyAndValue, replaceIfExists)
+      atum.controlFrameworkState.setAdditionalInfo(key, value, replaceIfExists)
 
       dataset
     }

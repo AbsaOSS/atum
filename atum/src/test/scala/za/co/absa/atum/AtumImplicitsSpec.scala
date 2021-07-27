@@ -50,7 +50,7 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
     val df = spark.read.json(Seq(inputData).toDS)
 
     // act
-    df.setAdditionalInfo(("additionalKey1", "additionalValue1"))
+    df.setAdditionalInfo("additionalKey1", "additionalValue1")
     df.writeInfoFile(outputPath)
 
     val updatedData = FileUtils.readFileToString(outputPath)

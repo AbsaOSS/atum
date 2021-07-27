@@ -85,8 +85,8 @@ class ControlFrameworkState(sparkSession: SparkSession) {
     accumulator.setRunUniqueId(uniqueId)
   }
 
-  private[atum] def setAdditionalInfo(keyAndValue: (String, String), replaceIfExists: Boolean): Unit = {
-    accumulator.setAdditionalInfo(keyAndValue, replaceIfExists)
+  private[atum] def setAdditionalInfo(key:String, value: String, replaceIfExists: Boolean): Unit = {
+    accumulator.setAdditionalInfo(key, value, replaceIfExists)
     havePendingCheckpoints = true
   }
 
