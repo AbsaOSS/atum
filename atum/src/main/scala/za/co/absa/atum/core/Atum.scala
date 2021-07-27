@@ -51,6 +51,7 @@ trait Atum {
   /**
     * Sets an additional info in metadata of the _INFO file
     */
+  @deprecated("use dataframe.setAdditionalInfo()", "4.0.0")
   def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean = false): Unit = {
     preventNotInitialized()
     controlFrameworkState.setAdditionalInfo(kv, replaceIfExists)

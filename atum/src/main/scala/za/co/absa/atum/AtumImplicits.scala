@@ -17,7 +17,7 @@ package za.co.absa.atum
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
@@ -267,6 +267,19 @@ trait AtumImplicitsBase {
       else {
         atum.controlFrameworkState.calculateCheckpoint(dataset, name, !persistInDatabase)
       }
+    }
+
+    /**
+     * Sets an additional info in metadata of the _INFO file
+     * @param keyAndValue - the pair of the _key_ and _value_ to add to the _INFO file, in a form of tuple
+     * @param replaceIfExists - flag to indicate if the value should be replaced in the case the key already exists
+     * @return - the original `DataFrame` the method was called upon
+     */
+    def setAdditionalInfo(keyAndValue: (String, String), replaceIfExists: Boolean = false): Dataset[Row] = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.setAdditionalInfo(keyAndValue, replaceIfExists)
+
+      dataset
     }
 
     /**
