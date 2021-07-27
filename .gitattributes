@@ -11,30 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# top-most EditorConfig file
-root = true
+###############################
+# Git Line Endings            #
+###############################
 
-[*]
-charset = utf-8
-end_of_line = lf
-trim_trailing_whitespace = true
+# Set default behaviour to automatically normalize line endings.
+* text=auto
 
-[*.xml]
-indent_size = 4
-indent_style = space
-insert_final_newline = true
+# Force the following filetypes to have unix eols, Windows can usually handle it well
+*.* text eol=lf
 
-[*.{java,scala,js,json,css}]
-indent_size = 2
-indent_style = space
-insert_final_newline = true
-max_line_length = 120
-
-[*.md]
-trim_trailing_whitespace = false
-
-[*.{cmd,bat}]
-end_of_line = crlf
-insert_final_newline = true
+# Force batch scripts to always use CRLF line endings as they in some cases might not work correctly.
+# Also if a repo is accessed in Windows via a file share from Linux, the scripts will work too
+*.cmd text eol=crlf
+*.bat text eol=crlf
