@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
+import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
 import za.co.absa.atum.utils.{BuildProperties, DefaultBuildProperties, InfoFile}
@@ -259,6 +260,40 @@ trait AtumImplicitsBase {
 
       dataset
     }
+
+    /**
+     * The method returns ControlMeasure object from the Atum context
+     * @return - ControlMeasure object
+     */
+    def getControlMeasure: ControlMeasure = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.accumulator.getControlMeasure
+    }
+
+    /**
+     * The method returns AditionalInfo object from the Atum context
+     * @return - AditionalInfo object
+     */
+    def getAllAdditionalInfo: Map[String, String] = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo
+    }
+
+    /**
+     * The method returns Option of AditionalInfo value for given key from the Atum context
+     * @param key - the AditionalInfo key
+     * @return - Option[String] with value for given AditionalInfo key
+     */
+    def getAdditionalInfo(key: String): Option[String] = {
+      atum.preventNotInitialized()
+      if (atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo.contains(key)) {
+        Option(atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo(key))
+      }
+      else {
+        None
+      }
+    }
+
 
     /**
       * The method returns the number of records in the dataframe calculated during the last checkpoint.
