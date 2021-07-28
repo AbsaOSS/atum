@@ -20,8 +20,9 @@ import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureUtils.JsonType
-import za.co.absa.atum.utils.{HdfsFileUtils, SparkTestBase}
+import za.co.absa.atum.utils.{HdfsFileUtils, InfoFile, SparkTestBase}
 import za.co.absa.atum.ControlMeasureBaseTestSuite
+import za.co.absa.atum.model.ControlMeasure
 
 class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSuite with Matchers with SparkTestBase {
 
@@ -75,51 +76,24 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
        |}""".stripMargin
 
   Seq(
-    ("as json", false, expectedJsonForSingleIntColumn),
-    ("as pretty json", true, expectedPrettyJsonForSingleIntColumn)
-  ).foreach { case (testCaseName, isJsonPretty, expectedMeasureJson) =>
-    "createInfoFile" should s"generates a complete info file and file content $testCaseName" in {
-
-      val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
-      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
-
-      val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "_testOutput/data",
-        writeToHDFS = true, prettyJSON = isJsonPretty, aggregateColumns = Seq("value"))
-      // replace non-stable fields (date/time, version) using rx lookbehind
-      val actualStabilized = stabilizeJsonOutput(actual)
-
-      // testing the generated jsons
-      assert(actualStabilized == expectedMeasureJson, "Generated json does not match")
-
-      // check the what's actually written to "HDFS"
-      val actual2 = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(stabilizeJsonOutput(actual2) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
-
-      hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
-    }
-  }
-
-  // builder-based version of the above, the above can be removed when the deprecated ControlMeasureUtils.createInfoFile is removed
-  Seq(
     ("as json", JsonType.Minified, expectedJsonForSingleIntColumn),
     ("as pretty json", JsonType.Pretty, expectedPrettyJsonForSingleIntColumn)
   ).foreach { case (testCaseName, jsonType, expectedMeasureJson) =>
     "writeControlMeasureInfoFileToHadoopFs" should s"correctly write data to hdfs $testCaseName" in {
-      val hadoopConf = spark.sparkContext.hadoopConfiguration
-      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
-      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
-
       val cm = ControlMeasureBuilder.forDF(singleIntColumnDF)
         .withAggregateColumns(Seq("value"))
         .withSourceApplication("Test")
         .withInputPath("_testOutput/data")
         .build
+
+      val hadoopConf = spark.sparkContext.hadoopConfiguration
+      implicit val hdfs: FileSystem = FileSystem.get(hadoopConf)
+      hdfs.delete(new Path("_testOutput/data/_INFO"), false) // cleanup if exists
       ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, new Path("_testOutput/data"), jsonType)
 
       // check the what's actually written to "HDFS"
-      val actual = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
-      assert(stabilizeJsonOutput(actual) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
+      val actualJson = HdfsFileUtils.readHdfsFileToString(new Path("_testOutput/data/_INFO"))
+      assert(stabilizeJsonOutput(actualJson) == expectedMeasureJson, "json written to _testOutput/data/_INFO")
 
       hdfs.deleteOnExit(new Path("_testOutput")) // eventual cleanup
     }
@@ -128,9 +102,14 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   "createInfoFile" should "handle integer columns" in {
     val expected = "{\"controlType\":\"absAggregatedTotal\",\"controlCol\":\"value\",\"controlValue\":\"21099\"}]}]}"
 
-    val actual = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val actual: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
 
-    assert(actual.contains(expected))
+    assert(actual.asJson.contains(expected))
   }
 
   "createInfoFile" should "handle numeric values cancellations" in {
@@ -138,11 +117,23 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
     // For example, if SUM() is used as an aggregator opposite values will cancel each other and
     // the final control value will be the same for datasets containing two values and for a dataset containing none at all
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlMeasureUtils.createInfoFile(singleIntColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlMeasureUtils.createInfoFile(singleIntColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
 
-    val matcher(value1) = json1
-    val matcher(value2) = json2
+    val json1: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
+
+    val json2: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleIntColumnDF2)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
+
+    val matcher(value1) = json1.asJson
+    val matcher(value2) = json2.asJson
 
     // control values generated for these 2 datasets should not be the same
     assert(value1 != value2)
@@ -151,9 +142,14 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
   "createInfoFile" should "handle string columns" in {
     val expected = "{\"controlType\":\"hashCrc32\",\"controlCol\":\"value\",\"controlValue\":\"9483370936\"}]}]}"
 
-    val actual = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val actual: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
 
-    assert(actual.contains(expected))
+    assert(actual.asJson.contains(expected))
   }
 
   "createInfoFile" should "handle string hash cancellations" in {
@@ -162,11 +158,22 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
     // the final hash will be the same for datasets containing a duplicate values and containing no such values at all
 
     val matcher = ".*\"controlValue\":\"(\\d+)\".*".r
-    val json1 = ControlMeasureUtils.createInfoFile(singleStringColumnDF, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
-    val json2 = ControlMeasureUtils.createInfoFile(singleStringColumnDF2, "Test", "/data", writeToHDFS = false, prettyJSON = false, aggregateColumns = Seq("value"))
+    val json1: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
 
-    val matcher(value1) = json1
-    val matcher(value2) = json2
+    val json2: ControlMeasure = ControlMeasureBuilder
+      .forDF(singleStringColumnDF2)
+      .withAggregateColumns(Seq("value"))
+      .withSourceApplication("Test")
+      .withInputPath("/data")
+      .build
+
+    val matcher(value1) = json1.asJson
+    val matcher(value2) = json2.asJson
 
     // control values generated for these 2 datasets should not be the same
     assert(value1 != value2)
@@ -196,6 +203,4 @@ class ControlMeasureUtilsSpec extends AnyFlatSpec with ControlMeasureBaseTestSui
       case _ => fail(s"A temporaty column name '$colName' doesn't match the required pattern.")
     }
   }
-
-
 }

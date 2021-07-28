@@ -247,6 +247,10 @@
                     <recompileMode>incremental</recompileMode>
                     <args>
                         <arg>-target:jvm-${java.version}</arg>
+                        <arg>-Xfatal-warnings</arg>
+                        <arg>-unchecked</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-feature</arg>
                     </args>
                     <javacArgs>
                         <javacArg>-source</javacArg><javacArg>${java.version}</javacArg>

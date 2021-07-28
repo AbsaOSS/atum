@@ -16,11 +16,11 @@
 package za.co.absa.atum.utils
 
 import java.io.IOException
-
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
 
+import java.nio.charset.Charset
 import scala.collection.JavaConverters._
 
 object HdfsFileUtils {
@@ -28,7 +28,7 @@ object HdfsFileUtils {
   def readHdfsFileToString(path: Path)(implicit inputFs: FileSystem): String = {
     val stream = inputFs.open(path)
     try
-      IOUtils.readLines(stream).asScala.mkString("\n")
+      IOUtils.readLines(stream, Charset.defaultCharset()).asScala.mkString("\n")
     finally
       stream.close()
   }

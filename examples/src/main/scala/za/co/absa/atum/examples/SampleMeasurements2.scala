@@ -33,7 +33,7 @@ object SampleMeasurements2 {
 
     // Initializing library to hook up to Apache Spark
     // No need to specify datasetName and datasetVersion as it is stage 2 and it will be determined automatically
-    spark.enableControlMeasuresTracking()
+    spark.enableControlMeasuresTracking(None, None)
       .setControlMeasuresWorkflow("Job 2")
 
     val sourceDS = spark.read
