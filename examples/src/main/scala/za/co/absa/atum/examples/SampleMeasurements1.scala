@@ -46,14 +46,15 @@ object SampleMeasurements1 extends Eventually {
       .csv("data/input/wikidata.csv")
       .as("source")
       .filter($"total_response_size" > 1000)
-      .setAdditionalInfo(("additionalKey1", "additionalValue1"))
+      .setAdditionalInfo("additionalKey1", "additionalValue1")
       .setCheckpoint("checkpoint1")
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output/stage1_job_results")
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO")))
+      if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO"))) {
         throw new Exception("_INFO file not found at data/output/stage1_job_results")
+      }
     }
 
     spark.disableControlMeasuresTracking()

@@ -98,7 +98,7 @@ class Accumulator() {
     key match {
       case (key) =>
         if (replaceIfExists || !controlMeasure.metadata.additionalInfo.contains(key)) {
-          val newInfo = controlMeasure.metadata.additionalInfo + (key, value)
+          val newInfo = controlMeasure.metadata.additionalInfo + (key -> value)
           val newMetadata = controlMeasure.metadata.copy(additionalInfo = newInfo)
           controlMeasure = controlMeasure.copy(metadata = newMetadata)
         }

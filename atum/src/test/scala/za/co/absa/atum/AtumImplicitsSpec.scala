@@ -51,6 +51,8 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
 
     // act
     df.setAdditionalInfo("additionalKey1", "additionalValue1")
+    df.setAdditionalInfo("additionalKey1", "anotherAdditionalValue")
+    df.setAdditionalInfo("additionalKey2", "additionalValue2")
     df.writeInfoFile(outputPath)
 
     val updatedData = FileUtils.readFileToString(outputPath)
@@ -58,9 +60,37 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
 
     // assert state of additionalInfo after
     updatedControlMeasure.metadata.additionalInfo should contain(("additionalKey1", "additionalValue1"))
+    updatedControlMeasure.metadata.additionalInfo should contain(("additionalKey2", "additionalValue2"))
 
     fs.delete(new Path(outputPath), false)
     spark.disableControlMeasuresTracking()
   }
 
+  "DataSetWrapper" should "replace existing additionalInfo" in {
+    fs.delete(new Path(outputPath), false)
+
+    // Initializing library to hook up to Apache Spark
+    spark.enableControlMeasuresTracking(Some(inputPath), None)
+      .setControlMeasuresWorkflow("setAdditionalInfo")
+
+    // assert state of additionalInfo before
+    inputControlMeasure.metadata.additionalInfo shouldBe Map.empty
+
+    import spark.implicits._
+    val df = spark.read.json(Seq(inputData).toDS)
+
+    // act
+    df.setAdditionalInfo("additionalKey1", "additionalValue1")
+    df.setAdditionalInfo("additionalKey1", "updatedAdditionalValue", true)
+    df.writeInfoFile(outputPath)
+
+    val updatedData = FileUtils.readFileToString(outputPath)
+    val updatedControlMeasure: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](updatedData)
+
+    // assert state of additionalInfo after
+    updatedControlMeasure.metadata.additionalInfo should contain(("additionalKey1", "updatedAdditionalValue"))
+
+    fs.delete(new Path(outputPath), false)
+    spark.disableControlMeasuresTracking()
+  }
 }
