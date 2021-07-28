@@ -37,7 +37,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       )
     ))
 
-  val measurementsIntOferflow = List(
+  val measurementsIntOverflow = List(
     Measurement(
       controlName = "RecordCount",
       controlType = ControlType.Count.value,
@@ -102,14 +102,14 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       .schema(schema)
       .json(inputDataJson.toDS)
 
-    val processor = new MeasurementProcessor(measurementsIntOferflow)
+    val processor = new MeasurementProcessor(measurementsIntOverflow)
     val newMeasurements = processor.measureDataset(df)
 
     println(newMeasurements)
 
-    println(measurementsIntOferflow)
+    println(measurementsIntOverflow)
 
-    assert(newMeasurements == measurementsIntOferflow)
+    assert(newMeasurements == measurementsIntOverflow)
   }
 
   val measurementsAggregation = List(

@@ -25,7 +25,7 @@ object ControlType {
 
   val values = Seq(Count.value, DistinctCount.value, AggregatedTotal.value, AbsAggregatedTotal.value, HashCrc32.value)
 
-  def getNormalizedValue(input: String) = {
+  def getNormalizedValue(input: String): String = {
     values.find(value => isControlMeasureTypeEqual(input, value)).getOrElse(input)
   }
 
