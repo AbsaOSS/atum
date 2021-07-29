@@ -64,8 +64,6 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
   }
 
   "method getControlMeasure" should "return ControlMeasure object" in {
-    fs.delete(new Path(outputPath), false)
-
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(Some(inputPath), None)
       .setControlMeasuresWorkflow("getControlMeasure")
@@ -77,15 +75,12 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
     val controlMeasure = df.getControlMeasure
 
     // assert
-    assert(controlMeasure == inputControlMeasure)
+    controlMeasure shouldBe inputControlMeasure
 
-    fs.delete(new Path(outputPath), false)
     spark.disableControlMeasuresTracking()
   }
 
   "method getAllAdditionalInfo" should "return Map[String, String] with given info" in {
-    fs.delete(new Path(outputPath), false)
-
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(Some(inputPath), None)
       .setControlMeasuresWorkflow("getControlMeasure")
@@ -108,8 +103,6 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
   }
 
   "method getAdditionalInfo(key: String)" should "return value for the given key" in {
-    fs.delete(new Path(outputPath), false)
-
     // Initializing library to hook up to Apache Spark
     spark.enableControlMeasuresTracking(Some(inputPath), None)
       .setControlMeasuresWorkflow("getControlMeasure")
@@ -124,10 +117,9 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
     val additionalInfoValueNonExistingKey = df.getAdditionalInfo("noSuchKey")
 
     // assert
-    additionalInfoValueExistingKey should equal (Option("value2"))
+    additionalInfoValueExistingKey should equal (Some("value2"))
     additionalInfoValueNonExistingKey should equal (None)
 
-    fs.delete(new Path(outputPath), false)
     spark.disableControlMeasuresTracking()
   }
 }

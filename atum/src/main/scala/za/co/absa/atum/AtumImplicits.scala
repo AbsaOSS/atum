@@ -271,8 +271,8 @@ trait AtumImplicitsBase {
     }
 
     /**
-     * The method returns AditionalInfo object from the Atum context
-     * @return - AditionalInfo object
+     * The method returns AdditionalInfo object from the Atum context
+     * @return - AdditionalInfo object
      */
     def getAllAdditionalInfo: Map[String, String] = {
       atum.preventNotInitialized()
@@ -280,20 +280,14 @@ trait AtumImplicitsBase {
     }
 
     /**
-     * The method returns Option of AditionalInfo value for given key from the Atum context
-     * @param key - the AditionalInfo key
-     * @return - Option[String] with value for given AditionalInfo key
+     * The method returns Option of AdditionalInfo value for given key from the Atum context
+     * @param key - the AdditionalInfo key
+     * @return - Option[String] with value for given AdditionalInfo key
      */
     def getAdditionalInfo(key: String): Option[String] = {
       atum.preventNotInitialized()
-      if (atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo.contains(key)) {
-        Option(atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo(key))
-      }
-      else {
-        None
-      }
+      atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo.get(key)
     }
-
 
     /**
       * The method returns the number of records in the dataframe calculated during the last checkpoint.
