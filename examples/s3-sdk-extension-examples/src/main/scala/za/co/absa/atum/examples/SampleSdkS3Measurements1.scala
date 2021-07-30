@@ -58,5 +58,6 @@ object SampleSdkS3Measurements1 {
       .parquet("data/output_s3/stage1_job_results")
 
     spark.disableControlMeasuresTracking()
+    spark.stop()
   }
 }

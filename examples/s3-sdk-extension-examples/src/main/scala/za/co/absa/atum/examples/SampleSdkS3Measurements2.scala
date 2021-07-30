@@ -79,6 +79,7 @@ object SampleSdkS3Measurements2 {
       .parquet("data/output_s3/stage2_job_results")
 
     spark.disableControlMeasuresTracking()
+    spark.stop()
 
     // checking info file presence via wrapped AWS SDK s3
     val loader = ControlMeasuresSdkS3LoaderJsonFile(infoFileOutputLocation)
@@ -87,7 +88,11 @@ object SampleSdkS3Measurements2 {
     val expectedCheckpointRecordCounts = Seq(
       "Source" -> 4964, "Raw" -> 4964, "checkpoint1" -> 3072, "checkpoint2" -> 1651)
     val extractedCounts = extractCheckpointsRecordCounts(controlMeasure)
-    assert(extractedCounts == expectedCheckpointRecordCounts, s"expecting control measure counts to be: $expectedCheckpointRecordCounts, but $extractedCounts found.")
+    if (extractedCounts == expectedCheckpointRecordCounts) {
+      log.info("Expected control measure counts check suceeded.")
+    } else {
+      throw new Exception(s"expecting control measure counts to be: $expectedCheckpointRecordCounts, but $extractedCounts found.")
+    }
   }
 
   private def extractCheckpointsRecordCounts(controlMeasure: ControlMeasure): Seq[(String, Int)] = {
