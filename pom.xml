@@ -25,11 +25,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>atum</module>
         <module>model</module>
-        <module>examples</module>
+        <module>atum</module>
         <module>atum-s3-sdk-extension</module>
-        <module>examples-s3-sdk-extension</module>
     </modules>
 
     <name>Atum</name>
@@ -94,10 +92,11 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssX</maven.build.timestamp.format>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.scala.version>3.2.0</maven.scala.version>
-        <maven.shade.version>2.3</maven.shade.version>
-        <maven.sources.version>3.0.1</maven.sources.version>
-        <maven.surefire.version>2.18.1</maven.surefire.version>
+        <scala.maven.plugin.version>3.2.0</scala.maven.plugin.version>
+        <maven.shade.plugin.version>2.3</maven.shade.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
 
         <!-- This is server id for configuring access credentials via settings.xml-->
         <project.scm.id>atum-scm-server</project.scm.id>
@@ -121,7 +120,6 @@
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
         <jackson.version>2.10.4</jackson.version>
-        <scalatest.maven.version>2.0.2</scalatest.maven.version>
         <scalatest.version>3.2.2</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <specs.version>2.5</specs.version>
@@ -241,7 +239,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>${maven.scala.version}</version>
+                <version>${scala.maven.plugin.version}</version>
                 <configuration>
                     <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
                     <recompileMode>incremental</recompileMode>
@@ -275,7 +273,7 @@
             <!-- disable surefire -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
@@ -284,7 +282,7 @@
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
-                <version>${scalatest.maven.version}</version>
+                <version>${scalatest.maven.plugin.version}</version>
                 <configuration>
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     <junitxml>.</junitxml>
@@ -303,7 +301,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>${maven.sources.version}</version>
+                <version>${maven.source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>

@@ -15,22 +15,26 @@
 
 package za.co.absa.atum.examples
 
+import java.nio.file.{Files, Paths}
+
 import org.apache.hadoop.fs.FileSystem
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import org.scalatest.concurrent.Eventually
 import za.co.absa.atum.AtumImplicits._
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.utils.{BuildProperties, FileUtils, SerializationUtils}
 
-import java.nio.file.{Files, Paths}
-import scala.concurrent.duration.DurationInt // using basic Atum without extensions
 
-case class MyBuildProperties(projectName: String, buildVersion: String) extends BuildProperties
+object SampleMeasurements3 {
+  case class MyBuildProperties(projectName: String, buildVersion: String) extends BuildProperties
 
-object SampleMeasurements3 extends Eventually {
+  private val log = LogManager.getLogger(this.getClass)
+
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 3 Job")
-    val spark = sparkBuilder.getOrCreate()
+    val spark = sparkBuilder
+      // .master("local") // use this when running locally
+      .getOrCreate()
 
     import spark.implicits._
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
@@ -41,7 +45,6 @@ object SampleMeasurements3 extends Eventually {
       .setControlMeasuresWorkflow("Job 1")
 
     // A business logic of a spark job ...
-
     spark.read
       .option("header", "true")
       .option("inferSchema", "true")
@@ -52,9 +55,14 @@ object SampleMeasurements3 extends Eventually {
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output/stage3_job_results")
 
-    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO")))
-        throw new Exception("_INFO file not found at data/output/stage3_job_results")
+
+    spark.disableControlMeasuresTracking()
+
+    // todo test/adjust for spark3
+    if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO"))) {
+      throw new Exception("_INFO file not found at data/output/stage3_job_results")
+    } else {
+      log.info("File data/output/stage3_job_results/_INFO found. Checking its content...")
     }
 
     val jsonInfoFile = FileUtils.readFileToString("data/output/stage3_job_results/_INFO")
@@ -63,8 +71,9 @@ object SampleMeasurements3 extends Eventually {
 
     if (!checkpoint.software.contains("MySoftware") || !checkpoint.version.contains("v007")) {
       throw new Exception(s"Software or Version was not set properly. Got name ${checkpoint.software} and version ${checkpoint.version}")
+    } else {
+      log.info("_INFO file correctly contained custom SW Name and version.")
     }
 
-    spark.disableControlMeasuresTracking()
   }
 }

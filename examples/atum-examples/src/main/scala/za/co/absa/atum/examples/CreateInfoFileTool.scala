@@ -77,5 +77,6 @@ object CreateInfoFileTool {
     ControlMeasureUtils.writeControlMeasureInfoFileToHadoopFs(cm, path, JsonType.Pretty)(fs)
 
     val strJson = cm.asJsonPretty
+    log.info(strJson)
   }
 }

@@ -15,17 +15,26 @@
 
 package za.co.absa.atum.examples
 
+import java.nio.file.{Files, Paths}
+
 import org.apache.hadoop.fs.FileSystem
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
+import za.co.absa.atum.AtumImplicits._
 
 object SampleMeasurements2 {
+
+  private val log = LogManager.getLogger(this.getClass)
+
   def main(args: Array[String]) {
 
     // This example is intended to run AFTER SampleMeasurements1, otherwise it will fail on input file absence
 
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 2 Job")
-    val spark = sparkBuilder.getOrCreate()
+    val spark = sparkBuilder
+      // .master("local") // use this when running locally
+      .getOrCreate()
+
     import spark.implicits._
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
@@ -52,5 +61,12 @@ object SampleMeasurements2 {
       .parquet("data/output/stage2_job_results")
 
     spark.disableControlMeasuresTracking()
+
+    // todo test/adjust for spark3
+    if (!Files.exists(Paths.get("data/output/stage2_job_results/_INFO"))) {
+      throw new Exception("_INFO file not found at data/output/stage2_job_results")
+    } else {
+      log.info("File data/output/stage2_job_results/_INFO found.")
+    }
   }
 }

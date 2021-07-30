@@ -22,7 +22,7 @@ class SampleMeasurementsHdfsRunnerSpec extends AnyFunSuite
   with SparkJobRunnerMethods
   with SparkLocalMaster {
 
-    // SampleMeasurement2 depends on SampleMeasurements1's output, so they must be run in this order
+    // SampleMeasurement2 depends on SampleMeasurements1's output (analogical for SM3), so they should be run in this order
     runSparkJobAsTest[SampleMeasurements1.type]
     runSparkJobAsTest[SampleMeasurements2.type]
     runSparkJobAsTest[SampleMeasurements3.type]
