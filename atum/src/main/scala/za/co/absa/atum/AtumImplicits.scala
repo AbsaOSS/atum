@@ -263,30 +263,11 @@ trait AtumImplicitsBase {
 
     /**
      * The method returns ControlMeasure object from the Atum context
-     * @return - ControlMeasure object
+     * @return - ControlMeasure object containing all the checkpoints up to the current point
      */
     def getControlMeasure: ControlMeasure = {
       atum.preventNotInitialized()
-      atum.controlFrameworkState.accumulator.getControlMeasure
-    }
-
-    /**
-     * The method returns AdditionalInfo object from the Atum context
-     * @return - AdditionalInfo object
-     */
-    def getAllAdditionalInfo: Map[String, String] = {
-      atum.preventNotInitialized()
-      atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo
-    }
-
-    /**
-     * The method returns Option of AdditionalInfo value for given key from the Atum context
-     * @param key - the AdditionalInfo key
-     * @return - Option[String] with value for given AdditionalInfo key
-     */
-    def getAdditionalInfo(key: String): Option[String] = {
-      atum.preventNotInitialized()
-      atum.controlFrameworkState.accumulator.getControlMeasure.metadata.additionalInfo.get(key)
+      atum.controlFrameworkState.getControlMeasure
     }
 
     /**

@@ -79,47 +79,4 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
 
     spark.disableControlMeasuresTracking()
   }
-
-  "method getAllAdditionalInfo" should "return Map[String, String] with given info" in {
-    // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(Some(inputPath), None)
-      .setControlMeasuresWorkflow("getControlMeasure")
-
-    import spark.implicits._
-    val df = spark.read.json(Seq(inputData).toDS)
-
-    val additionalInfoNoInfo = df.getAllAdditionalInfo
-    additionalInfoNoInfo should equal (Map())
-
-    df.setAdditionalInfo(("key1", "value1"))
-    df.setAdditionalInfo(("key2", "value2"))
-    val expectedAdditionalInfo = Map("key1" -> "value1", "key2" -> "value2")
-
-    val additionalInfo = df.getAllAdditionalInfo
-    additionalInfo should equal (expectedAdditionalInfo)
-
-    fs.delete(new Path(outputPath), false)
-    spark.disableControlMeasuresTracking()
-  }
-
-  "method getAdditionalInfo(key: String)" should "return value for the given key" in {
-    // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(Some(inputPath), None)
-      .setControlMeasuresWorkflow("getControlMeasure")
-
-    import spark.implicits._
-    val df = spark.read.json(Seq(inputData).toDS)
-    df.setAdditionalInfo(("key1", "value1"))
-    df.setAdditionalInfo(("key2", "value2"))
-
-    // act
-    val additionalInfoValueExistingKey = df.getAdditionalInfo("key2")
-    val additionalInfoValueNonExistingKey = df.getAdditionalInfo("noSuchKey")
-
-    // assert
-    additionalInfoValueExistingKey should equal (Some("value2"))
-    additionalInfoValueNonExistingKey should equal (None)
-
-    spark.disableControlMeasuresTracking()
-  }
 }
