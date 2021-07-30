@@ -175,6 +175,7 @@
     </build>
 
     <profiles>
+        <!-- Cross-building profiles -->
         <profile>
             <id>scala-2.11</id>
             <properties>
@@ -187,6 +188,20 @@
             <properties>
                 <scala.binary.version>2.12</scala.binary.version>
                 <scala.version>${scala_2.12.version}</scala.version>
+            </properties>
+        </profile>
+
+        <!-- Spark profiles -->
+        <profile>
+            <id>spark-2.4</id>
+            <properties>
+                <spark.version>${spark-24.version}</spark.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>spark-3.1</id>
+            <properties>
+                <spark.version>${spark-31.version}</spark.version>
             </properties>
         </profile>
     </profiles>

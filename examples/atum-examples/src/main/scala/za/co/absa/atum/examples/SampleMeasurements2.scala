@@ -61,8 +61,8 @@ object SampleMeasurements2 {
       .parquet("data/output/stage2_job_results")
 
     spark.disableControlMeasuresTracking()
+    spark.close()
 
-    // todo test/adjust for spark3
     if (!Files.exists(Paths.get("data/output/stage2_job_results/_INFO"))) {
       throw new Exception("_INFO file not found at data/output/stage2_job_results")
     } else {
