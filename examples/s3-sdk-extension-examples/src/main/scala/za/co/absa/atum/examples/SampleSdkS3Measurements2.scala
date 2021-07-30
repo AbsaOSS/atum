@@ -34,8 +34,10 @@ object SampleSdkS3Measurements2 {
     // This example is intended to run AFTER SampleMeasurements1, otherwise it will fail on input file absence
 
     val sparkBuilder = SparkSession.builder().appName("Sample Measurements 2 Job")
-    //val spark = sparkBuilder.master("local").getOrCreate()
-    val spark = sparkBuilder.getOrCreate()
+    val spark = sparkBuilder
+      // .master("local") // use this when running locally
+      .getOrCreate()
+
     import spark.implicits._
 
     val hadoopConfiguration = spark.sparkContext.hadoopConfiguration

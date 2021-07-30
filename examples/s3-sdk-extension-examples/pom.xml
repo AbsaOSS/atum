@@ -18,31 +18,89 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>za.co.absa</groupId>
     <artifactId>atum-examples-s3-sdk-extension_2.11</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
     <packaging>jar</packaging>
 
-    <parent>
-        <groupId>za.co.absa</groupId>
-        <artifactId>atum-parent_2.11</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
-    </parent>
-
     <properties>
-        <scalastyle.configLocation>${project.basedir}/../../scalastyle-config.xml</scalastyle.configLocation>
         <atum.version>4.0.0-SNAPSHOT</atum.version>
+
+        <!-- Cross Compilation Properties -->
+        <default.scala.binary.version>2.11</default.scala.binary.version>
+        <default.scala.version>${scala_2.11.version}</default.scala.version>
+
+        <scala_2.11.version>2.11.12</scala_2.11.version>
+        <scala_2.12.version>2.12.12</scala_2.12.version>
+
+        <!-- Spark versions -->
+        <spark-24.version>2.4.6</spark-24.version>
+        <spark-31.version>3.1.2</spark-31.version>
+
+        <spark.version>${spark-24.version}</spark.version>
+
+        <!-- Controlled by `scala-cross-build` plugin -->
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+
+        <!-- Build and plugins properties -->
+        <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
+        <maven.shade.plugin.version>2.3</maven.shade.plugin.version>
+
+        <scala.maven.plugin.version>3.2.0</scala.maven.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+
+        <!-- Frameworks and libraries -->
+        <commons.version>0.0.27</commons.version>
+        <scalatest.version>3.2.2</scalatest.version>
+
     </properties>
 
     <dependencies>
+        <!-- Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Atum -->
         <dependency>
             <groupId>za.co.absa</groupId>
             <artifactId>atum-s3-sdk-extension_${scala.binary.version}</artifactId>
             <version>${atum.version}</version>
         </dependency>
+
+        <!-- spark -->
         <dependency>
-            <groupId>za.co.absa</groupId>
-            <artifactId>atum-examples_${scala.binary.version}</artifactId>
-            <version>${atum.version}</version>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Commons -->
+        <dependency>
+            <groupId>za.co.absa.commons</groupId>
+            <artifactId>commons_${scala.binary.version}</artifactId>
+            <version>${commons.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Scalatest -->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -54,19 +112,44 @@
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
+            <!-- the Maven Scala plugin -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala.maven.plugin.version}</version>
+                <configuration>
+                    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
+                    <recompileMode>incremental</recompileMode>
+                    <args>
+                        <arg>-Xfatal-warnings</arg>
+                        <arg>-unchecked</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-feature</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
-                <version>${scalatest.maven.version}</version>
+                <version>${scalatest.maven.plugin.version}</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
+
             <!-- Uber jar generation -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shade.version}</version>
+                <version>${maven.shade.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -76,10 +159,18 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- scala cross build -->
             <plugin>
-                <groupId>org.scalastyle</groupId>
-                <artifactId>scalastyle-maven-plugin</artifactId>
+                <groupId>com.github.wajda</groupId>
+                <artifactId>scala-cross-build-maven-plugin</artifactId>
+                <version>0.2.1</version>
+                <configuration>
+                    <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
+                    <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
+                </configuration>
             </plugin>
+
         </plugins>
     </build>
 

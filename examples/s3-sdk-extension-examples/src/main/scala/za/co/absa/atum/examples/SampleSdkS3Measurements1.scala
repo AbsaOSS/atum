@@ -27,7 +27,7 @@ object SampleSdkS3Measurements1 {
   def main(args: Array[String]) {
     val sparkBuilder = SparkSession.builder().appName("Sample S3 Measurements 1 Job")
     val spark = sparkBuilder
-      // .master("local")
+      // .master("local") // use this when running locally
       .getOrCreate()
 
     import spark.implicits._
