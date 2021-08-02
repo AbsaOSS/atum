@@ -15,12 +15,9 @@ package za.co.absa.atum
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
-import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.AtumImplicits._
-import za.co.absa.atum.core.Atum
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.TestResources
 import za.co.absa.atum.utils.{FileUtils, SerializationUtils, SparkTestBase}
@@ -30,7 +27,7 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
   val inputPath: String = TestResources.InputInfo.localPath
   val outputPath = "/tmp/json-setAdditionalInfo-test"
 
-  val inputData = FileUtils.readFileToString(inputPath)
+  val inputData: String = FileUtils.readFileToString(inputPath)
 
   val inputControlMeasure: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](inputData)
 
@@ -51,7 +48,7 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
 
     // act
     df.setAdditionalInfo("additionalKey1", "additionalValue1")
-    df.setAdditionalInfo("additionalKey1", "anotherAdditionalValue")
+    df.setAdditionalInfo("additionalKey1", "theValueWillNotBeOverwrittenByThis") // replaceIfExists is false by default
     df.setAdditionalInfo("additionalKey2", "additionalValue2")
     df.writeInfoFile(outputPath)
 
@@ -81,7 +78,7 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
 
     // act
     df.setAdditionalInfo("additionalKey1", "additionalValue1")
-    df.setAdditionalInfo("additionalKey1", "updatedAdditionalValue", true)
+    df.setAdditionalInfo("additionalKey1", "updatedAdditionalValue", replaceIfExists = true)
     df.writeInfoFile(outputPath)
 
     val updatedData = FileUtils.readFileToString(outputPath)
@@ -91,6 +88,23 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
     updatedControlMeasure.metadata.additionalInfo should contain(("additionalKey1", "updatedAdditionalValue"))
 
     fs.delete(new Path(outputPath), false)
+    spark.disableControlMeasuresTracking()
+  }
+
+  "method getControlMeasure" should "return ControlMeasure object" in {
+    // Initializing library to hook up to Apache Spark
+    spark.enableControlMeasuresTracking(Some(inputPath), None)
+      .setControlMeasuresWorkflow("getControlMeasure")
+
+    import spark.implicits._
+    val df = spark.read.json(Seq(inputData).toDS)
+
+    // act
+    val controlMeasure = df.getControlMeasure
+
+    // assert
+    controlMeasure shouldBe inputControlMeasure
+
     spark.disableControlMeasuresTracking()
   }
 }
