@@ -61,7 +61,7 @@ object SampleMeasurements3 extends Eventually {
     spark.disableControlMeasuresTracking()
     spark.close()
 
-    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) { // scaling will help on slow environments
       if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO"))) {
         throw new Exception("_INFO file not found at data/output/stage3_job_results")
       }

@@ -27,6 +27,7 @@
     <properties>
         <atum.version>4.0.0-SNAPSHOT</atum.version>
         <encoding>UTF-8</encoding>
+        <span.scale.factor>1</span.scale.factor>
 
         <!-- Cross Compilation Properties -->
         <default.scala.binary.version>2.11</default.scala.binary.version>
@@ -45,7 +46,7 @@
         <scala.version>2.12.12</scala.version>
         <scala.binary.version>2.12</scala.binary.version>
 
-        <!-- Build and plugins properties -->
+        <!-- Build and plugins versions -->
         <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
         <maven.shade.plugin.version>2.3</maven.shade.plugin.version>
 
@@ -141,6 +142,9 @@
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
                 <version>${scalatest.maven.plugin.version}</version>
+                <configuration>
+                    <spanScaleFactor>${span.scale.factor}</spanScaleFactor>
+                </configuration>
                 <executions>
                     <execution>
                         <id>test</id>

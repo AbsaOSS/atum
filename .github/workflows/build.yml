@@ -56,4 +56,4 @@ jobs:
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
         run: |
           mvn scala-cross-build:change-version -Pscala-${{ matrix.scala }}
-          mvn clean install --no-transfer-progress -Pspark-${{ matrix.spark }}
+          mvn clean install --no-transfer-progress -Pspark-${{ matrix.spark }} -Dspan.scale.factor=10
