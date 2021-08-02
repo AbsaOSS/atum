@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
+import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
 import za.co.absa.atum.utils.{BuildProperties, DefaultBuildProperties, InfoFile}
@@ -60,28 +61,6 @@ trait AtumImplicitsBase {
     * The class contains implicit methods for [[org.apache.spark.sql.SparkSession]].
     */
   implicit class AtumSparkSessionWrapper(sparkSession: SparkSession)(implicit atum: Atum) {
-
-    /**
-      * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
-      * Both input and output info file paths need to be provided
-      *
-      * Example info file path name: "data/input/wikidata.csv.info" or "s3://bucket1/folder1/wikidata.csv.info"
-      *
-      * @param sourceInfoFile      Pathname to a json-formatted info file containing control measurements
-      * @param destinationInfoFile Pathname to save the control measurement results to
-      */
-    @deprecated("Use enableControlMeasuresTracking(Option[String], Option[String]) instead", "3.4.0")
-    def enableControlMeasuresTracking(sourceInfoFile: String = "",
-                                      destinationInfoFile: String = ""): SparkSession = {
-
-      def toOptInfoFilePath(infoFilePath: String) = if (infoFilePath.isEmpty) None else Some(infoFilePath)
-
-      // wrapper for the newer API until deprecated method is removed
-      enableControlMeasuresTracking(
-        toOptInfoFilePath(sourceInfoFile),
-        toOptInfoFilePath(destinationInfoFile)
-      )
-    }
 
     /**
      * Enable control measurements tracking on HDFS | S3 (using Hadoop FS API).
@@ -280,6 +259,15 @@ trait AtumImplicitsBase {
       atum.controlFrameworkState.setAdditionalInfo(key, value, replaceIfExists)
 
       dataset
+    }
+
+    /**
+     * The method returns ControlMeasure object from the Atum context
+     * @return - ControlMeasure object containing all the checkpoints up to the current point
+     */
+    def getControlMeasure: ControlMeasure = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.getControlMeasure
     }
 
     /**

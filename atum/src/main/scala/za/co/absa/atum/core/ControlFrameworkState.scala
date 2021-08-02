@@ -28,6 +28,7 @@ import za.co.absa.atum.plugins.EventListener
 import za.co.absa.atum.utils.BuildProperties
 import za.co.absa.atum.utils.ExecutionPlanUtils.inferInputInfoFilePath
 
+import java.io.FileNotFoundException
 import scala.util.control.NonFatal
 
 /**
@@ -252,7 +253,13 @@ class ControlFrameworkState(sparkSession: SparkSession) {
   }
 
   private[atum] def storeCurrentInfoFile(outputInfoFilePath: Path)(implicit outputFs: FileSystem): Unit = {
-    val outputFilePath = if (outputFs.isDirectory(outputInfoFilePath)) {
+    val isDirectory: Boolean = try {
+      outputFs.getFileStatus(outputInfoFilePath).isDirectory
+    } catch {
+      case _: FileNotFoundException => false
+    }
+
+    val outputFilePath = if (isDirectory) {
       new Path(outputInfoFilePath, outputInfoFileName)
     } else {
       outputInfoFilePath
