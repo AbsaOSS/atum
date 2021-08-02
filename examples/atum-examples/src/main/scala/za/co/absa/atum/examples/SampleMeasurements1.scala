@@ -58,7 +58,7 @@ object SampleMeasurements1 extends Eventually {
     spark.disableControlMeasuresTracking()
     spark.close()
 
-    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+    eventually(timeout(scaled(60.seconds)), interval(scaled(5.seconds))) {
       if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO"))) {
         throw new Exception("_INFO file not found at data/output/stage1_job_results")
       }
