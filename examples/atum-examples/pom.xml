@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-examples_2.11</artifactId>
+    <artifactId>atum-examples_2.12</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
@@ -41,8 +41,8 @@
         <spark.version>${spark-24.version}</spark.version>
 
         <!-- Controlled by `scala-cross-build` plugin -->
-        <scala.version>2.11.12</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.12.12</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
 
         <!-- Build and plugins properties -->
         <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
@@ -140,9 +140,14 @@
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
                 <version>${scalatest.maven.plugin.version}</version>
-                <configuration>
-                    <skipTests>false</skipTests>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Uber jar generation -->

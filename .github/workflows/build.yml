@@ -51,10 +51,9 @@ jobs:
       - name: Build and unit test
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
         run: mvn clean install --no-transfer-progress -Pspark-${{ matrix.spark }} -Dspan.scale.factor=10
-
-      - name: Switch scala to ${{ matrix.scala }} & build and unit test Atum Examples
+      - name: Build and unit test Atum Examples Scala ${{ matrix.scala }} and Spark ${{ matrix.spark }}
         working-directory: ./examples/atum-examples
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
         run: |
           mvn scala-cross-build:change-version -Pscala-${{ matrix.scala }}
-          mvn clean install --no-transfer-progress -Pspark-${{ matrix.spark }} -Dspan.scale.factor=10
+          mvn clean install --no-transfer-progress -Pspark-${{ matrix.spark }}
