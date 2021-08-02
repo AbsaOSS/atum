@@ -20,12 +20,15 @@ import java.nio.file.{Files, Paths}
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.scalatest.concurrent.Eventually
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.examples.SampleMeasurements2.{eventually, interval, scaled, timeout}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.utils.{BuildProperties, FileUtils, SerializationUtils}
 
+import scala.concurrent.duration.DurationInt
 
-object SampleMeasurements3 {
+object SampleMeasurements3 extends Eventually {
   case class MyBuildProperties(projectName: String, buildVersion: String) extends BuildProperties
 
   private val log = LogManager.getLogger(this.getClass)
@@ -55,25 +58,24 @@ object SampleMeasurements3 {
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output/stage3_job_results")
 
-
     spark.disableControlMeasuresTracking()
     spark.close()
 
-    if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO"))) {
-      throw new Exception("_INFO file not found at data/output/stage3_job_results")
-    } else {
-      log.info("File data/output/stage3_job_results/_INFO found. Checking its content...")
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+      if (!Files.exists(Paths.get("data/output/stage3_job_results/_INFO"))) {
+        throw new Exception("_INFO file not found at data/output/stage3_job_results")
+      }
+
+      val jsonInfoFile = FileUtils.readFileToString("data/output/stage3_job_results/_INFO")
+      val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](jsonInfoFile)
+      val checkpoint = measureObject1.checkpoints.filter(_.name == "checkpoint1").head
+
+      if (!checkpoint.software.contains("MySoftware") || !checkpoint.version.contains("v007")) {
+        throw new Exception(s"Software or Version was not set properly. Got name ${checkpoint.software} and version ${checkpoint.version}")
+      } else {
+        log.info("_INFO file correctly contained custom SW Name and version.")
+      }
+
     }
-
-    val jsonInfoFile = FileUtils.readFileToString("data/output/stage3_job_results/_INFO")
-    val measureObject1: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](jsonInfoFile)
-    val checkpoint = measureObject1.checkpoints.filter(_.name == "checkpoint1").head
-
-    if (!checkpoint.software.contains("MySoftware") || !checkpoint.version.contains("v007")) {
-      throw new Exception(s"Software or Version was not set properly. Got name ${checkpoint.software} and version ${checkpoint.version}")
-    } else {
-      log.info("_INFO file correctly contained custom SW Name and version.")
-    }
-
   }
 }

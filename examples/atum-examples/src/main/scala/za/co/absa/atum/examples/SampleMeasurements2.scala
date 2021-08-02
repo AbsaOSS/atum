@@ -20,9 +20,13 @@ import java.nio.file.{Files, Paths}
 import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.scalatest.concurrent.Eventually
 import za.co.absa.atum.AtumImplicits._
+import za.co.absa.atum.examples.SampleMeasurements1.{eventually, interval, scaled, timeout}
 
-object SampleMeasurements2 {
+import scala.concurrent.duration.DurationInt
+
+object SampleMeasurements2 extends Eventually {
 
   private val log = LogManager.getLogger(this.getClass)
 
@@ -63,10 +67,10 @@ object SampleMeasurements2 {
     spark.disableControlMeasuresTracking()
     spark.close()
 
-    if (!Files.exists(Paths.get("data/output/stage2_job_results/_INFO"))) {
-      throw new Exception("_INFO file not found at data/output/stage2_job_results")
-    } else {
-      log.info("File data/output/stage2_job_results/_INFO found.")
+    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+      if (!Files.exists(Paths.get("data/output/stage2_job_results/_INFO"))) {
+        throw new Exception("_INFO file not found at data/output/stage2_job_results")
+      }
     }
   }
 }
