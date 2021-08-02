@@ -26,6 +26,7 @@
 
     <properties>
         <atum.version>4.0.0-SNAPSHOT</atum.version>
+        <encoding>UTF-8</encoding>
 
         <!-- Cross Compilation Properties -->
         <default.scala.binary.version>2.11</default.scala.binary.version>
