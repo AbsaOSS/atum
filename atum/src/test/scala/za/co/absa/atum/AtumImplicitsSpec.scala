@@ -30,7 +30,7 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
   val inputPath: String = TestResources.InputInfo.localPath
   val outputPath = "/tmp/json-setAdditionalInfo-test"
 
-  val inputData = FileUtils.readFileToString(inputPath)
+  val inputData: String = FileUtils.readFileToString(inputPath)
 
   val inputControlMeasure: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](inputData)
 
@@ -63,4 +63,20 @@ class AtumImplicitsSpec extends AnyFlatSpec with SparkTestBase with Matchers {
     spark.disableControlMeasuresTracking()
   }
 
+  "method getControlMeasure" should "return ControlMeasure object" in {
+    // Initializing library to hook up to Apache Spark
+    spark.enableControlMeasuresTracking(Some(inputPath), None)
+      .setControlMeasuresWorkflow("getControlMeasure")
+
+    import spark.implicits._
+    val df = spark.read.json(Seq(inputData).toDS)
+
+    // act
+    val controlMeasure = df.getControlMeasure
+
+    // assert
+    controlMeasure shouldBe inputControlMeasure
+
+    spark.disableControlMeasuresTracking()
+  }
 }
