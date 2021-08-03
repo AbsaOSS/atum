@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import za.co.absa.atum.core.{Atum, Constants}
+import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence._
 import za.co.absa.atum.persistence.hdfs.{ControlMeasuresHdfsLoaderJsonFile, ControlMeasuresHdfsStorerJsonFile}
 import za.co.absa.atum.utils.{BuildProperties, DefaultBuildProperties, InfoFile}
@@ -258,6 +259,15 @@ trait AtumImplicitsBase {
       atum.controlFrameworkState.setAdditionalInfo(keyAndValue, replaceIfExists)
 
       dataset
+    }
+
+    /**
+     * The method returns ControlMeasure object from the Atum context
+     * @return - ControlMeasure object containing all the checkpoints up to the current point
+     */
+    def getControlMeasure: ControlMeasure = {
+      atum.preventNotInitialized()
+      atum.controlFrameworkState.getControlMeasure
     }
 
     /**
