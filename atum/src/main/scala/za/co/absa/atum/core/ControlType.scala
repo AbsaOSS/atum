@@ -23,11 +23,15 @@ object ControlType {
   case object AbsAggregatedTotal extends ControlType("absAggregatedTotal")
   case object HashCrc32 extends ControlType("hashCrc32")
 
-  val values = Seq(Count.value, DistinctCount.value, AggregatedTotal.value, AbsAggregatedTotal.value, HashCrc32.value)
+  val values = Seq(Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32)
+  val valueStrings = values.map(_.value)
 
-  def getNormalizedValue(input: String): String = {
-    values.find(value => isControlMeasureTypeEqual(input, value)).getOrElse(input)
+  def getNormalizedStringValue(input: String): String = {
+    valueStrings.find(value => isControlMeasureTypeEqual(input, value)).getOrElse(input)
   }
+
+  def withValueName(s: String): ControlType = values.find(_.value.toString == s).getOrElse(
+    throw new NoSuchElementException(s"No value found for '$s'. Allowed values are: $valueStrings"))
 
   def isControlMeasureTypeEqual(x: String, y: String): Boolean = {
     if (x.toLowerCase == y.toLowerCase) {
