@@ -111,21 +111,38 @@ serve as a reference implementation for calculating control measurements.
 
 #### Obtaining a ControlMeasure
 The builder instance obtained by `ControlMeasureBuilder.forDf()` accepts some metadata via optional setters. 
-In addition it accepts the list of fields for which control measurements should be generated. Depending on the data type 
-of a field the method will generate a different control measurement. For numeric types it will generate 
-**controlType.absAggregatedTotal**, e.g. **SUM(ABS(X))**. For non-numeric types it will generate 
-**controlType.HashCrc32** e.g. **SUM(CRC32(x))**. Non-primitive data types are not supported.   
+In addition it accepts the list of fields for which control measurements should be generated. There are multiple ways 
+to define these column settings and the type of measurement to be computed is also possible to configure:
 
+```scala
+import za.co.absa.atum.utils.controlmeasure.ControlMeasureBuilder
+import ControlMeasureBuilder.ControlTypeStrategy.{Default, Specific}
+import za.co.absa.atum.core.ControlType.{Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32}
 
+// controlMeasureBuilder obtainable by ControlMeasureBuilder.forDf(df)
+
+// with Default, the ControlType will be chosen based on the field type (AbsAggregatedTotal for numeric, HashCrc32 otherwise)
+val updatedBuilder1 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2")) // equivalent to .withAggregateColumns(Seq("col1", "col2"), Default)
+val updatedBuilder2 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2"), Specific(HashCrc32)) // all columns will use HashCrc32
+
+val iterativelyUpdatedBuilder3 = controlMeasureBuilder
+.withAggregateColumn("col1") // equivalent to .withAggregateColumn("col1", Default). AbsAggregatedTotal used if col1 is numeric, HashCrc32 otherwise
+.withAggregateColumn("col2", Specific(DistinctCount)) // DistinctCount for this column's measurement
+
+```
+The above excerpt demonstrate that the aggregate columns can be either inputted at once with `.withAggregateColumns` 
+(subsequent calls would replace the columns already defined) with limited `ControlType` strategy (all `Default` or all 
+single common `Specific` `ControlType`) or using more fine-grained `.withAggregateColumn` where the control type strategy 
+can be specified for each column in the input. (subsequent calls add to the group).
+
+The default `Default` ControlType strategy will select `ControlType` `AbsAggregatedTotal` (**SUM(ABS(X))**) for numeric fields and
+`HashCrc32` (**SUM(CRC32(x))**) for non-numeric ones. Non-primitive data types are not supported.   
+
+A full example of initial control measure generation then could look as follows:
 ```scala
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureBuilder
-
-val dataSourceName = "Source Application"
-val inputPath = "/path/to/source"
-val batchDate = "15-10-2017"
-val batchVersion = 1
 
 val spark = SparkSession.builder()
   .appName("An info file creation job")
@@ -134,17 +151,17 @@ val spark = SparkSession.builder()
 val df: DataFrame = spark
   .read
   .format("csv").option("header", "true") // adjust to your data source format
-  .load(inputPath)
+  .load("path/to/source")
 val aggregateColumns = List("employeeId", "address", "dealId") // these columns must exist in the `df`
 
 // builder-like fluent API to construct a ControlMeasureBuilder and yield the `controlMeasure` with `build`
 val controlMeasure: ControlMeasure =
   ControlMeasureBuilder.forDf(df)
-    .withAggregateColumns(aggregateColumns)
-    .withInputPath(inputPath)
-    .withSourceApplication(dataSourceName)
-    .withReportDate(batchDate)
-    .withReportVersion(batchVersion)
+    .withAggregateColumns(aggregateColumns) // using Default controlType strategy: AbsAggregatedTotal for numeric fields, HashCrc32 otherwise
+    .withInputPath("path/to/source")
+    .withSourceApplication("Source Application")
+    .withReportDate("15-10-2017")
+    .withReportVersion(1)
     .build
 
 // convert to JSON using .asJson | asJsonPretty

@@ -16,8 +16,7 @@
 package za.co.absa.atum.utils.controlmeasure
 
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.{abs, col, crc32, sum}
-import org.apache.spark.sql.types.{DecimalType, LongType, NumericType}
+import org.apache.spark.sql.types.NumericType
 import org.slf4j.LoggerFactory
 import za.co.absa.atum.core.{Atum, ControlType, MeasurementProcessor}
 import za.co.absa.atum.model.CheckpointImplicits.CheckpointExt
@@ -223,6 +222,8 @@ object ControlMeasureBuilder {
       ) yield {
         val columnName = columnMapping.columnName
         val controlType = deriveControlType(columnMapping, df)
+
+        // measument processing shared from the measurement processor (that count measurements based on existing measurements)
         def measurementFunction(df: DataFrame): String = MeasurementProcessor.getMeasurementFunction(columnName, controlType)(df)
 
         Measurement(
@@ -259,86 +260,5 @@ object ControlMeasureBuilder {
           ) :: aggregatedMeasurements.toList
         ).withBuildProperties :: Nil)
     }
-
-    // todo remove when tested to work the same as the above
-    def calculateMeasurementOriginal(): ControlMeasure = { // scalastyle:off
-      // this works as original: as if Default was used
-
-      // Calculate the measurements
-      val timeStart = getTimestampAsString
-      val rowCount = df.count()
-      val aggegatedMeasurements = for (columnName <- aggregateColumnMappings.map(_.columnName)) yield {
-        import df.sparkSession.implicits._
-
-        val dataType = df.select(columnName).schema.fields(0).dataType
-
-        // This is the aggregated total calculation block
-        var controlType = ControlType.AbsAggregatedTotal.value
-        var controlName = columnName + "Total"
-        val aggregatedValue = dataType match {
-          case _: LongType =>
-            // This is protection against long overflow, e.g. Long.MaxValue = 9223372036854775807:
-            //   scala> sc.parallelize(List(Long.MaxValue, 1)).toDF.agg(sum("value")).take(1)(0)(0)
-            //   res11: Any = -9223372036854775808
-            // Converting to BigDecimal fixes the issue
-            val ds2 = df.select(col(columnName).cast(DecimalType(38, 0)).as("value"))
-            ds2.agg(sum(abs($"value"))).collect()(0)(0)
-          case _: NumericType =>
-            df.agg(sum(abs(col(columnName)))).collect()(0)(0)
-          case _ =>
-            val aggColName = ControlMeasureUtils.getTemporaryColumnName(df)
-            controlType = ControlType.HashCrc32.value
-            controlName = columnName + "Crc32"
-            df.withColumn(aggColName, crc32(col(columnName).cast("String")))
-              .agg(sum(col(aggColName)))
-              .collect()(0)(0)
-        }
-
-        // Despite aggregated value is Any in Measurement object it should be either a primitive type or Scala's BigDecimal
-        // * null values are now empty strings
-        // * If the result of the aggregation is java.math.BigDecimal, it is converted to Scala one
-        // * If the output is a BigDecimal zero value it is converted to Int(0) so it would not serialize as something like "0+e18"
-        val aggregatedValueFixed = aggregatedValue match {
-          case null => ""
-          case v: java.math.BigDecimal =>
-            val valueInScala = scala.math.BigDecimal(v)
-            // If it is zero, return zero instead of BigDecimal which can be something like 0E-18
-            if (valueInScala == 0) 0 else valueInScala
-          case a => a
-        }
-        Measurement(
-          controlName = columnName + "ControlTotal",
-          controlType = controlType,
-          controlCol = columnName,
-          controlValue = aggregatedValueFixed.toString)
-      }
-      val timeFinish = getTimestampAsString
-
-      // Create a Control Measurement object
-      ControlMeasure(metadata = ControlMeasureMetadata(
-        sourceApplication = sourceApplication,
-        country = country,
-        historyType = historyType,
-        dataFilename = inputPathName,
-        sourceType = sourceType,
-        version = reportVersion,
-        informationDate = reportDate,
-        additionalInfo = Map[String, String]()
-      ), runUniqueId = None,
-        Checkpoint(
-          name = initialCheckpointName,
-          processStartTime = timeStart,
-          processEndTime = timeFinish,
-          workflowName = workflowName,
-          order = 1,
-          controls = Measurement(
-            controlName = "recordCount",
-            controlType = ControlType.Count.value,
-            controlCol = "*",
-            controlValue = rowCount.toString
-          ) :: aggegatedMeasurements.toList
-        ).withBuildProperties :: Nil)
-    }
   }
-
 }
