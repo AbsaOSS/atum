@@ -94,14 +94,11 @@ class Accumulator() {
   }
 
   /** Adds a key-value pair as an additional information stored in the metadata. */
-  def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean): Unit = {
-    kv match {
-      case (key, _) =>
-        if (replaceIfExists || !controlMeasure.metadata.additionalInfo.contains(kv._1)) {
-          val newInfo = controlMeasure.metadata.additionalInfo + kv
-          val newMetadata = controlMeasure.metadata.copy(additionalInfo = newInfo)
-          controlMeasure = controlMeasure.copy(metadata = newMetadata)
-        }
+  def setAdditionalInfo(key: String, value: String, replaceIfExists: Boolean): Unit = {
+    if (replaceIfExists || !controlMeasure.metadata.additionalInfo.contains(key)) {
+      val newInfo = controlMeasure.metadata.additionalInfo + (key -> value)
+      val newMetadata = controlMeasure.metadata.copy(additionalInfo = newInfo)
+      controlMeasure = controlMeasure.copy(metadata = newMetadata)
     }
   }
 
