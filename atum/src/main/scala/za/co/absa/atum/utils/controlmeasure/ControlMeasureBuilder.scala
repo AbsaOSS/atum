@@ -110,18 +110,11 @@ object ControlMeasureBuilder {
                                                workflowName: String = "Source"
                                               ) extends ControlMeasureBuilder {
 
-    aggregateColumnMappings.foreach { aggCol =>
-      require(df.columns.contains(aggCol.columnName),
-        s"Aggregate columns must be present in dataframe, but '${aggCol.columnName}' was not found there. Columns found: ${df.columns.mkString(", ")}."
-      )
-    }
-
     private val logger = LoggerFactory.getLogger(this.getClass)
 
     // these two are recommended values: failure to fill = warning
     def withSourceApplication(sourceApplication: String): ControlMeasureBuilderImpl = this.copy(sourceApplication = sourceApplication)
     def withInputPath(inputPath: String): ControlMeasureBuilderImpl = this.copy(inputPathName = inputPath)
-
 
 
     def withAggregateColumn(columnName: String, strategy: ControlTypeStrategy = Default): ControlMeasureBuilderImpl = {
@@ -135,6 +128,7 @@ object ControlMeasureBuilder {
     }
 
     private def withAggregateColumn(mapping: ControlTypeMapping): ControlMeasureBuilderImpl = {
+      checkControlTypeSuitability(mapping)
       this.copy(aggregateColumnMappings = this.aggregateColumnMappings :+ mapping)
     }
 
@@ -151,6 +145,7 @@ object ControlMeasureBuilder {
     }
 
     private def withAggregateColumnsDirectly(mappings: Seq[ControlTypeMapping]): ControlMeasureBuilderImpl = {
+      mappings.foreach(checkControlTypeSuitability)
       this.copy(aggregateColumnMappings = mappings)
     }
 
@@ -185,28 +180,37 @@ object ControlMeasureBuilder {
      * Derives control type based on mapping and dataframe. Simply: if mapping contains a specific controlType, it is used.
      * If it contains Default, the controlType is derived based on column actual type (in df.schema)
      * @param mapping
-     * @param dataFrame
      * @return controlType to be used
      */
-    private[controlmeasure] def deriveControlType(mapping: ControlTypeMapping, dataFrame: DataFrame): ControlType = {
-      val dataType = df.select(mapping.columnName).schema.fields(0).dataType
-      val isNumericDataType = dataType.isInstanceOf[NumericType]
+    private[controlmeasure] def deriveControlType(mapping: ControlTypeMapping): ControlType = {
+      mapping.strategy match {
+        case Specific(controlType) => controlType // just use the specified controlType, checking is already done on builder
+        case Default =>
+          val dataType = df.select(mapping.columnName).schema.fields(0).dataType
+          val isNumericDataType = dataType.isInstanceOf[NumericType]
 
-      import ControlType._
-      mapping match {
-        case ControlTypeMapping(columnName, Specific(controlType)) => {
-          if ((controlType == AggregatedTotal || controlType == AbsAggregatedTotal) && !isNumericDataType) {
-            Atum.log.warn(s"Column $columnName measurement $controlType requested, but the field is not numeric!"
-              + s"Found: ${dataType.simpleString} data type.")
-          }
-          controlType // just use the specified controlType
-        }
-        case ControlTypeMapping(_, Default) =>
           if (isNumericDataType) {
-            AbsAggregatedTotal
+            ControlType.AbsAggregatedTotal
           } else {
-            HashCrc32
+            ControlType.HashCrc32
           }
+      }
+    }
+
+    private def checkControlTypeSuitability(mapping: ControlTypeMapping): Unit = {
+      require(df.columns.contains(mapping.columnName),
+        s"Aggregate columns must be present in dataframe, unsatisfied for '${mapping.columnName}'." +
+          s" Columns in the dataframe: ${df.columns.mkString(", ")}."
+      )
+
+      val dataType = df.select(mapping.columnName).schema.fields(0).dataType
+      val isDataTypeNumeric = dataType.isInstanceOf[NumericType]
+
+      mapping match {
+        case ControlTypeMapping(columnName, Specific(controlType)) if controlType.onlyForNumeric && !isDataTypeNumeric =>
+          Atum.log.warn(s"Column $columnName measurement $controlType requested, but the field is not numeric!"
+            + s" Found: ${dataType.simpleString} datatype.")
+        case _ =>
       }
     }
 
@@ -219,7 +223,7 @@ object ControlMeasureBuilder {
         columnMapping <- aggregateColumnMappings
       ) yield {
         val columnName = columnMapping.columnName
-        val controlType = deriveControlType(columnMapping, df)
+        val controlType = deriveControlType(columnMapping)
 
         // measument processing shared from the measurement processor (that count measurements based on existing measurements)
         def measurementFunction(df: DataFrame): String = MeasurementProcessor.getMeasurementFunction(columnName, controlType)(df)

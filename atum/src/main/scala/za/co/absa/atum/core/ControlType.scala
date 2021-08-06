@@ -15,13 +15,13 @@
 
 package za.co.absa.atum.core
 
-class ControlType(val value: String)
+class ControlType(val value: String, val onlyForNumeric: Boolean)
 object ControlType {
-  case object Count extends ControlType("count")
-  case object DistinctCount extends ControlType("distinctCount")
-  case object AggregatedTotal extends ControlType("aggregatedTotal")
-  case object AbsAggregatedTotal extends ControlType("absAggregatedTotal")
-  case object HashCrc32 extends ControlType("hashCrc32")
+  case object Count extends ControlType("count", false)
+  case object DistinctCount extends ControlType("distinctCount", false)
+  case object AggregatedTotal extends ControlType("aggregatedTotal", true)
+  case object AbsAggregatedTotal extends ControlType("absAggregatedTotal", true)
+  case object HashCrc32 extends ControlType("hashCrc32", false)
 
   val values: Seq[ControlType] = Seq(Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32)
   val valueNames: Seq[String] = values.map(_.value)
