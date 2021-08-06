@@ -38,7 +38,8 @@ object MeasurementProcessor {
    */
   private[atum] def getMeasurementFunction(controlCol: String, controlType: ControlType): MeasurementFunction = {
     controlType match {
-      case Count => (ds: Dataset[Row]) => ds.count().toString
+      case Count => (ds: Dataset[Row]) =>
+        ds.select(col(controlCol)).count().toString
       case DistinctCount => (ds: Dataset[Row]) => {
         ds.select(col(controlCol)).distinct().count().toString
       }

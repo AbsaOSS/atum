@@ -99,8 +99,6 @@ object ControlMeasureBuilder {
    */
   private case class ControlMeasureBuilderImpl(df: DataFrame,
                                                aggregateColumnMappings: Seq[ControlTypeMapping] = Seq.empty,
-                                               aggregateControlTypeStrategy: ControlTypeStrategy
-                                               = ControlTypeStrategy.Default,
                                                sourceApplication: String = "",
                                                inputPathName: String = "",
                                                reportDate: String = ControlMeasureUtils.getTodayAsString,
