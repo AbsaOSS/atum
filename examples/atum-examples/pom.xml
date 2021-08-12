@@ -49,9 +49,9 @@
         <!-- Build and plugins versions -->
         <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
         <maven.shade.plugin.version>2.3</maven.shade.plugin.version>
-
         <scala.maven.plugin.version>3.2.0</scala.maven.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+        <scala.cross.build.maven.plugin.version>0.2.1</scala.cross.build.maven.plugin.version>
 
         <!-- Frameworks and libraries -->
         <commons.version>0.0.27</commons.version>
@@ -174,7 +174,7 @@
             <plugin>
                 <groupId>com.github.wajda</groupId>
                 <artifactId>scala-cross-build-maven-plugin</artifactId>
-                <version>0.2.1</version>
+                <version>${scala.cross.build.maven.plugin.version}</version>
                 <configuration>
                     <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
                     <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>

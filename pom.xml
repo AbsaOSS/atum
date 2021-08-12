@@ -98,6 +98,9 @@
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <scalatest.maven.plugin.version>2.0.2</scalatest.maven.plugin.version>
 
+        <maven.release.plugin.version>2.4.2</maven.release.plugin.version>
+        <scala.cross.build.maven.plugin.version>0.2.1</scala.cross.build.maven.plugin.version>
+
         <!-- This is server id for configuring access credentials via settings.xml-->
         <project.scm.id>atum-scm-server</project.scm.id>
 
@@ -314,7 +317,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.2</version>
+                <version>${maven.release.plugin.version}</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules> <!-- all modules to have the same version -->
@@ -330,7 +333,7 @@
             <plugin>
                 <groupId>com.github.wajda</groupId>
                 <artifactId>scala-cross-build-maven-plugin</artifactId>
-                <version>0.2.1</version>
+                <version>${scala.cross.build.maven.plugin.version}</version>
                 <configuration>
                     <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
                     <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
@@ -408,8 +411,10 @@
                                 <exclude>**/_INFO</exclude>
                                 <exclude>**/_SUCCESS</exclude>
                                 <exclude>**/org.apache.spark.sql.sources.DataSourceRegister</exclude>
-                                <exclude>dependency-reduced-pom.xml</exclude>
+                                <exclude>**/dependency-reduced-pom.xml</exclude>
                                 <exclude>**/org.mockito.plugins.MockMaker</exclude>
+                                <exclude>**/.idea/**</exclude>
+                                <exclude>**/*.iml</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
