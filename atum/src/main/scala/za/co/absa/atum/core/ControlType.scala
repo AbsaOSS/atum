@@ -15,19 +15,23 @@
 
 package za.co.absa.atum.core
 
-class ControlType(val value: String)
+class ControlType(val value: String, val onlyForNumeric: Boolean)
 object ControlType {
-  case object Count extends ControlType("count")
-  case object DistinctCount extends ControlType("distinctCount")
-  case object AggregatedTotal extends ControlType("aggregatedTotal")
-  case object AbsAggregatedTotal extends ControlType("absAggregatedTotal")
-  case object HashCrc32 extends ControlType("hashCrc32")
+  case object Count extends ControlType("count", false)
+  case object DistinctCount extends ControlType("distinctCount", false)
+  case object AggregatedTotal extends ControlType("aggregatedTotal", true)
+  case object AbsAggregatedTotal extends ControlType("absAggregatedTotal", true)
+  case object HashCrc32 extends ControlType("hashCrc32", false)
 
-  val values = Seq(Count.value, DistinctCount.value, AggregatedTotal.value, AbsAggregatedTotal.value, HashCrc32.value)
+  val values: Seq[ControlType] = Seq(Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32)
+  val valueNames: Seq[String] = values.map(_.value)
 
-  def getNormalizedValue(input: String) = {
-    values.find(value => isControlMeasureTypeEqual(input, value)).getOrElse(input)
+  def getNormalizedValueName(input: String): String = {
+    valueNames.find(value => isControlMeasureTypeEqual(input, value)).getOrElse(input)
   }
+
+  def withValueName(s: String): ControlType = values.find(_.value.toString == s).getOrElse(
+    throw new NoSuchElementException(s"No value found for '$s'. Allowed values are: $valueNames"))
 
   def isControlMeasureTypeEqual(x: String, y: String): Boolean = {
     if (x.toLowerCase == y.toLowerCase) {

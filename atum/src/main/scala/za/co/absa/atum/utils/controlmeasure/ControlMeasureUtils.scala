@@ -217,7 +217,7 @@ object ControlMeasureUtils {
    */
   def normalize(controlMeasure: ControlMeasure): ControlMeasure = {
     transformMeasurementInControlMeasure(controlMeasure, measurement => {
-      measurement.copy(controlType = ControlType.getNormalizedValue(measurement.controlType))
+      measurement.copy(controlType = ControlType.getNormalizedValueName(measurement.controlType))
     })
   }
 
