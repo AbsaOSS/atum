@@ -72,6 +72,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
       .withSourceType("SourceType1")
       .withInitialCheckpointName("InitCheckpoint1")
       .withWorkflowName("Workflow1")
+      .withSoftware("MyAwesomeSw", "v1.2.3-beta.4")
       .build
 
     val expectedCustomControlMeasure: ControlMeasure = ControlMeasure(
@@ -95,10 +96,10 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
       )
     )
 
-    // prior to stabilization, let's check the actual by-default generated software fields:
-    customCm.checkpoints.map(_.software).foreach { swName =>
-      swName shouldBe defined
-      swName.get should fullyMatch regex("""^atum_(2\.11|2\.12)$""")
+    // prior to stabilization, let's check the custom software/version fields:
+    customCm.checkpoints.foreach { cp =>
+      cp.software shouldBe Some("MyAwesomeSw")
+      cp.version shouldBe Some("v1.2.3-beta.4")
     }
 
     customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
