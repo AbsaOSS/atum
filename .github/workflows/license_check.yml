@@ -19,11 +19,10 @@ on:
   push:
     branches: [ master, 'release/**' ]
   pull_request:
-    types: [opened, synchronize]
+    branches: [ master, 'release/**' ]
 
 jobs:
   license-test:
-    name: License Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
