@@ -1,7 +1,7 @@
 # Atum Spark Job Application Example
 
 This is a set of Atum Apache Spark Applications that can be used as inspiration for creating other
-Spark projects. It includes all dependencies in a 'fat' jar to run the job locally and on a     cluster.
+Spark projects. It includes all dependencies in a 'fat' jar to run the job locally and on a cluster.
 
 Here is the list of examples (all from `za.co.absa.atum.examples` space):
 
