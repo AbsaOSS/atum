@@ -21,6 +21,8 @@ IF %ERRORLEVEL% NEQ 0 GOTO end
 
 CALL :cross_build 2.11 2.4
 IF %ERRORLEVEL% NEQ 0 GOTO end
+CALL :cross_build 2.12 2.4
+IF %ERRORLEVEL% NEQ 0 GOTO end
 CALL :cross_build 2.12 3.1
 IF %ERRORLEVEL% NEQ 0 GOTO end
 
