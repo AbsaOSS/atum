@@ -1,5 +1,7 @@
 # About Atum
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/)
+
 Atum is a data completeness and accuracy library for Apache Spark.
 
 One of the challenges regulated industries face is the requirement to track and prove that their systems preserve 
@@ -48,7 +50,7 @@ to calculate *hash sums* of explicitly specified columns. We call the set of has
 a *checkpoint* and each hash sum we call a *control measurement*. Checkpoints can be calculated anytime
 between Spark transformations and actions.
 
-We assume the data for ETL are processed in a sesies of batch jobs. Let's call each data set for a given batch
+We assume the data for ETL are processed in a series of batch jobs. Let's call each data set for a given batch
 job a *batch*. All checkpoints are calculated for a specific batch.  
 
 ## Features
