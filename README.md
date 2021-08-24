@@ -1,5 +1,7 @@
 # About Atum
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/)
+
 Atum is a data completeness and accuracy library for Apache Spark.
 
 One of the challenges regulated industries face is the requirement to track and prove that their systems preserve 
@@ -48,7 +50,7 @@ to calculate *hash sums* of explicitly specified columns. We call the set of has
 a *checkpoint* and each hash sum we call a *control measurement*. Checkpoints can be calculated anytime
 between Spark transformations and actions.
 
-We assume the data for ETL are processed in a sesies of batch jobs. Let's call each data set for a given batch
+We assume the data for ETL are processed in a series of batch jobs. Let's call each data set for a given batch
 job a *batch*. All checkpoints are calculated for a specific batch.  
 
 ## Features
@@ -92,7 +94,7 @@ For project using Scala 2.11
 <dependency>
     <groupId>za.co.absa</groupId>
     <artifactId>atum_2.11</artifactId>
-    <version>3.5.1</version>
+    <version>ATUM_VERSION_HERE</version>
 </dependency>
 ```
 For project using Scala 2.12
@@ -100,7 +102,7 @@ For project using Scala 2.12
 <dependency>
     <groupId>za.co.absa</groupId>
     <artifactId>atum_2.12</artifactId>
-    <version>3.5.1</version>
+    <version>ATUM_VERSION_HERE</version>
 </dependency>
 ```
 
@@ -109,31 +111,40 @@ For project using Scala 2.12
 Atum provides helper methods for initial creation of info files from a Spark dataframe. It can be used as is or can
 serve as a reference implementation for calculating control measurements.
 
-#### Obtaining a ControlMeasure
-The builder instance obtained by `ControlMeasureBuilder.forDf()` accepts some metadata via optional setters. 
-In addition it accepts the list of fields for which control measurements should be generated. There are multiple ways 
-to define these column settings and the type of measurement to be computed is also possible to configure:
+#### Obtaining Initial ControlMeasure
+The `ControlMeasureBuilder` can be used to create an initial `ControlMeaure`. The builder instance (obtained by 
+`ControlMeasureBuilder.forDf()`) accepts metadata via optional setters. In addition it accepts definition of columns 
+for which control measurements should be generated. There are multiple ways to define these column settings and 
+the type of measurement to be computed is also possible to configure:
 
 ```scala
 import za.co.absa.atum.utils.controlmeasure.ControlMeasureBuilder
 import ControlMeasureBuilder.ControlTypeStrategy.{Default, Specific}
 import za.co.absa.atum.core.ControlType.{Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32}
 
-// controlMeasureBuilder obtainable by ControlMeasureBuilder.forDf(df)
+val controlMeasureBuilder = ControlMeasureBuilder.forDF(df)
 
 // with Default, the ControlType will be chosen based on the field type (AbsAggregatedTotal for numeric, HashCrc32 otherwise)
-val updatedBuilder1 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2")) // equivalent to .withAggregateColumns(Seq("col1", "col2"), Default)
-val updatedBuilder2 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2"), Specific(HashCrc32)) // all columns will use HashCrc32
+val updatedBuilder1 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2"))
+val updatedBuilder1a = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2"), Default) // an equivalent of the previous
+
+// here: all columns will use HashCrc32
+val updatedBuilder2 = controlMeasureBuilder.withAggregateColumns(Seq("col1", "col2"), Specific(HashCrc32))
+val updatedBuilder2a = controlMeasureBuilder.withAggregateColumns(Seq("col1" -> HashCrc32, "col2" -> HashCrc32)) // an equivalent of the previous
 
 val iterativelyUpdatedBuilder3 = controlMeasureBuilder
-.withAggregateColumn("col1") // equivalent to .withAggregateColumn("col1", Default). AbsAggregatedTotal used if col1 is numeric, HashCrc32 otherwise
-.withAggregateColumn("col2", Specific(DistinctCount)) // DistinctCount for this column's measurement
+  .withAggregateColumn("col1", Default) // ControlType.AbsAggregatedTotal used if col1 is numeric, HashCrc32 otherwise
+  .withAggregateColumn("col2", Specific(DistinctCount)) // Specific strategy with DistinctCount for this column's measurement
+
+val iterativelyUpdatedBuilder3a = controlMeasureBuilder // an equivalent of the `iterativelyUpdatedBuilder3`
+  .withAggregateColumn("col1") // equivalent to .withAggregateColumn("col1", Default).
+  .withAggregateColumn("col2", DistinctCount) // DistinctCount controlType can be applied directly
+
 
 ```
 The above excerpt demonstrate that the aggregate columns can be either inputted at once with `.withAggregateColumns` 
-(subsequent calls would replace the columns already defined) with limited `ControlType` strategy (all `Default` or all 
-single common `Specific` `ControlType`) or using more fine-grained `.withAggregateColumn` where the control type strategy 
-can be specified for each column in the input. (subsequent calls add to the group).
+(subsequent calls would replace the columns already defined) or using more fine-grained `.withAggregateColumn` where 
+the control type strategy can be specified for each column in the input (subsequent calls add to the group).
 
 The default `Default` ControlType strategy will select `ControlType` `AbsAggregatedTotal` (**SUM(ABS(X))**) for numeric fields and
 `HashCrc32` (**SUM(CRC32(x))**) for non-numeric ones. Non-primitive data types are not supported.   
