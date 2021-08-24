@@ -29,6 +29,12 @@ import za.co.absa.atum.utils.{BuildProperties, FileUtils, SerializationUtils, Sp
 
 import scala.concurrent.duration.DurationInt
 
+object SampleMeasurementsIntegrationSuite {
+
+  private case class TestBuildProperties(projectName: String, buildVersion: String) extends BuildProperties
+
+}
+
 class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with Eventually with SparkTestBase
   with BeforeAndAfterAll with OptionValues {
 
@@ -122,10 +128,4 @@ class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with 
 
     spark.disableControlMeasuresTracking()
   }
-}
-
-object SampleMeasurementsIntegrationSuite {
-
-  private case class TestBuildProperties(projectName: String, buildVersion: String) extends BuildProperties
-
 }

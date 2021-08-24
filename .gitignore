@@ -53,11 +53,15 @@ dependency-reduced-pom.xml
 
 _testOutput
 myTestCheckpoints
-examples/data/output
 
 # switch to regexp syntax.
 #  syntax: regexp
 #  ^\.pc/
-/examples-s3-sdk-extension/data/output_s3/
+
+# examples:
+examples/atum-examples/data/output
+examples/s3-sdk-extension-examples/data/output_s3/
+
+
 
 pom.xml.bkp
