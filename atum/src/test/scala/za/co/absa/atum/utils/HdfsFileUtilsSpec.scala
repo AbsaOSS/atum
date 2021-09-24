@@ -19,12 +19,16 @@ import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.fs.permission.FsPermission
-import org.apache.hadoop.hdfs.MiniDFSCluster
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase with MiniDfsClusterBase {
+
+  override def getConfiguration: Configuration = {
+    val cfg = new Configuration()
+    cfg.set("fs.permissions.umask-mode", "000")
+    cfg
+  }
 
   private val Content = "Testing Content"
 
@@ -34,7 +38,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
 
     fs.exists(path) shouldBe true
     fs.getFileStatus(path).getPermission shouldBe HdfsFileUtils.defaultFilePermissions
-    fs.delete(path, true)
+    fs.deleteOnExit(path)
   }
 
   it should "write a file to HDFS (max permissions)" in {
@@ -45,8 +49,9 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
     HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions(customConfig))
 
     fs.exists(path) shouldBe true
-    fs.getFileStatus(path).getPermission shouldBe new FsPermission("755") // max for the cluster
-    fs.delete(path, true)
+    // For this to work, we have miniDfsCluster with umask=000. Default 022 umask would allow max fsPermissions 755
+    fs.getFileStatus(path).getPermission shouldBe new FsPermission("777")
+    fs.deleteOnExit(path)
   }
 
   it should "write a file to HDFS (min permissions)" in {
@@ -57,7 +62,18 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
 
     fs.exists(path) shouldBe true
     fs.getFileStatus(path).getPermission shouldBe new FsPermission("000")
-    fs.delete(path, true)
+    fs.deleteOnExit(path)
+  }
+
+  it should "write a file to HDFS (custom permissions)" in {
+    val path = new Path("/tmp/hdfs-file-utils-test/custom-perms.file")
+    val customConfig = ConfigFactory.empty()
+      .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("751"))
+    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions(customConfig))
+
+    fs.exists(path) shouldBe true
+    fs.getFileStatus(path).getPermission shouldBe new FsPermission("751")
+    fs.deleteOnExit(path)
   }
 
 }

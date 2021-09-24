@@ -21,7 +21,9 @@ import org.scalatest.{BeforeAndAfterAll, Suite}
 
 trait MiniDfsClusterBase extends BeforeAndAfterAll { this: Suite =>
 
-  private val miniDFSCluster =  new MiniDFSCluster(new Configuration(), 1, true, null);
+  protected def getConfiguration: Configuration = new Configuration()
+
+  private val miniDFSCluster =  new MiniDFSCluster(getConfiguration, 1, true, null);
   implicit val fs = miniDFSCluster.getFileSystem()
 
   override def afterAll(): Unit = {
