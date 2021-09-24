@@ -24,7 +24,7 @@ import za.co.absa.atum.utils.HdfsFileUtils
 case class ControlMeasuresHdfsStorerJsonFile(path: Path)(implicit val outputFs: FileSystem) extends HadoopFsControlMeasuresStorer {
   override def store(controlInfo: ControlMeasure): Unit = {
     val serialized =  ControlMeasuresParser asJson controlInfo
-    HdfsFileUtils.saveStringDataToFile(path, serialized)
+    HdfsFileUtils.saveStringDataToFile(path, serialized, HdfsFileUtils.getInfoFilePermissions())
   }
 
   override def getInfo: String = {

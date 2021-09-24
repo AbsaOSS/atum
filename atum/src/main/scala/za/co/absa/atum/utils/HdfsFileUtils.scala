@@ -17,13 +17,29 @@ package za.co.absa.atum.utils
 
 import java.io.IOException
 
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.SparkContext
 
 import scala.collection.JavaConverters._
 
 object HdfsFileUtils {
+  val filePermissionsKey = "atum.hdfs.info.file.permissions"
+
+  private val hadoopConfiguration = SparkContext.getOrCreate().hadoopConfiguration
+  private[utils] val defaultFilePermissions = FsPermission.getFileDefault.applyUMask(
+    FsPermission.getUMask(FileSystem.get(hadoopConfiguration).getConf)
+  )
+
+  def getInfoFilePermissions(config: Config = ConfigFactory.load()): FsPermission = {
+    if (config.hasPath(filePermissionsKey)) {
+      new FsPermission(config.getString(filePermissionsKey))
+    } else {
+      defaultFilePermissions
+    }
+  }
 
   def readHdfsFileToString(path: Path)(implicit inputFs: FileSystem): String = {
     val stream = inputFs.open(path)
@@ -36,16 +52,17 @@ object HdfsFileUtils {
   /**
    * Writes string data to a HDFS Path
    *
-   * @param path Path to write to
-   * @param data data to write
-   * @param outputFs hadoop FS to use
+   * @param path            Path to write to
+   * @param data            data to write
+   * @param outputFs        hadoop FS to use
+   * @param filePermissions desired permissions to use for the file written
    * @throws IOException when data write errors occur
    */
-  def saveStringDataToFile(path: Path, data: String)(implicit outputFs: FileSystem): Unit = {
+  def saveStringDataToFile(path: Path, data: String, filePermissions: FsPermission)(implicit outputFs: FileSystem): Unit = {
     import ARMImplicits._
     for (fos <- outputFs.create(
       path,
-      new FsPermission("777"),
+      filePermissions,
       true,
       4096,
       outputFs.getDefaultReplication(path),
