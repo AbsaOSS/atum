@@ -34,10 +34,12 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
 
   "HdfsFileUtils" should "write a file to HDFS (default permissions)" in {
     val path = new Path("/tmp/hdfs-file-utils-test/def-perms.file")
-    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions())
+
+    HdfsFileUtils.getInfoFilePermissionsFromConfig() shouldBe None // key not present, testing default =>
+    HdfsFileUtils.saveStringDataToFile(path, Content)
 
     fs.exists(path) shouldBe true
-    fs.getFileStatus(path).getPermission shouldBe HdfsFileUtils.defaultFilePermissions
+    fs.getFileStatus(path).getPermission shouldBe HdfsFileUtils.DefaultFilePermissions
     fs.deleteOnExit(path)
   }
 
@@ -46,7 +48,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
 
     val customConfig = ConfigFactory.empty()
       .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("777"))
-    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions(customConfig))
+    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissionsFromConfig(customConfig).get)
 
     fs.exists(path) shouldBe true
     // For this to work, we have miniDfsCluster with umask=000. Default 022 umask would allow max fsPermissions 755
@@ -58,7 +60,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
     val path = new Path("/tmp/hdfs-file-utils-test/min-perms.file")
     val customConfig = ConfigFactory.empty()
       .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("000"))
-    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions(customConfig))
+    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissionsFromConfig(customConfig).get)
 
     fs.exists(path) shouldBe true
     fs.getFileStatus(path).getPermission shouldBe new FsPermission("000")
@@ -69,7 +71,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
     val path = new Path("/tmp/hdfs-file-utils-test/custom-perms.file")
     val customConfig = ConfigFactory.empty()
       .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("751"))
-    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissions(customConfig))
+    HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissionsFromConfig(customConfig).get)
 
     fs.exists(path) shouldBe true
     fs.getFileStatus(path).getPermission shouldBe new FsPermission("751")
@@ -86,7 +88,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
         .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef(invalidFsPermissionString))
 
       intercept[IllegalArgumentException] {
-        HdfsFileUtils.getInfoFilePermissions(customConfig)
+        HdfsFileUtils.getInfoFilePermissionsFromConfig(customConfig)
       }
     }
   }

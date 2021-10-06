@@ -29,15 +29,26 @@ object HdfsFileUtils {
   final val FilePermissionsKey = "atum.hdfs.info.file.permissions"
 
   private val hadoopConfiguration = SparkContext.getOrCreate().hadoopConfiguration
-  private[utils] val defaultFilePermissions = FsPermission.getFileDefault.applyUMask(
+  final val DefaultFilePermissions = FsPermission.getFileDefault.applyUMask(
     FsPermission.getUMask(FileSystem.get(hadoopConfiguration).getConf)
   )
 
-  def getInfoFilePermissions(config: Config = ConfigFactory.load()): FsPermission = {
+  /**
+   * Reads Fs permissions from typesafe config from key [[za.co.absa.atum.utils.HdfsFileUtils#FilePermissionsKey()]]
+   * Consider using za.co.absa.atum.utils.HdfsFileUtils#DefaultFilePermissions() when this method yields None, e.g.:
+   * {{{
+   *   HdfsFileUtils.getInfoFilePermissionsFromConfig()
+   *     .getOrElse(HdfsFileUtils.DefaultFilePermissions)
+   * }}}
+   *
+   * @param config
+   * @return defined some FsPermissions if key/value was found, None otherwise
+   */
+  def getInfoFilePermissionsFromConfig(config: Config = ConfigFactory.load()): Option[FsPermission] = {
     if (config.hasPath(FilePermissionsKey)) {
-      new FsPermission(config.getString(FilePermissionsKey))
+      Some(new FsPermission(config.getString(FilePermissionsKey)))
     } else {
-      defaultFilePermissions
+      None
     }
   }
 
@@ -58,7 +69,8 @@ object HdfsFileUtils {
    * @param filePermissions desired permissions to use for the file written
    * @throws IOException when data write errors occur
    */
-  def saveStringDataToFile(path: Path, data: String, filePermissions: FsPermission)(implicit outputFs: FileSystem): Unit = {
+  def saveStringDataToFile(path: Path, data: String, filePermissions: FsPermission = DefaultFilePermissions)
+                          (implicit outputFs: FileSystem): Unit = {
     import ARMImplicits._
     for (fos <- outputFs.create(
       path,
