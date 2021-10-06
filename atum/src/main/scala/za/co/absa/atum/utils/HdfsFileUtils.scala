@@ -26,7 +26,7 @@ import org.apache.spark.SparkContext
 import scala.collection.JavaConverters._
 
 object HdfsFileUtils {
-  val filePermissionsKey = "atum.hdfs.info.file.permissions"
+  final val FilePermissionsKey = "atum.hdfs.info.file.permissions"
 
   private val hadoopConfiguration = SparkContext.getOrCreate().hadoopConfiguration
   private[utils] val defaultFilePermissions = FsPermission.getFileDefault.applyUMask(
@@ -34,8 +34,8 @@ object HdfsFileUtils {
   )
 
   def getInfoFilePermissions(config: Config = ConfigFactory.load()): FsPermission = {
-    if (config.hasPath(filePermissionsKey)) {
-      new FsPermission(config.getString(filePermissionsKey))
+    if (config.hasPath(FilePermissionsKey)) {
+      new FsPermission(config.getString(FilePermissionsKey))
     } else {
       defaultFilePermissions
     }

@@ -76,4 +76,20 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase wit
     fs.deleteOnExit(path)
   }
 
+  Seq(
+    "garbage$55%$",
+    "",
+    "1"
+  ).foreach { invalidFsPermissionString =>
+    it should s"fail on invalid permissions config (case $invalidFsPermissionString)" in {
+      val customConfig = ConfigFactory.empty()
+        .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef(invalidFsPermissionString))
+
+      intercept[IllegalArgumentException] {
+        HdfsFileUtils.getInfoFilePermissions(customConfig)
+      }
+    }
+  }
+
+
 }
