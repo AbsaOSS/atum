@@ -183,7 +183,8 @@ object ControlMeasureUtils {
       case JsonType.Pretty => cm.asJsonPretty
     }
 
-    HdfsFileUtils.saveStringDataToFile(infoPath, jsonString)
+    HdfsFileUtils.saveStringDataToFile(infoPath, jsonString,
+      HdfsFileUtils.getInfoFilePermissionsFromConfig().getOrElse(HdfsFileUtils.DefaultFilePermissions))
 
     log.info("Info file written: " + infoPath.toUri.toString)
     log.info("JSON written: " + jsonString)
