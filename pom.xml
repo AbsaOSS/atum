@@ -397,6 +397,7 @@
             <modules>
                 <module>atum</module>
                 <module>model</module>
+                <module>atum-s3-sdk-extension</module>
             </modules>
             <build>
                 <plugins>
