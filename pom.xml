@@ -24,14 +24,6 @@
 
     <packaging>pom</packaging>
 
-    <modules>
-        <module>atum</module>
-        <module>model</module>
-        <module>examples</module>
-        <module>atum-s3-sdk-extension</module>
-        <module>examples-s3-sdk-extension</module>
-    </modules>
-
     <name>Atum</name>
     <description>Dynamic data completeness and accuracy at enterprise scale in Apache Spark</description>
     <url>https://github.com/AbsaOSS/atum</url>
@@ -435,6 +427,19 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>atum</module>
+                <module>model</module>
+                <module>examples</module>
+                <module>atum-s3-sdk-extension</module>
+                <module>examples-s3-sdk-extension</module>
+            </modules>
         </profile>
     </profiles>
 
