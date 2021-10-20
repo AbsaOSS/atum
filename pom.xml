@@ -402,6 +402,10 @@
 
         <profile>
             <id>public</id>
+            <modules>
+                <module>atum</module>
+                <module>model</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
