@@ -393,12 +393,13 @@
         </profile>
 
         <profile>
+            <!--
+                Consider calling with publish, e..
+                mvn release:prepare -Dresume=false release:perform -Ppublic -Dlimited
+
+                Profile activation only reacts to properties set externally, not in other profiles (limited property here won't help)
+            -->
             <id>public</id>
-            <modules>
-                <module>atum</module>
-                <module>model</module>
-                <module>atum-s3-sdk-extension</module>
-            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -430,9 +431,12 @@
             </build>
         </profile>
         <profile>
-            <id>default</id>
+            <id>unlimited</id>
+            <!-- default profile unless property "limited" is supplied via -Dlimited -->
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!limited</name>
+                </property>
             </activation>
             <modules>
                 <module>atum</module>
@@ -442,6 +446,20 @@
                 <module>examples-s3-sdk-extension</module>
             </modules>
         </profile>
+        <profile>
+            <id>limited</id>
+            <activation>
+                <property>
+                    <name>limited</name>
+                </property>
+            </activation>
+            <modules>
+                <module>atum</module>
+                <module>model</module>
+                <module>atum-s3-sdk-extension</module>
+            </modules>
+        </profile>
+
     </profiles>
 
 </project>
