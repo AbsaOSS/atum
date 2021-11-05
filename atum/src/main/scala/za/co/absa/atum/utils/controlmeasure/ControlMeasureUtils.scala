@@ -183,7 +183,8 @@ object ControlMeasureUtils {
       case JsonType.Pretty => cm.asJsonPretty
     }
 
-    HdfsFileUtils.saveStringDataToFile(infoPath, jsonString)
+    HdfsFileUtils.saveStringDataToFile(infoPath, jsonString,
+      HdfsFileUtils.getInfoFilePermissionsFromConfig().getOrElse(HdfsFileUtils.DefaultFilePermissions))
 
     log.info("Info file written: " + infoPath.toUri.toString)
     log.info("JSON written: " + jsonString)
@@ -217,7 +218,7 @@ object ControlMeasureUtils {
    */
   def normalize(controlMeasure: ControlMeasure): ControlMeasure = {
     transformMeasurementInControlMeasure(controlMeasure, measurement => {
-      measurement.copy(controlType = ControlType.getNormalizedValue(measurement.controlType))
+      measurement.copy(controlType = ControlType.getNormalizedValueName(measurement.controlType))
     })
   }
 

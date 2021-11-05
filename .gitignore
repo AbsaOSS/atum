@@ -27,6 +27,7 @@ syntax: glob
 .project
 .manager
 .scala_dependencies
+.scalastyle
 
 # idea
 .idea

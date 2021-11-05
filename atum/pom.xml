@@ -24,8 +24,12 @@
     <parent>
         <groupId>za.co.absa</groupId>
         <artifactId>atum-parent_2.11</artifactId>
-        <version>3.5.1-SNAPSHOT</version>
+        <version>3.7.1-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <scalastyle.configLocation>${project.parent.basedir}/scalastyle-config.xml</scalastyle.configLocation>
+    </properties>
 
     <dependencies>
         <!-- Atum -->
@@ -53,6 +57,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>${typesafe.config.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-scala_${scala.binary.version}</artifactId>
             <version>${mockito.scala.version}</version>
@@ -63,6 +73,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-scala-scalatest_${scala.binary.version}</artifactId>
             <version>${mockito.scala.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-minicluster</artifactId>
+            <version>${hadoop.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -81,6 +98,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>

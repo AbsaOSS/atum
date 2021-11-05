@@ -15,23 +15,18 @@
 
 package za.co.absa.atum.utils
 
-import java.util.Properties
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.hdfs.MiniDFSCluster
+import org.scalatest.{BeforeAndAfterAll, Suite}
 
-object BuildProperties {
-  private val properties = new Properties()
-  private val buildVersionKey = "build.version"
-  private val buildSoftwareKey = "build.software"
+trait MiniDfsClusterBase extends BeforeAndAfterAll { this: Suite =>
 
-  /** Returns the version of the build. */
-  lazy val buildVersion: String = properties.getProperty(buildVersionKey)
-  /** Returns the name of the build. */
-  lazy val projectName: String = properties.getProperty(buildSoftwareKey)
+  protected def getConfiguration: Configuration = new Configuration()
 
-  loadConfig()
+  private val miniDFSCluster =  new MiniDFSCluster(getConfiguration, 1, true, null);
+  implicit val fs = miniDFSCluster.getFileSystem()
 
-  private def loadConfig(): Unit = {
-    val is = getClass.getResourceAsStream("/atum_build.properties")
-    try properties.load(is)
-    finally if (is != null) is.close()
+  override def afterAll(): Unit = {
+    miniDFSCluster.shutdown()
   }
 }

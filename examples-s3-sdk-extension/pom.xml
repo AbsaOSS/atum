@@ -24,8 +24,12 @@
     <parent>
         <groupId>za.co.absa</groupId>
         <artifactId>atum-parent_2.11</artifactId>
-        <version>3.5.1-SNAPSHOT</version>
+        <version>3.7.1-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <scalastyle.configLocation>${project.parent.basedir}/scalastyle-config.xml</scalastyle.configLocation>
+    </properties>
 
     <dependencies>
         <!-- Atum -->
@@ -70,6 +74,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
