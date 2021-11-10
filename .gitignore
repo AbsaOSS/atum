@@ -61,3 +61,4 @@ examples/data/output
 /examples-s3-sdk-extension/data/output_s3/
 
 pom.xml.bkp
+.bsp
