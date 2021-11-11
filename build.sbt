@@ -34,8 +34,8 @@ lazy val parent = (project in file("."))
     // no default main defined class for Atum; future use: assembly / mainClass := Some("za.co.absa.atum.SomeApp")
     assembly / test := (Test / test).value,
     mergeStrategy,
-    // todo no assembly needed here
-  ).enablePlugins(AutomateHeaderPlugin)
+    // TODO no assembly needed here
+  )
 
 lazy val model = project // no need to define file, because path is same as val name
   .settings(
@@ -43,7 +43,7 @@ lazy val model = project // no need to define file, because path is same as val 
     libraryDependencies ++= (rootDependencies ++ modelDependencies),
     assembly / test := (Test / test).value,
     mergeStrategy
-  ).enablePlugins(AutomateHeaderPlugin)
+  )
 
 lazy val core = (project in file("atum"))
   .settings(
@@ -52,8 +52,7 @@ lazy val core = (project in file("atum"))
     assembly / test := (Test / test).value,
     mergeStrategy,
     populateBuildInfoTemplate // to get correct replacements for ${project.artifactId} and ${project.version} in atum_build.properties
-  ).enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(model)
+  ).dependsOn(model)
 
 lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
   .settings(
@@ -62,8 +61,10 @@ lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
     scalacOptions += "-target:jvm-1.8", // AWS S3 SDK requires 1.8 level for static methods in interfaces
     assembly / test := (Test / test).value,
     mergeStrategy
-  ).enablePlugins(AutomateHeaderPlugin)
+  )
   .dependsOn(core)
+
+// TODO examples building is missing
 
 val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
   case PathList("META-INF", _) => MergeStrategy.discard

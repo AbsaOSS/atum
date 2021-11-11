@@ -18,24 +18,25 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val json4s = "3.5.3" // // TODO do multi-spark build, use 3.7.0-M5 for Spark 3+
+    // TODO alternate for multiversion build; see Issue #121
+    val json4s = "3.5.3" // use 3.7.0-M5 for Spark 3+
+    val hadoop = "2.8.5" // use 3.2 for Spark 3+
+
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
     val mockitoScala = "1.15.0"
-
-    val hadoop = "2.8.5" // TODO consider in multibuild?
   }
 
-  lazy val sparkCore = "org.apache.spark" %% "spark-core" % "2.4.7" % Provided // TODO do multi-spark build  - like getScalaDependency(scalaVersion.value) in cobrix?
+  // TODO alternate for multiversion build (hint: getScalaDependency(scalaVersion.value) in cobrix ); see Issue #121
+  lazy val sparkCore = "org.apache.spark" %% "spark-core" % "2.4.7" % Provided
   lazy val sparkSql = "org.apache.spark" %% "spark-sql" % "2.4.7" % Provided
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9" % Test
 
-  lazy val json4sExt = "org.json4s" %% "json4s-ext" % Versions.json4s // TODO do multi-spark build
+  lazy val json4sExt = "org.json4s" %% "json4s-ext" % Versions.json4s
   lazy val json4sCore = "org.json4s" %% "json4s-core" % Versions.json4s % Provided
   lazy val json4sJackson = "org.json4s" %% "json4s-jackson" % Versions.json4s % Provided
   lazy val json4sNative = "org.json4s" %% "json4s-native" % Versions.json4s % Provided
-
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % "1.6"
