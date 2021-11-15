@@ -121,7 +121,7 @@
         <!-- Frameworks and libraries -->
         <json4s.version>3.5.3</json4s.version> <!-- This version is set to be compatible with Spark 2.4.5 -->
         <scalatest.maven.version>2.0.2</scalatest.maven.version>
-        <scalatest.version>3.2.2</scalatest.version>
+        <scalatest.version>3.2.9</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <specs.version>2.5</specs.version>
         <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
@@ -131,7 +131,7 @@
         <hadoop.version>2.8.5</hadoop.version>
 
         <!-- Spark versions -->
-        <spark-24.version>2.4.6</spark-24.version>
+        <spark-24.version>2.4.7</spark-24.version>
         <spark-31.version>3.1.2</spark-31.version>
 
         <spark.version>${spark-24.version}</spark.version>
