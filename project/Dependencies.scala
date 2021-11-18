@@ -25,6 +25,9 @@ object Dependencies {
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
     val mockitoScala = "1.15.0"
+    val scalatest = "3.2.9"
+    val specs2 = "2.5"
+    val aws = "2.13.65"
   }
 
   // TODO alternate for multiversion build (hint: getScalaDependency(scalaVersion.value) in cobrix ); see Issue #121
@@ -47,7 +50,10 @@ object Dependencies {
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
   lazy val hadoopMinicluster = "org.apache.hadoop" % "hadoop-minicluster" % Versions.hadoop % Test
 
-  lazy val sdkS3 = "software.amazon.awssdk" % "s3" % "2.13.65"
+  lazy val scalaTestProvided = "org.scalatest" %% "scalatest" % Versions.scalatest % Provided
+  lazy val specs2core = "org.specs2" %% "specs2-core" % Versions.specs2 % Test
+
+  lazy val sdkS3 = "software.amazon.awssdk" % "s3" % Versions.aws
 
   lazy val rootDependencies: Seq[ModuleID] = Seq(
     sparkCore,
@@ -71,6 +77,11 @@ object Dependencies {
     mockitoScala,
     mockitoScalaScalatest,
     hadoopMinicluster,
+  )
+
+  lazy val examplesDependencies: Seq[ModuleID] = Seq(
+    specs2core,
+    scalaTestProvided
   )
 
   lazy val s3sdkExtensionDependencies: Seq[ModuleID] = Seq(

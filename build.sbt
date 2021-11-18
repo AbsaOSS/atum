@@ -64,7 +64,15 @@ lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
   )
   .dependsOn(core)
 
-// TODO examples building is missing
+lazy val examples = (project in file("examples"))
+  .settings(
+    name := "examples",
+    libraryDependencies ++= (rootDependencies ++ examplesDependencies),
+    assembly / test := (Test / test).value,
+    Test / parallelExecution := false, // Atum Control framework could attempt to double-initialize and fail
+    mergeStrategy
+  ).dependsOn(core)
+
 
 val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
   case PathList("META-INF", _) => MergeStrategy.discard
