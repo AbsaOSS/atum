@@ -15,7 +15,7 @@
 
 package za.co.absa.atum.examples
 
-import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import za.co.absa.atum.AtumImplicits._ // using basic Atum without extensions
 
@@ -52,5 +52,8 @@ object SampleMeasurements2 {
       .parquet("data/output/stage2_job_results")
 
     spark.disableControlMeasuresTracking()
+
+    fs.delete(new Path("data/output/stage1_job_results"), true)
+    fs.delete(new Path("data/output/stage2_job_results"), true)
   }
 }

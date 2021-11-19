@@ -124,7 +124,7 @@
         <scalatest.version>3.2.9</scalatest.version>
         <slf4j.version>1.7.25</slf4j.version>
         <specs.version>2.5</specs.version>
-        <aws.java.sdk.version>2.13.65</aws.java.sdk.version>
+        <aws.java.sdk.version>2.17.85</aws.java.sdk.version>
         <mockito.scala.version>1.15.0</mockito.scala.version>
         <commons.version>0.0.27</commons.version>
         <typesafe.config.version>1.4.1</typesafe.config.version>

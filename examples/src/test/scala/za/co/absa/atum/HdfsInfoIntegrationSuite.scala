@@ -43,7 +43,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     LocalFsTestUtils.safeDeleteTestDir(tempDir)
   }
 
-  private val inputCsv = "data/input/wikidata.csv"
+  private val inputCsv = getClass.getResource("/input/wikidata.csv").toString
   private def readSparkInputCsv(inputCsvPath: String): DataFrame = spark.read
     .option("header", "true")
     .option("inferSchema", "true")
@@ -54,8 +54,9 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
       .parquet(outputPath)
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      if (!Files.exists(Paths.get(outputPath)))
+      if (!Files.exists(Paths.get(outputPath))) {
         throw new Exception("_INFO file not found at " + outputPath)
+      }
     }
   }
 
@@ -72,7 +73,8 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
         // Initializing library to hook up to Apache Spark
-        spark.enableControlMeasuresTracking(sourceInfoFilePath = Some("data/input/wikidata.csv.info"), destinationInfoFilePath = destinationOptInfoFilePath)
+        val inputCsvInfo = getClass.getResource("/input/wikidata.csv.info").toString
+        spark.enableControlMeasuresTracking(sourceInfoFilePath = Some(inputCsvInfo), destinationInfoFilePath = destinationOptInfoFilePath)
           .setControlMeasuresWorkflow("Job 1")
 
         import spark.implicits._
