@@ -27,7 +27,7 @@ object Dependencies {
     val mockitoScala = "1.15.0"
     val scalatest = "3.2.9"
     val specs2 = "2.5"
-    val aws = "2.13.65"
+    val aws = "2.17.85"
   }
 
   // TODO alternate for multiversion build (hint: getScalaDependency(scalaVersion.value) in cobrix ); see Issue #121

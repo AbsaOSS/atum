@@ -73,6 +73,15 @@ lazy val examples = (project in file("examples"))
     mergeStrategy
   ).dependsOn(core)
 
+lazy val s3sdkExamples = (project in file("examples-s3-sdk-extension"))
+  .settings(
+    name := "examples-s3-sdk-extension",
+    libraryDependencies ++= (rootDependencies ++ s3sdkExtensionDependencies),
+    scalacOptions += "-target:jvm-1.8", // AWS S3 SDK requires 1.8 level for static methods in interfaces
+    assembly / test := {}, // skipping tests for s3sdk, because one needs specific setup to run it (intent: run manually)
+    mergeStrategy
+  )
+  .dependsOn(s3sdkExtension, examples)
 
 val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
   case PathList("META-INF", _) => MergeStrategy.discard
