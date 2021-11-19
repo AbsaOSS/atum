@@ -62,4 +62,4 @@ examples/data/output
 
 pom.xml.bkp
 /data/
-/.bsp/sbt.json
+.bsp
