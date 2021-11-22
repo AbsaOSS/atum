@@ -18,9 +18,14 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    // TODO alternate for multiversion build; see Issue #121
-    val json4s = "3.5.3" // use 3.7.0-M5 for Spark 3+
-    val hadoop = "2.8.5" // use 3.2 for Spark 3+
+    val spark2 = "2.4.7"
+    val spark3 = "3.1.2"
+
+    val json4s_spark2 = "3.5.3" // use 3.7.0-M5 for Spark 3+
+    val json4s_spark3 = "3.7.0-M5"
+
+    val hadoop2 = "2.8.5"
+    // val hadoop3 = "3.2.2" // todo use or remove
 
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
@@ -30,16 +35,36 @@ object Dependencies {
     val aws = "2.17.85"
   }
 
-  // TODO alternate for multiversion build (hint: getScalaDependency(scalaVersion.value) in cobrix ); see Issue #121
-  lazy val sparkCore = "org.apache.spark" %% "spark-core" % "2.4.7" % Provided
-  lazy val sparkSql = "org.apache.spark" %% "spark-sql" % "2.4.7" % Provided
+  // basic idea of crossversion version picking is based on https://github.com/scala/scala-module-dependency-sample
+
+  // this is just for the compile-depended printing task
+  def sparkVersionForScala(scalaVersion: String): String = {
+    scalaVersion match {
+      case _ if scalaVersion.startsWith("2.11") => Versions.spark2
+      case _ if scalaVersion.startsWith("2.12") => Versions.spark3
+      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+    }
+  }
+
+  // general wrapper to simplify s2.11/2.12 version assigning
+  def moduleByScala(moduleIdWithoutVersion: String => ModuleID)(scala211Version: String, scala212Version: String)(actualScalaVersion: String): ModuleID = {
+    actualScalaVersion match {
+      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersion.apply(scala211Version)
+      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersion.apply(scala212Version)
+      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+    }
+  }
+
+  val sparkCore = moduleByScala("org.apache.spark" %% "spark-core" % _ % Provided)(scala211Version = Versions.spark2, scala212Version = Versions.spark3)_
+  val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3)_
+  // todo do the same for other scala/spark pairs
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9" % Test
 
-  lazy val json4sExt = "org.json4s" %% "json4s-ext" % Versions.json4s
-  lazy val json4sCore = "org.json4s" %% "json4s-core" % Versions.json4s % Provided
-  lazy val json4sJackson = "org.json4s" %% "json4s-jackson" % Versions.json4s % Provided
-  lazy val json4sNative = "org.json4s" %% "json4s-native" % Versions.json4s % Provided
+  val json4sExt = moduleByScala("org.json4s" %% "json4s-ext" % _)(Versions.json4s_spark2, Versions.json4s_spark3)_
+  val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3)_
+  val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3)_
+  val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3)_
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % "1.6"
@@ -48,24 +73,26 @@ object Dependencies {
 
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
-  lazy val hadoopMinicluster = "org.apache.hadoop" % "hadoop-minicluster" % Versions.hadoop % Test
+
+  lazy val hadoopMinicluster = "org.apache.hadoop" % "hadoop-minicluster" % Versions.hadoop2 % Test
 
   lazy val scalaTestProvided = "org.scalatest" %% "scalatest" % Versions.scalatest % Provided
   lazy val specs2core = "org.specs2" %% "specs2-core" % Versions.specs2 % Test
 
   lazy val sdkS3 = "software.amazon.awssdk" % "s3" % Versions.aws
 
-  lazy val rootDependencies: Seq[ModuleID] = Seq(
-    sparkCore,
-    sparkSql,
+  // todo def?
+  def rootDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
+    sparkCore(scalaVersion),
+    sparkSql(scalaVersion),
     scalaTest,
-    json4sExt
+    json4sExt(scalaVersion)
   )
 
-  lazy val modelDependencies: Seq[ModuleID] = Seq(
-    json4sCore,
-    json4sJackson,
-    json4sNative
+  def modelDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
+    json4sCore(scalaVersion),
+    json4sJackson(scalaVersion),
+    json4sNative(scalaVersion)
   )
 
   lazy val coreDependencies: Seq[ModuleID] = Seq(
