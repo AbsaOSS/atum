@@ -18,14 +18,14 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val spark2 = "2.4.7"
+    val spark2 = "2.4.8"
     val spark3 = "3.1.2"
 
-    val json4s_spark2 = "3.5.3" // use 3.7.0-M5 for Spark 3+
+    val json4s_spark2 = "3.5.3"
     val json4s_spark3 = "3.7.0-M5"
 
     val hadoop2 = "2.8.5"
-    // val hadoop3 = "3.2.2" // todo use or remove
+    val hadoop3 = "3.2.2"
 
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
@@ -47,7 +47,9 @@ object Dependencies {
   }
 
   // general wrapper to simplify s2.11/2.12 version assigning
-  def moduleByScala(moduleIdWithoutVersion: String => ModuleID)(scala211Version: String, scala212Version: String)(actualScalaVersion: String): ModuleID = {
+  def moduleByScala(moduleIdWithoutVersion: String => ModuleID)
+                   (scala211Version: String, scala212Version: String)
+                   (actualScalaVersion: String): ModuleID = {
     actualScalaVersion match {
       case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersion.apply(scala211Version)
       case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersion.apply(scala212Version)
@@ -55,9 +57,8 @@ object Dependencies {
     }
   }
 
-  val sparkCore = moduleByScala("org.apache.spark" %% "spark-core" % _ % Provided)(scala211Version = Versions.spark2, scala212Version = Versions.spark3)_
+  val sparkCore = moduleByScala("org.apache.spark" %% "spark-core" % _ % Provided)(Versions.spark2, Versions.spark3)_
   val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3)_
-  // todo do the same for other scala/spark pairs
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9" % Test
 
@@ -74,14 +75,17 @@ object Dependencies {
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
 
-  lazy val hadoopMinicluster = "org.apache.hadoop" % "hadoop-minicluster" % Versions.hadoop2 % Test
+  val hadoopMinicluster = moduleByScala("org.apache.hadoop" % "hadoop-minicluster" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
+//  val hadoopHdfs = moduleByScala("org.apache.hadoop" % "hadoop-hdfs" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
+//  val hadoopCommons = moduleByScala("org.apache.hadoop" % "hadoop-common" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
+//  lazy val jUnit = "junit" % "junit" % "4.11" % Test
+
 
   lazy val scalaTestProvided = "org.scalatest" %% "scalatest" % Versions.scalatest % Provided
   lazy val specs2core = "org.specs2" %% "specs2-core" % Versions.specs2 % Test
 
   lazy val sdkS3 = "software.amazon.awssdk" % "s3" % Versions.aws
 
-  // todo def?
   def rootDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
     sparkCore(scalaVersion),
     sparkSql(scalaVersion),
@@ -95,7 +99,7 @@ object Dependencies {
     json4sNative(scalaVersion)
   )
 
-  lazy val coreDependencies: Seq[ModuleID] = Seq(
+  def coreDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
     absaCommons,
     commonsConfiguration,
     apacheCommons,
@@ -103,7 +107,11 @@ object Dependencies {
 
     mockitoScala,
     mockitoScalaScalatest,
-    hadoopMinicluster,
+    hadoopMinicluster(scalaVersion)
+
+//    hadoopHdfs(scalaVersion), //trying to
+//    hadoopCommons(scalaVersion),
+//    jUnit
   )
 
   lazy val examplesDependencies: Seq[ModuleID] = Seq(

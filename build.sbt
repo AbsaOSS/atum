@@ -20,7 +20,7 @@ import Dependencies._
 import BuildInfoTemplateSettings._
 
 lazy val scala211 = "2.11.12"
-lazy val scala212 = "2.12.12"
+lazy val scala212 = "2.12.15"
 
 ThisBuild / scalaVersion := scala211  // default version
 ThisBuild / crossScalaVersions := Seq(scala211, scala212)
@@ -56,7 +56,7 @@ lazy val model = project // no need to define file, because path is same as val 
 lazy val core = (project in file("atum"))
   .settings(
     name := "atum",
-    libraryDependencies ++= (rootDependencies(scalaVersion.value) ++ coreDependencies),
+    libraryDependencies ++= (rootDependencies(scalaVersion.value) ++ coreDependencies(scalaVersion.value)),
     assembly / test := (Test / test).value,
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy,

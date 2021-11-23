@@ -1,4 +1,4 @@
-name: SBT Build
+name: SBT AutoBuild
 
 on:
   push:
@@ -17,6 +17,8 @@ jobs:
         exclude:
           - scala: 2.11.12
             spark: 3.1.2
+          - scala: 2.12.15
+            spark: 2.4.8
     name: SBT Spark ${{matrix.spark}} on Scala ${{matrix.scala}}
     steps:
       - name: Checkout code
