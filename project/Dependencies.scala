@@ -25,7 +25,7 @@ object Dependencies {
     val json4s_spark3 = "3.7.0-M5"
 
     val hadoop2 = "2.8.5"
-    val hadoop3 = "3.2.2"
+    // val hadoop3 = "3.2.2"
 
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
@@ -75,7 +75,7 @@ object Dependencies {
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
 
-  val hadoopMinicluster = moduleByScala("org.apache.hadoop" % "hadoop-minicluster" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
+  val hadoopMinicluster = moduleByScala("org.apache.hadoop" % "hadoop-minicluster" % _ % Test)(Versions.hadoop2, Versions.hadoop2)_ // todo hadoop3 ?
 //  val hadoopHdfs = moduleByScala("org.apache.hadoop" % "hadoop-hdfs" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
 //  val hadoopCommons = moduleByScala("org.apache.hadoop" % "hadoop-common" % _ % Test)(Versions.hadoop2, Versions.hadoop3)_
 //  lazy val jUnit = "junit" % "junit" % "4.11" % Test
