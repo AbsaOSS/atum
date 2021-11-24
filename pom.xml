@@ -385,8 +385,9 @@
                                 <exclude>**/_INFO</exclude>
                                 <exclude>**/_SUCCESS</exclude>
                                 <exclude>**/org.apache.spark.sql.sources.DataSourceRegister</exclude>
-                                <exclude>dependency-reduced-pom.xml</exclude>
+                                <exclude>**/dependency-reduced-pom.xml</exclude>
                                 <exclude>**/org.mockito.plugins.MockMaker</exclude>
+                                <exclude>**/target/</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
