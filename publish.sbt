@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// to successfully publish to Sonatype OSS (using sbt publishSigned), setup outline at
+// https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html is expected
+
 ThisBuild / organizationName := "ABSA Group Limited"
 ThisBuild / organizationHomepage := Some(url("https://www.absa.africa"))
 ThisBuild / scmInfo := Some(

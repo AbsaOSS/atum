@@ -35,18 +35,19 @@ ThisBuild / printSparkScalaVersion := {
 lazy val parent = (project in file("."))
   .aggregate(model, core, s3sdkExtension)
   .settings(
-    name := "parent",
+    name := "atum-parent",
     libraryDependencies ++= rootDependencies(scalaVersion.value),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
     // no default main defined class for Atum; future use: assembly / mainClass := Some("za.co.absa.atum.SomeApp")
     assembly / test := (Test / test).value,
     mergeStrategy,
-    // TODO no assembly needed here
+    publish / skip := true
+    // TODO no assembly needed here?
   )
 
 lazy val model = project // no need to define file, because path is same as val name
   .settings(
-    name := "model",
+    name := "atum-model",
     libraryDependencies ++= (rootDependencies(scalaVersion.value) ++ modelDependencies(scalaVersion.value)),
     assembly / test := (Test / test).value,
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
