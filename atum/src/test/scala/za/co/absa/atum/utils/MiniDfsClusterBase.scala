@@ -23,7 +23,7 @@ trait MiniDfsClusterBase extends BeforeAndAfterAll { this: Suite =>
 
   protected def getConfiguration: Configuration = new Configuration()
 
-  private val miniDFSCluster =  new MiniDFSCluster(getConfiguration, 1, true, null);
+  private val miniDFSCluster = new MiniDFSCluster.Builder(getConfiguration).build()
   implicit val fs = miniDFSCluster.getFileSystem()
 
   override def afterAll(): Unit = {
