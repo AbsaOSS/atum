@@ -63,6 +63,4 @@ class ExecutionPlanUtilsSuite extends AnyFlatSpec with Matchers with IdiomaticMo
     ExecutionPlanUtils.inferOutputInfoFileNameOnS3(qe, myInfoName).get shouldBe "/tmp/here2/myInfo"
   }
 
-
-
 }
