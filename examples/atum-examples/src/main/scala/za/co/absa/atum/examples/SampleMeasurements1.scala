@@ -17,8 +17,8 @@ package za.co.absa.atum.examples
 
 import java.nio.file.{Files, Paths}
 
-import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.scalatest.concurrent.Eventually
 import za.co.absa.atum.AtumImplicits._
@@ -40,14 +40,17 @@ object SampleMeasurements1 extends Eventually {
     implicit val fs: FileSystem = FileSystem.get(hadoopConfiguration)
 
     // Initializing library to hook up to Apache Spark
-    spark.enableControlMeasuresTracking(Some("data/input/wikidata.csv.info"), None)
+    val inputCsvInfo = this.getClass.getResource("/input/wikidata.csv.info").toString // path from test resources
+
+    spark.enableControlMeasuresTracking(Some(inputCsvInfo), None)
       .setControlMeasuresWorkflow("Job 1")
 
+    val inputCsv = this.getClass.getResource("/input/wikidata.csv").toString // path from test resources
     // A business logic of a spark job ...
     spark.read
       .option("header", "true")
       .option("inferSchema", "true")
-      .csv("data/input/wikidata.csv")
+      .csv(inputCsv)
       .as("source")
       .filter($"total_response_size" > 1000)
       .setAdditionalInfo("additionalKey1", "additionalValue1")
@@ -56,7 +59,11 @@ object SampleMeasurements1 extends Eventually {
       .parquet("data/output/stage1_job_results")
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+<<<<<<< HEAD:examples/atum-examples/src/main/scala/za/co/absa/atum/examples/SampleMeasurements1.scala
       if (!Files.exists(Paths.get("data/output/stage1_job_results/_INFO"))) {
+=======
+      if (!fs.exists(new Path("data/output/stage1_job_results/_INFO"))) {
+>>>>>>> master:examples/src/main/scala/za/co/absa/atum/examples/SampleMeasurements1.scala
         throw new Exception("_INFO file not found at data/output/stage1_job_results")
       }
     }

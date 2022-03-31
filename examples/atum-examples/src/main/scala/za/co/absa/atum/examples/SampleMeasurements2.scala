@@ -17,8 +17,8 @@ package za.co.absa.atum.examples
 
 import java.nio.file.{Files, Paths}
 
-import org.apache.hadoop.fs.FileSystem
 import org.apache.log4j.LogManager
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.scalatest.concurrent.Eventually
 import za.co.absa.atum.AtumImplicits._
@@ -71,5 +71,8 @@ object SampleMeasurements2 extends Eventually {
     }
 
     spark.disableControlMeasuresTracking()
+
+    fs.delete(new Path("data/output/stage1_job_results"), true)
+    fs.delete(new Path("data/output/stage2_job_results"), true)
   }
 }

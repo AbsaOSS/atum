@@ -20,8 +20,9 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.persistence.TestResources
+import za.co.absa.atum.utils.SparkLocalMaster
 
-class ControlMeasuresHdfsLoaderJsonSpec extends AnyFlatSpec with Matchers {
+class ControlMeasuresHdfsLoaderJsonSpec extends AnyFlatSpec with Matchers with SparkLocalMaster {
 
   val inputPath: String = TestResources.InputInfo.localPath
   val expectedInputControlMeasure = TestResources.InputInfo.controlMeasure

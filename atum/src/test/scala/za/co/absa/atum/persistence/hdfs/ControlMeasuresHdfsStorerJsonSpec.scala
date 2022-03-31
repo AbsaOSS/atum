@@ -21,9 +21,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import za.co.absa.atum.model.ControlMeasure
 import za.co.absa.atum.persistence.TestResources
-import za.co.absa.atum.utils.{FileUtils, HdfsFileUtils}
+import za.co.absa.atum.utils.{FileUtils, HdfsFileUtils, SparkLocalMaster}
 
-class ControlMeasuresHdfsStorerJsonSpec extends AnyFlatSpec with Matchers {
+class ControlMeasuresHdfsStorerJsonSpec extends AnyFlatSpec with Matchers with SparkLocalMaster {
 
   val expectedFilePath: String = TestResources.InputInfo.localPath
   val inputControlMeasure: ControlMeasure = TestResources.InputInfo.controlMeasure

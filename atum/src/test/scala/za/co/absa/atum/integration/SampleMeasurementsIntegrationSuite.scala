@@ -38,42 +38,42 @@ object SampleMeasurementsIntegrationSuite {
 class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with Eventually with SparkTestBase
   with BeforeAndAfterAll with OptionValues {
 
-  implicit val fs: FileSystem = FileSystem.get(new Configuration())
+  implicit val fs: FileSystem = FileSystem.get(spark.sparkContext.hadoopConfiguration)
 
   import spark.implicits._ // $"interpolation"
 
-  val inputPath = "src/test/resources/data/input"
+//  val inputPath = "src/test/resources/data/input"
   val outputPath = "src/test/resources/data/output"
 
   override def beforeAll() {
-    fs.delete(new Path(outputPath), true)
+    fs.delete(new Path("data/output"), true)
   }
 
   override def afterAll() {
-    fs.delete(new Path(outputPath), true)
+    fs.delete(new Path("data/output"), true)
   }
 
   "SampleMeasurementIntegTest" should "load explicit _INFO, adjust, and save implicit _INFO (stage 1)" in {
-    spark.enableControlMeasuresTracking(Some(s"$inputPath/wikidata.csv.info"), None)
+    spark.enableControlMeasuresTracking(Some(getClass.getResource(s"/data/input/wikidata.csv.info").getPath), None)
       .setControlMeasuresWorkflow("Job 1")
 
     // Some business logic of a spark job ...
     spark.read
       .option("header", "true")
       .option("inferSchema", "true")
-      .csv(s"$inputPath/wikidata.csv")
+      .csv(getClass.getResource(s"/data/input/wikidata.csv").getPath)
       .as("source")
       .filter($"total_response_size" > 1000)
       .setAdditionalInfo("additionalKey1", "additionalValue1")
       .setCheckpoint("checkpoint1")
       .write.mode(SaveMode.Overwrite)
-      .parquet(s"$outputPath/stage1_job_results")
+      .parquet("data/output/stage1_job_results")
 
     // assert the state after
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      fs.exists(new Path((s"$outputPath/stage1_job_results/_INFO"))) shouldBe true
+      fs.exists(new Path(s"data/output/stage1_job_results/_INFO")) shouldBe true
 
-      val outputData = FileUtils.readFileToString(s"$outputPath/stage1_job_results/_INFO")
+      val outputData = FileUtils.readFileToString(s"data/output/stage1_job_results/_INFO")
       val outputControlMeasure: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](outputData)
 
       outputControlMeasure.metadata.additionalInfo should contain("additionalKey1", "additionalValue1")
@@ -89,7 +89,7 @@ class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with 
       .setControlMeasuresWorkflow("Job 2")
 
     val sourceDS = spark.read
-      .parquet(s"$outputPath/stage1_job_results") // stage1_output as input for stage 2
+      .parquet(s"data/output/stage1_job_results") // stage1_output as input for stage 2
 
     // Some business logic of a spark job ...
     // An example - a column rename
@@ -100,14 +100,14 @@ class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with 
       .filter($"trs" > 1000)
       .setCheckpoint("checkpoint2")
       .write.mode(SaveMode.Overwrite)
-      .parquet(s"$outputPath/stage2_job_results")
+      .parquet("data/output/stage2_job_results")
 
     // assert the state after
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
-      fs.exists(new Path((s"$outputPath/stage2_job_results/_INFO"))) shouldBe true
+      fs.exists(new Path(s"data/output/stage2_job_results/_INFO")) shouldBe true
 
 
-      val outputData = FileUtils.readFileToString(s"$outputPath/stage2_job_results/_INFO")
+      val outputData = FileUtils.readFileToString(s"data/output/stage2_job_results/_INFO")
       val outputControlMeasure: ControlMeasure = SerializationUtils.fromJson[ControlMeasure](outputData)
 
       outputControlMeasure.checkpoints.map(_.name) should contain theSameElementsInOrderAs
