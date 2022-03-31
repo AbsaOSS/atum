@@ -39,7 +39,7 @@ find "$BASE_DIR" -name target -type d -exec rm -rf {} \;
 
 cross_build 2.11 2.4
 cross_build 2.12 2.4
-cross_build 2.12 3.1
+cross_build 2.12 3.2
 
 echo "==============================================================================="
 echo Restoring version

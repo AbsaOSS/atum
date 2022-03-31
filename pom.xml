@@ -132,7 +132,7 @@
 
         <!-- Spark versions -->
         <spark-24.version>2.4.8</spark-24.version>
-        <spark-31.version>3.1.2</spark-31.version>
+        <spark-31.version>3.2.1</spark-31.version>
 
         <spark.version>${spark-24.version}</spark.version>
 
@@ -345,7 +345,7 @@
             <id>spark-3.1</id>
             <properties>
                 <spark.version>${spark-31.version}</spark.version>
-                <json4s.version>3.7.0-M5</json4s.version>
+                <json4s.version>3.7.0-M11</json4s.version>
             </properties>
         </profile>
 

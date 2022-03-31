@@ -19,10 +19,10 @@ object Dependencies {
 
   object Versions {
     val spark2 = "2.4.8"
-    val spark3 = "3.1.2"
+    val spark3 = "3.2.1"
 
     val json4s_spark2 = "3.5.3"
-    val json4s_spark3 = "3.7.0-M5"
+    val json4s_spark3 = "3.7.0-M11"
 
     val hadoop2 = "2.8.5"
     val hadoop3 = "3.2.2"
