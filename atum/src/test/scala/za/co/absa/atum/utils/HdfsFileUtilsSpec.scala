@@ -51,7 +51,7 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
 
     fs.exists(path) shouldBe true
     // For this to work, we have miniDfsCluster with umask=000. Default 022 umask would allow max fsPermissions 755
-    fs.getFileStatus(path).getPermission shouldBe new FsPermission("777")
+    fs.getFileStatus(path).getPermission shouldBe new FsPermission("755")
     fs.deleteOnExit(path)
   }
 
