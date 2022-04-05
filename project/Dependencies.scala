@@ -19,11 +19,13 @@ object Dependencies {
 
   object Versions {
     val spark2 = "2.4.8"
-    val spark3 = "3.1.2"
+    val spark3 = "3.2.1"
 
     val json4s_spark2 = "3.5.3"
-    val json4s_spark3 = "3.7.0-M5"
-    val jackson = "2.10.4"
+    val json4s_spark3 = "3.7.0-M11"
+
+    val jackson_spark2 = "2.10.4"
+    val jackson_spark3 = "2.12.6"
 
     val hadoop2 = "2.8.5"
     val hadoop3 = "3.2.2"
@@ -71,6 +73,8 @@ object Dependencies {
   val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
   val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
   val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3)_
+  val jacksonDatabind = moduleByScala("com.fasterxml.jackson.core" % "jackson-databind" % _ )(Versions.jackson_spark2, Versions.jackson_spark3) _
+  val jacksonScala = moduleByScala("com.fasterxml.jackson.module" %% "jackson-module-scala" % _ )(Versions.jackson_spark2, Versions.jackson_spark3) _
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % Versions.commonsConfiguration
@@ -91,13 +95,9 @@ object Dependencies {
   lazy val sdkS3 = "software.amazon.awssdk" % "s3" % Versions.aws
 
   def rootDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.4",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.10.4",
-    sparkCore(scalaVersion)
-      excludeAll(
-        ExclusionRule(organization = "com.fasterxml.jackson.core"),
-        ExclusionRule("com.fasterxml.jackson.module", s"jackson-module-scala_${scalaVersion.substring(0,3)}")
-      ),
+    jacksonDatabind(scalaVersion),
+    jacksonScala(scalaVersion),
+    sparkCore(scalaVersion),
     sparkSql(scalaVersion),
     scalaTest,
     json4sExt(scalaVersion)
@@ -105,10 +105,7 @@ object Dependencies {
 
   def modelDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
     json4sCore(scalaVersion),
-    json4sJackson(scalaVersion)
-      excludeAll(
-        ExclusionRule(organization = "com.fasterxml.jackson.core"),
-      ),
+    json4sJackson(scalaVersion),
     json4sNative(scalaVersion)
   )
 

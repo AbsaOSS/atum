@@ -15,7 +15,6 @@
 
 package za.co.absa.atum.integration
 
-import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SaveMode
 import org.scalatest.{BeforeAndAfterAll, OptionValues}

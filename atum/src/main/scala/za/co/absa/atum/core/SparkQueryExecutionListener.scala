@@ -16,10 +16,10 @@
 package za.co.absa.atum.core
 
 import java.io.{PrintWriter, StringWriter}
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.execution.QueryExecution
+import org.apache.spark.sql.execution.datasources.{InsertIntoHadoopFsRelationCommand, SaveIntoDataSourceCommand}
 import org.apache.spark.sql.util.QueryExecutionListener
 import za.co.absa.atum.utils.{ExecutionPlanUtils, InfoFile}
 
@@ -29,15 +29,25 @@ import za.co.absa.atum.utils.{ExecutionPlanUtils, InfoFile}
 class SparkQueryExecutionListener(cf: ControlFrameworkState) extends QueryExecutionListener {
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
-    if (funcName == "save") {
+    def writeInfoFileCommon(qe: QueryExecution): Unit = {
       Atum.log.debug(s"SparkQueryExecutionListener.onSuccess: writing to Hadoop FS")
       writeInfoFileForQuery(qe)
 
       // Notify listeners
       cf.updateRunCheckpoints(saveInfoFile = true)
       cf.updateStatusSuccess()
-
       updateSplineRef(qe)
+    }
+
+    (funcName, qe.analyzed) match {
+      case ("save", _) => writeInfoFileCommon(qe) // < spark 3.1.x
+      case ("command", saveCommand)
+        if saveCommand.isInstanceOf[SaveIntoDataSourceCommand] || saveCommand.isInstanceOf[InsertIntoHadoopFsRelationCommand]  // spark 3.2+
+      => writeInfoFileCommon(qe)
+      case _ =>
+      // explanation: https://spark.apache.org/docs/latest/sql-migration-guide.html#upgrading-from-spark-sql-31-to-32
+      // "In Spark 3.2, the query executions triggered by DataFrameWriter are always named command when being sent
+      // to QueryExecutionListener. In Spark 3.1 and earlier, the name is one of save, insertInto, saveAsTable."
     }
   }
 
