@@ -16,28 +16,20 @@
 package za.co.absa.atum.utils
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.fs.permission.FsPermission
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import za.co.absa.atum.utils.OperatingSystem.OperatingSystems
 
-class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase { // with MiniDfsClusterBase {
+class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase {
 
-  /*override*/ def getConfiguration: Configuration = {
-    val cfg = new Configuration()
-    cfg.set("fs.permissions.umask-mode", "000")
-    cfg
-  }
-
-  implicit val fs: FileSystem = {
-    //val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
-    FileSystem.get(getConfiguration)
-  }
+  implicit val fs: FileSystem = FileSystem.get(spark.sparkContext.hadoopConfiguration)
 
   private val Content = "Testing Content"
 
   "HdfsFileUtils" should "write a file to HDFS (default permissions)" in {
+    assume(OperatingSystem.getCurrentOs != OperatingSystems.WINDOWS)
     val path = new Path("/tmp/hdfs-file-utils-test/def-perms.file")
 
     HdfsFileUtils.getInfoFilePermissionsFromConfig() shouldBe None // key not present, testing default =>
@@ -48,11 +40,13 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase { /
     fs.deleteOnExit(path)
   }
 
-  it should "write a file to HDFS (max permissions)" in {
+  it should "write a file to HDFS (max permissions 777 - default umask 022 -> 755)" in {
+    assume(OperatingSystem.getCurrentOs != OperatingSystems.WINDOWS)
+
     val path = new Path("/tmp/hdfs-file-utils-test/max-perms.file")
 
     val customConfig = ConfigFactory.empty()
-      .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("777"))
+      .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("755"))
     HdfsFileUtils.saveStringDataToFile(path, Content, HdfsFileUtils.getInfoFilePermissionsFromConfig(customConfig).get)
 
     fs.exists(path) shouldBe true
@@ -62,6 +56,8 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase { /
   }
 
   it should "write a file to HDFS (min permissions)" in {
+    assume(OperatingSystem.getCurrentOs != OperatingSystems.WINDOWS)
+
     val path = new Path("/tmp/hdfs-file-utils-test/min-perms.file")
     val customConfig = ConfigFactory.empty()
       .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("000"))
@@ -73,6 +69,8 @@ class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase { /
   }
 
   it should "write a file to HDFS (custom permissions)" in {
+    assume(OperatingSystem.getCurrentOs != OperatingSystems.WINDOWS)
+
     val path = new Path("/tmp/hdfs-file-utils-test/custom-perms.file")
     val customConfig = ConfigFactory.empty()
       .withValue("atum.hdfs.info.file.permissions", ConfigValueFactory.fromAnyRef("751"))
