@@ -25,7 +25,7 @@ object Dependencies {
     val json4s_spark3 = "3.7.0-M11"
 
     val hadoop2 = "2.8.5"
-    val hadoop3 = "3.2.2"
+    val hadoop3 = "3.3.2"
 
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
@@ -35,7 +35,7 @@ object Dependencies {
     val aws = "2.17.85"
 
     val jUnit = "4.11" // for hdfs minicluster
-    val apacheCommonsLang3 = "3.5"
+    val apacheCommonsLang3 = "3.12.0"
     val commonsConfiguration = "1.6"
   }
 

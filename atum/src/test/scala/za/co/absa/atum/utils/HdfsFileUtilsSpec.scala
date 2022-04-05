@@ -17,17 +17,22 @@ package za.co.absa.atum.utils
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.fs.permission.FsPermission
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase with MiniDfsClusterBase {
+class HdfsFileUtilsSpec extends AnyFlatSpec with Matchers with SparkTestBase { // with MiniDfsClusterBase {
 
-  override def getConfiguration: Configuration = {
+  /*override*/ def getConfiguration: Configuration = {
     val cfg = new Configuration()
     cfg.set("fs.permissions.umask-mode", "000")
     cfg
+  }
+
+  implicit val fs: FileSystem = {
+    //val hadoopConfiguration = spark.sparkContext.hadoopConfiguration
+    FileSystem.get(getConfiguration)
   }
 
   private val Content = "Testing Content"
