@@ -52,7 +52,7 @@ object SampleMeasurements1 extends Eventually {
       .write.mode(SaveMode.Overwrite)
       .parquet("data/output/stage1_job_results")
 
-    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+    eventually(timeout(scaled(20.seconds)), interval(scaled(500.millis))) {
       if (!fs.exists(new Path("data/output/stage1_job_results/_INFO"))) {
         throw new Exception("_INFO file not found at data/output/stage1_job_results")
       }

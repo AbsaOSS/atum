@@ -53,7 +53,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
     df.write.mode(SaveMode.Overwrite)
       .parquet(outputPath)
 
-    eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
+    eventually(timeout(scaled(20.seconds)), interval(scaled(500.millis))) {
       if (!Files.exists(Paths.get(outputPath))) {
         throw new Exception("_INFO file not found at " + outputPath)
       }
@@ -89,7 +89,7 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
         expectedPaths.foreach { expectedPath =>
           log.info(s"Checking $expectedPath to contain expected values")
 
-          val infoControlMeasures =  eventually(timeout(scaled(10.seconds)), interval(scaled(2.seconds))) {
+          val infoControlMeasures =  eventually(timeout(scaled(20.seconds)), interval(scaled(2.seconds))) {
             log.info(s"Reading $expectedPath")
             val infoContentJson = LocalFsTestUtils.readFileAsString(expectedPath)
             ControlMeasuresParser.fromJson(infoContentJson)
