@@ -28,13 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         scala: [ 2.11.12, 2.12.15 ]
-        spark: [ 2.4.8, 3.1.2 ]
-        exclude:
-          - scala: 2.11.12
-            spark: 3.1.2
-          - scala: 2.12.15
-            spark: 2.4.8
-    name: SBT Spark ${{matrix.spark}} on Scala ${{matrix.scala}}
+    name: SBT Scala ${{matrix.scala}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -46,6 +40,3 @@ jobs:
       - name: Build and run tests
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
         run: sbt ++${{matrix.scala}} test
-      - name: Build and run examples
-        if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
-        run: sbt ++${{matrix.scala}} examples/test s3sdkExamples/compile
