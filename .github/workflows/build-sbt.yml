@@ -40,3 +40,6 @@ jobs:
       - name: Build and run tests
         if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
         run: sbt ++${{matrix.scala}} test
+      - name: Build and run examples
+        if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
+        run: sbt ++${{matrix.scala}} examples/test
