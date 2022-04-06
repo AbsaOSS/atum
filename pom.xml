@@ -128,11 +128,10 @@
         <mockito.scala.version>1.15.0</mockito.scala.version>
         <commons.version>0.0.27</commons.version>
         <typesafe.config.version>1.4.1</typesafe.config.version>
-        <hadoop.version>2.8.5</hadoop.version>
 
         <!-- Spark versions -->
         <spark-24.version>2.4.8</spark-24.version>
-        <spark-31.version>3.1.2</spark-31.version>
+        <spark-32.version>3.2.1</spark-32.version>
 
         <spark.version>${spark-24.version}</spark.version>
 
@@ -342,10 +341,10 @@
             </properties>
         </profile>
         <profile>
-            <id>spark-3.1</id>
+            <id>spark-3.2</id>
             <properties>
-                <spark.version>${spark-31.version}</spark.version>
-                <json4s.version>3.7.0-M5</json4s.version>
+                <spark.version>${spark-32.version}</spark.version>
+                <json4s.version>3.7.0-M11</json4s.version>
             </properties>
         </profile>
 
