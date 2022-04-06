@@ -27,9 +27,6 @@ object Dependencies {
     val jackson_spark2 = "2.10.4"
     val jackson_spark3 = "2.12.6"
 
-    val hadoop2 = "2.8.5"
-    val hadoop3 = "3.2.2"
-
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
     val mockitoScala = "1.15.0"
@@ -37,7 +34,6 @@ object Dependencies {
     val specs2 = "2.5"
     val aws = "2.17.85"
 
-    val jUnit = "4.11" // for hdfs minicluster
     val apacheCommonsLang3 = "3.5"
     val commonsConfiguration = "1.6"
   }
@@ -84,11 +80,6 @@ object Dependencies {
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
 
-  val hadoopMinicluster = moduleByScala("org.apache.hadoop" % "hadoop-minicluster" % _ % Test)(Versions.hadoop2, Versions.hadoop3) _
-  val hadoopHdfs = moduleByScala("org.apache.hadoop" % "hadoop-hdfs" % _ % Test classifier "tests")(Versions.hadoop2, Versions.hadoop3) _
-  val hadoopComons = moduleByScala("org.apache.hadoop" % "hadoop-common" % _ % Test classifier "tests")(Versions.hadoop2, Versions.hadoop3) _
-  lazy val jUnit = "junit" % "junit" % Versions.jUnit % Test
-
   lazy val scalaTestProvided = "org.scalatest" %% "scalatest" % Versions.scalatest % Provided
   lazy val specs2core = "org.specs2" %% "specs2-core" % Versions.specs2 % Test
 
@@ -117,10 +108,6 @@ object Dependencies {
 
     mockitoScala,
     mockitoScalaScalatest,
-    hadoopMinicluster(scalaVersion),
-    hadoopHdfs(scalaVersion),
-    hadoopComons(scalaVersion),
-    jUnit
   )
 
   lazy val examplesDependencies: Seq[ModuleID] = Seq(
