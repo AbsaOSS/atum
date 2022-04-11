@@ -51,7 +51,6 @@ class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Match
 
     eventually(timeout(scaled(10.seconds)), interval(scaled(500.millis))) {
       if (!Files.exists(Paths.get(outputPath)) || implicitPath.exists(x => !Files.exists(Paths.get(x)))) {
-      // if (!Files.exists(Paths.get(outputPath))) {
         throw new Exception("_INFO file not found at " + outputPath)
       }
     }

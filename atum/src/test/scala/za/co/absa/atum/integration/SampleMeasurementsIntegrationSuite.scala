@@ -41,7 +41,6 @@ class SampleMeasurementsIntegrationSuite extends AnyFlatSpec with Matchers with 
 
   import spark.implicits._ // $"interpolation"
 
-//  val inputPath = "src/test/resources/data/input"
   val outputPath = "src/test/resources/data/output"
 
   override def beforeAll() {
