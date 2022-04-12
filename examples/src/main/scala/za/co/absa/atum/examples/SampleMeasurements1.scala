@@ -42,8 +42,6 @@ object SampleMeasurements1 extends Eventually {
     // Initializing library to hook up to Apache Spark
     val inputCsvInfo = this.getClass.getResource("/input/wikidata.csv.info").toString // path from test resources
 
-    println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    println(inputCsvInfo)
 
     spark
       .enableControlMeasuresTracking(Some(inputCsvInfo), None)
