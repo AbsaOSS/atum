@@ -96,10 +96,6 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     val processor = new MeasurementProcessor(measurementsIntOferflow)
     val newMeasurements = processor.measureDataset(df)
 
-    println(newMeasurements)
-
-    println(measurementsIntOferflow)
-
     assert(newMeasurements == measurementsIntOferflow)
   }
 

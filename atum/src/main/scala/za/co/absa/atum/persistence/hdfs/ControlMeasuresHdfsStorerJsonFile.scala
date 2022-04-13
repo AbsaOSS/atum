@@ -4,6 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,7 +25,8 @@ import za.co.absa.atum.utils.HdfsFileUtils
 case class ControlMeasuresHdfsStorerJsonFile(path: Path)(implicit val outputFs: FileSystem) extends HadoopFsControlMeasuresStorer {
   override def store(controlInfo: ControlMeasure): Unit = {
     val serialized =  ControlMeasuresParser asJson controlInfo
-    HdfsFileUtils.saveStringDataToFile(path, serialized)
+    HdfsFileUtils.saveStringDataToFile(path, serialized,
+      HdfsFileUtils.getInfoFilePermissionsFromConfig().getOrElse(HdfsFileUtils.DefaultFilePermissions))
   }
 
   override def getInfo: String = {
