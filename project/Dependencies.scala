@@ -30,6 +30,7 @@ object Dependencies {
     val scalatest = "3.2.9"
     val specs2 = "2.5"
     val aws = "2.17.85"
+    val jacksonModuleScala = "2.10.4"
 
     val apacheCommonsLang3 = "3.12.0"
     val commonsConfiguration = "1.6"
@@ -72,6 +73,8 @@ object Dependencies {
   lazy val apacheCommons = "org.apache.commons" % "commons-lang3" % Versions.apacheCommonsLang3
   lazy val typeSafeConfig = "com.typesafe" % "config" % Versions.typesafeConfig
 
+  lazy val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jacksonModuleScala
+
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
 
@@ -90,7 +93,8 @@ object Dependencies {
   def modelDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
     json4sCore(scalaVersion),
     json4sJackson(scalaVersion),
-    json4sNative(scalaVersion)
+    json4sNative(scalaVersion),
+    jacksonModuleScala
   )
 
   def coreDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
