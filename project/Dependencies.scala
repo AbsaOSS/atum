@@ -58,15 +58,36 @@ object Dependencies {
     }
   }
 
-  val sparkCore = moduleByScala("org.apache.spark" %% "spark-core" % _ % Provided)(Versions.spark2, Versions.spark3) _
-  val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3) _
+
+  // extended version where to moduleId Fn takes 2 params: module version and scala version (to pass along)
+  def moduleByScalaUsingScalaVersion(moduleIdWithoutVersionNeedsScalaVersion: (String, String) => ModuleID)
+                                    (scala211Version: String, scala212Version: String)
+                                    (actualScalaVersion: String): ModuleID = {
+    actualScalaVersion match {
+      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersionNeedsScalaVersion.apply(scala211Version, actualScalaVersion)
+      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersionNeedsScalaVersion.apply(scala212Version, actualScalaVersion)
+      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+    }
+  }
+
+
+  lazy val sparkCore = {
+    def coreWithExcludes(version: String, scalaVersion: String): ModuleID = "org.apache.spark" %% "spark-core" % version % Provided exclude(
+      "com.fasterxml.jackson.core", "jackson-databind"
+    ) exclude(
+      "com.fasterxml.jackson.module", "jackson-module-scala_" + scalaVersion.substring(0, 4)  // e.g. 2.11
+    )
+    moduleByScalaUsingScalaVersion(coreWithExcludes)(Versions.spark2, Versions.spark3) _
+  }
+
+  lazy val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3) _
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalatest % Test
 
-  val json4sExt = moduleByScala("org.json4s" %% "json4s-ext" % _)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3)_
+  lazy val json4sExt = moduleByScala("org.json4s" %% "json4s-ext" % _)(Versions.json4s_spark2, Versions.json4s_spark3) _
+  lazy val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
+  lazy val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
+  lazy val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % Versions.commonsConfiguration
