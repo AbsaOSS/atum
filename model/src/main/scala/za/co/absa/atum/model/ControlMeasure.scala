@@ -58,7 +58,11 @@ case class ControlMeasure
           val newMetadata = this.metadata.copy(additionalInfo = newInfo)
           this.copy(metadata = newMetadata)
         }
+        else {
+          this
+        }
+      case _ =>
+        this
     }
-    this
   }
 }
