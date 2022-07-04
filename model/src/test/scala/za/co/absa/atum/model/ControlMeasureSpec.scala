@@ -56,11 +56,27 @@ class ControlMeasureSpec extends org.scalatest.flatspec.AnyFlatSpec with Matcher
   "ControlMeasure" should "allow to add new metadata.additionalInfo field" in {
     val cm = getTestingControlMeasure(0)
 
-    val updatedCm = cm.setAdditionalInfo(("Some", "Metadata"), replaceIfExists = true)
+    val updatedCm = cm.setAdditionalInfo(("Some", "Metadata"), replaceIfExists = false)
 
     val expectedCm: ControlMeasure = ControlMeasure(
       ControlMeasureMetadata(
         "AtumTest", "CZ", "Snapshot", "example_input.csv", "public", 1, "01-01-2020", Map("Some" -> "Metadata")
+      ),
+      runUniqueId = None,
+      checkpoints = List()
+    )
+
+    updatedCm shouldBe expectedCm
+  }
+
+  "ControlMeasure" should "allow to not overwrite existing metadata.additionalInfo field" in {
+    val cm = getTestingControlMeasure(0, Map("Some" -> "MetadataOld"))
+
+    val updatedCm = cm.setAdditionalInfo(("Some", "MetadataNew"), replaceIfExists = false)
+
+    val expectedCm: ControlMeasure = ControlMeasure(
+      ControlMeasureMetadata(
+        "AtumTest", "CZ", "Snapshot", "example_input.csv", "public", 1, "01-01-2020", Map("Some" -> "MetadataOld")
       ),
       runUniqueId = None,
       checkpoints = List()
