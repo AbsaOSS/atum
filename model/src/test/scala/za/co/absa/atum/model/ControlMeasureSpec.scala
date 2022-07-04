@@ -53,7 +53,7 @@ class ControlMeasureSpec extends org.scalatest.flatspec.AnyFlatSpec with Matcher
     updatedCm.checkpoints.tail.map(_.order) shouldBe Seq(2,3) // existing order shifted back
   }
 
-  "ControlMeasure" should "allow to add new metadata -> additionalInfo field" in {
+  "ControlMeasure" should "allow to add new metadata.additionalInfo field" in {
     val cm = getTestingControlMeasure(0)
 
     val updatedCm = cm.setAdditionalInfo(("Some", "Metadata"), replaceIfExists = true)
@@ -69,7 +69,7 @@ class ControlMeasureSpec extends org.scalatest.flatspec.AnyFlatSpec with Matcher
     updatedCm shouldBe expectedCm
   }
 
-  "ControlMeasure" should "allow to change existing metadata -> additionalInfo field" in {
+  "ControlMeasure" should "allow to change existing metadata.additionalInfo field" in {
     val cm = getTestingControlMeasure(0, Map("Some" -> "MetadataOld"))
 
     val updatedCm = cm.setAdditionalInfo(("Some", "MetadataNew"), replaceIfExists = true)
