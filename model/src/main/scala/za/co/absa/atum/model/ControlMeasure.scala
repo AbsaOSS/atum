@@ -41,4 +41,24 @@ case class ControlMeasure
     this.copy(checkpoints = checkpoint1 :: shiftedCheckpoints)
 
   }
+
+  /**
+   * Adds a key-value pair as an additional information stored in the metadata.
+   *
+   * @param kv a tuple containing key-value pair that will be added into metadata -> additionalInfo Map.
+   * @param replaceIfExists if the 'key' specified in 'kv' parameter already exist in the
+   *                        metadata -> additionalInfo Map, then this parameter will decide whether
+   *                        the value in this Map will be overwritten or no.
+   */
+  def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean): ControlMeasure = {
+    kv match {
+      case (key, _) =>
+        if (replaceIfExists || !this.metadata.additionalInfo.contains(kv._1)) {
+          val newInfo = this.metadata.additionalInfo + kv
+          val newMetadata = this.metadata.copy(additionalInfo = newInfo)
+          this.copy(metadata = newMetadata)
+        }
+    }
+    this
+  }
 }
