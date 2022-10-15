@@ -89,7 +89,7 @@ class Accumulator() {
 
   /** Adds a key-value pair as an additional information stored in the metadata. */
   def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean): Unit = {
-    controlMeasure.setAdditionalInfo(kv, replaceIfExists)
+    controlMeasure = controlMeasure.setAdditionalInfo(kv, replaceIfExists)
   }
 
   /** The method returns Control Info object as a Json string. */
