@@ -19,18 +19,20 @@ object Dependencies {
 
   object Versions {
     val spark2 = "2.4.8"
-    val spark3 = "3.2.1"
+    val spark3 = "3.2.2"
 
     val json4s_spark2 = "3.5.3"
     val json4s_spark3 = "3.7.0-M11"
 
+    val jacksonModuleScala_spark2 = "2.10.4"
+    val jacksonModuleScala_spark3 = "2.12.3"
+
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
-    val mockitoScala = "1.15.0"
+    val mockitoScala = "1.17.12"
     val scalatest = "3.2.9"
     val specs2 = "2.5"
     val aws = "2.17.85"
-    val jacksonModuleScala = "2.10.4"
 
     val apacheCommonsLang3 = "3.12.0"
     val commonsConfiguration = "1.6"
@@ -89,12 +91,12 @@ object Dependencies {
   lazy val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
   lazy val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
 
+  lazy val jacksonModuleScala = moduleByScala("com.fasterxml.jackson.module" %% "jackson-module-scala" % _)(Versions.jacksonModuleScala_spark2, Versions.jacksonModuleScala_spark3) _
+
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % Versions.commonsConfiguration
   lazy val apacheCommons = "org.apache.commons" % "commons-lang3" % Versions.apacheCommonsLang3
   lazy val typeSafeConfig = "com.typesafe" % "config" % Versions.typesafeConfig
-
-  lazy val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jacksonModuleScala
 
   lazy val mockitoScala = "org.mockito" %% "mockito-scala" % Versions.mockitoScala % Test
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
@@ -115,7 +117,7 @@ object Dependencies {
     json4sCore(scalaVersion),
     json4sJackson(scalaVersion),
     json4sNative(scalaVersion),
-    jacksonModuleScala
+    jacksonModuleScala(scalaVersion)
   )
 
   def coreDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
