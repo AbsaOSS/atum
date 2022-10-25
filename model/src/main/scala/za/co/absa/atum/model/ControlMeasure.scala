@@ -52,10 +52,10 @@ case class ControlMeasure
    */
   def setAdditionalInfo(kv: (String, String), replaceIfExists: Boolean): ControlMeasure = {
     kv match {
-      case (key, _) if replaceIfExists || !this.metadata.additionalInfo.contains(kv._1) =>
-          val newInfo = this.metadata.additionalInfo + kv
-          val newMetadata = this.metadata.copy(additionalInfo = newInfo)
-          this.copy(metadata = newMetadata)
+      case (key, _) if replaceIfExists || !this.metadata.additionalInfo.contains(key) =>
+        val newInfo = metadata.additionalInfo + kv
+        val newMetadata = metadata.copy(additionalInfo = newInfo)
+        copy(metadata = newMetadata)
       case _ =>
         this
     }

@@ -28,10 +28,10 @@ jobs:
       fail-fast: false
       matrix:
         scala: [ 2.11.12, 2.12.15 ]
-        spark: [ 2.4.8, 3.2.1 ]
+        spark: [ 2.4.8, 3.2.2 ]
         exclude:
           - scala: 2.11.12
-            spark: 3.2.1
+            spark: 3.2.2
           - scala: 2.12.15
             spark: 2.4.8
     name: SBT Spark ${{matrix.spark}} on Scala ${{matrix.scala}}
