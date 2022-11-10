@@ -45,6 +45,15 @@ lazy val parent = (project in file("."))
     // TODO no assembly needed here?
   )
 
+lazy val jacocoModelReportSettings = Seq(
+  jacocoReportSettings := JacocoReportSettings(
+    s"atum:model Jacoco Report",
+    None,
+    JacocoThresholds(),
+    Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+    "utf-8")
+)
+
 lazy val model = project // no need to define file, because path is same as val name
   .settings(
     name := "atum-model",
@@ -53,6 +62,20 @@ lazy val model = project // no need to define file, because path is same as val 
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy
   )
+  .settings(jacocoModelReportSettings: _*)
+
+lazy val jacocoCoreReportSettings = Seq(
+  jacocoReportSettings := JacocoReportSettings(
+    s"atum:core Jacoco Report",
+    None,
+    JacocoThresholds(),
+    Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+    "utf-8"),
+  jacocoExcludes := Seq(
+//    "za.co.absa.atum.core.ControlType.DistinctCount*", // class and related objects
+//    "za.co.absa.atum.core.ControlFrameworkState" // class only
+  )
+)
 
 lazy val core = (project in file("atum"))
   .settings(
@@ -62,7 +85,18 @@ lazy val core = (project in file("atum"))
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy,
     populateBuildInfoTemplate // to get correct replacements for ${project.artifactId} and ${project.version} in atum_build.properties,
-  ).dependsOn(model)
+  )
+  .settings(jacocoCoreReportSettings)
+  .dependsOn(model)
+
+lazy val jacocos3SDKExtReportSettings = Seq(
+  jacocoReportSettings := JacocoReportSettings(
+    s"atum:s3sdkExtension Jacoco Report",
+    None,
+    JacocoThresholds(),
+    Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+    "utf-8")
+)
 
 lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
   .settings(
@@ -73,9 +107,20 @@ lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy
   )
+  .settings(jacocos3SDKExtReportSettings: _*)
   .dependsOn(core)
 
+lazy val jacocoExamplesReportSettings = Seq(
+  jacocoReportSettings := JacocoReportSettings(
+    s"atum:examples Jacoco Report",
+    None,
+    JacocoThresholds(),
+    Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+    "utf-8")
+)
+
 lazy val examples = (project in file("examples"))
+  .settings(jacocoExamplesReportSettings: _*)
   .settings(
     name := "examples",
     libraryDependencies ++= (rootDependencies(scalaVersion.value) ++ examplesDependencies),
@@ -83,7 +128,17 @@ lazy val examples = (project in file("examples"))
     Test / parallelExecution := false, // Atum Control framework could attempt to double-initialize and fail
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy
-  ).dependsOn(core)
+  )
+  .dependsOn(core)
+
+lazy val jacocoS3sdkExamplesReportSettings = Seq(
+  jacocoReportSettings := JacocoReportSettings(
+    s"atum:s3sdkExamples Jacoco Report",
+    None,
+    JacocoThresholds(),
+    Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+    "utf-8")
+)
 
 lazy val s3sdkExamples = (project in file("examples-s3-sdk-extension"))
   .settings(
@@ -94,6 +149,7 @@ lazy val s3sdkExamples = (project in file("examples-s3-sdk-extension"))
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy,
   )
+  .settings(jacocoS3sdkExamplesReportSettings: _*)
   .dependsOn(s3sdkExtension, examples)
 
 val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {

@@ -426,3 +426,16 @@ on business requirements. This table represents all currently supported measurem
 | controlType.aggregatedTotal    | Calculates SUM() of the specified column              |
 | controlType.absAggregatedTotal | Calculates SUM(ABS()) of the specified column         |
 | controlType.HashCrc32          | Calculates SUM(CRC32()) of the specified column       |
+
+## How to generate Code coverage report
+```sbt
+sbt jacoco 
+```
+For example modules:
+```sbt
+sbt examples/jacoco s3sdkExamples/jacoco
+```
+Code coverage will be generated on path:
+```
+{local-path}\atum\{module}\target\scala-2.XY\jacoco\report\html
+```
