@@ -429,7 +429,7 @@ on business requirements. This table represents all currently supported measurem
 
 ## How to generate Code coverage report
 ```sbt
-sbt jacoco 
+sbt jacoco
 ```
 For example modules:
 ```sbt
@@ -437,5 +437,5 @@ sbt examples/jacoco s3sdkExamples/jacoco
 ```
 Code coverage will be generated on path:
 ```
-{local-path}\atum\{module}\target\scala-2.XY\jacoco\report\html
+{project-root}/atum/{module}/target/scala-{scala_version}/jacoco/report/html
 ```
