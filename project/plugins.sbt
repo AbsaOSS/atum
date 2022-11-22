@@ -19,4 +19,6 @@ addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.6.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2") // formerly known as com.jsuereth:sbt-pgp
 
+addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
+
 addDependencyTreePlugin
