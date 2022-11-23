@@ -49,7 +49,6 @@ build.log
 .hg*
 
 .cache*
-dependency-reduced-pom.xml
 
 _testOutput
 myTestCheckpoints
@@ -60,6 +59,5 @@ examples/data/output
 #  ^\.pc/
 /examples-s3-sdk-extension/data/output_s3/
 
-pom.xml.bkp
 /data/
 .bsp
