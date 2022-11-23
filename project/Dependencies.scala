@@ -24,8 +24,10 @@ object Dependencies {
     val json4s_spark2 = "3.5.3"
     val json4s_spark3 = "3.7.0-M11"
 
-    val jacksonModuleScala_spark2 = "2.10.4"
-    val jacksonModuleScala_spark3 = "2.12.3"
+    val jacksonModuleScala_spark2 = "2.12.7"
+    val jacksonModuleScala_spark3 = "2.14.1"
+    val jacksonDatabind_spark2 = "2.12.7.1" // databind has extra extra patch for this version - for Spark2
+    val jacksonDatabind_spark3 = jacksonModuleScala_spark3 // for Spark3 - latest version is ok
 
     val absaCommons = "0.0.27"
     val typesafeConfig = "1.4.1"
@@ -92,6 +94,7 @@ object Dependencies {
   lazy val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
 
   lazy val jacksonModuleScala = moduleByScala("com.fasterxml.jackson.module" %% "jackson-module-scala" % _)(Versions.jacksonModuleScala_spark2, Versions.jacksonModuleScala_spark3) _
+  lazy val jacksonDatabind = moduleByScala("com.fasterxml.jackson.core" % "jackson-databind" % _)(Versions.jacksonDatabind_spark2, Versions.jacksonDatabind_spark3) _
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % Versions.commonsConfiguration
@@ -117,7 +120,8 @@ object Dependencies {
     json4sCore(scalaVersion),
     json4sJackson(scalaVersion),
     json4sNative(scalaVersion),
-    jacksonModuleScala(scalaVersion)
+    jacksonModuleScala(scalaVersion),
+    jacksonDatabind(scalaVersion)
   )
 
   def coreDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
