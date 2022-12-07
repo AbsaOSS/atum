@@ -13,4 +13,4 @@
  * limitations under the License.
  */
 
-ThisBuild / version := "3.8.4-SNAPSHOT"
+ThisBuild / version := "3.9.0"
