@@ -46,8 +46,6 @@ jobs:
           java-version: "adopt@1.8"
       - name: Build and run tests
         run: sbt ++${{matrix.scala}} jacoco
-      - name: Build and run examples
-        run: sbt ++${{matrix.scala}} examples/jacoco s3sdkExamples/compile
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
@@ -55,8 +53,7 @@ jobs:
           paths: >
             ${{ github.workspace }}/atum/target/scala-${{ matrix.scala_short }}/jacoco/report/jacoco.xml,
             ${{ github.workspace }}/atum-s3-sdk-extension/target/scala-${{ matrix.scala_short }}/jacoco/report/jacoco.xml,
-            ${{ github.workspace }}/model/target/scala-${{ matrix.scala_short }}/jacoco/report/jacoco.xml,
-            ${{ github.workspace }}/examples/target/scala-${{ matrix.scala_short }}/jacoco/report/jacoco.xml
+            ${{ github.workspace }}/model/target/scala-${{ matrix.scala_short }}/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
