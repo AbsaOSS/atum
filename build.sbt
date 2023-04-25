@@ -64,9 +64,9 @@ lazy val model = project // no need to define file, because path is same as val 
     mergeStrategy
   )
   .settings(
-    jacocoReportSettings := commonJacocoReportSettings.withTitle("atum:model Jacoco Report"),
+    jacocoReportSettings := commonJacocoReportSettings.withTitle(s"atum:model Jacoco Report - scala:${scalaVersion.value}"),
     jacocoExcludes := commonJacocoExcludes ++ Seq(
-//      "za.co.absa.atum.core.ControlFrameworkState" // extra exclude example
+      "za.co.absa.atum.core.ControlFrameworkState" // extra exclude example
     )
   )
 
@@ -80,7 +80,7 @@ lazy val core = (project in file("atum"))
     populateBuildInfoTemplate // to get correct replacements for ${project.artifactId} and ${project.version} in atum_build.properties,
   )
   .settings(
-    jacocoReportSettings := commonJacocoReportSettings.withTitle("atum:core Jacoco Report"),
+    jacocoReportSettings := commonJacocoReportSettings.withTitle(s"atum:core Jacoco Report - scala:${scalaVersion.value}"),
     jacocoExcludes := commonJacocoExcludes
   )
   .dependsOn(model)
@@ -95,7 +95,7 @@ lazy val s3sdkExtension = (project in file("atum-s3-sdk-extension"))
     mergeStrategy
   )
   .settings(
-    jacocoReportSettings := commonJacocoReportSettings.withTitle("atum:s3sdkExtension Jacoco Report"),
+    jacocoReportSettings := commonJacocoReportSettings.withTitle(s"atum:s3sdkExtension Jacoco Report - scala:${scalaVersion.value}"),
     jacocoExcludes := commonJacocoExcludes
   )
   .dependsOn(core)
@@ -109,6 +109,10 @@ lazy val examples = (project in file("examples"))
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy
   )
+  .settings(
+    jacocoReportSettings := commonJacocoReportSettings.withTitle(s"atum:examples Jacoco Report - scala:${scalaVersion.value}"),
+    jacocoExcludes := commonJacocoExcludes
+  )
   .dependsOn(core)
 
 lazy val s3sdkExamples = (project in file("examples-s3-sdk-extension"))
@@ -119,6 +123,10 @@ lazy val s3sdkExamples = (project in file("examples-s3-sdk-extension"))
     assembly / test := {}, // skipping tests for s3sdk, because one needs specific setup to run it (intent: run manually)
     (Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value, // printSparkScalaVersion is run with compile
     mergeStrategy,
+  )
+  .settings(
+    jacocoReportSettings := commonJacocoReportSettings.withTitle(s"atum:s3sdkExamples Jacoco Report - scala:${scalaVersion.value}"),
+    jacocoExcludes := commonJacocoExcludes
   )
   .dependsOn(s3sdkExtension, examples)
 
