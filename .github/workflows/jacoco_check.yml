@@ -53,10 +53,10 @@ jobs:
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: >
-            ${{ github.workspace }}/atum/target/scala-${{ matrix.scala_2_11 }}/jacoco/report/jacoco.xml,
-            ${{ github.workspace }}/atum-s3-sdk-extension/target/scala-${{ matrix.scala_2_11 }}/jacoco/report/jacoco.xml,
-            ${{ github.workspace }}/model/target/scala-${{ matrix.scala_2_11 }}/jacoco/report/jacoco.xml,
-            ${{ github.workspace }}/examples/target/scala-${{ matrix.scala_2_11 }}/jacoco/report/jacoco.xml
+            ${{ github.workspace }}/atum/target/scala-${{ matrix.scala }}/jacoco/report/jacoco.xml,
+            ${{ github.workspace }}/atum-s3-sdk-extension/target/scala-${{ matrix.scala }}/jacoco/report/jacoco.xml,
+            ${{ github.workspace }}/model/target/scala-${{ matrix.scala }}/jacoco/report/jacoco.xml,
+            ${{ github.workspace }}/examples/target/scala-${{ matrix.scala }}/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
