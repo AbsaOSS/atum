@@ -37,7 +37,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
       )
     ))
 
-  val measurementsIntOverflow = List(
+  val measurementsIntOverflow: Seq[Measurement] = List(
     Measurement(
       controlName = "RecordCount",
       controlType = ControlType.Count.value,
@@ -112,7 +112,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     assert(newMeasurements == measurementsIntOverflow)
   }
 
-  val measurementsAggregation = List(
+  val measurementsAggregation: Seq[Measurement] = List(
     Measurement(
       controlName = "RecordCount",
       controlType = ControlType.Count.value,
@@ -304,7 +304,7 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     assert(newMeasurements == measurements3)
   }
 
-  val measurementsWithHash = List(
+  val measurementsWithHash: Seq[Measurement] = List(
     Measurement(
       controlName = "RecordCount",
       controlType = ControlType.Count.value,
@@ -392,6 +392,36 @@ class ControlMeasurementsSpec extends AnyFlatSpec with Matchers with SparkTestBa
     val newMeasurements = processor.measureDataset(df)
 
     assert(newMeasurements == measurementsAggregationShort)
+  }
+
+  val measurementsAggregatedTruncTotal: Seq[Measurement] = List(
+    Measurement(
+      controlName = "aggregatedTruncTotal",
+      controlType = "aggregatedTruncTotal",
+      controlCol = "price",
+      controlValue = "999"
+    ),
+    Measurement(
+      controlName = "absAggregatedTruncTotal",
+      controlType = "absAggregatedTruncTotal",
+      controlCol = "price",
+      controlValue = "2999"
+    )
+  )
+
+  "aggregatedTruncTotal types" should "return truncated sum of values" in {
+    val inputDataJson = spark.sparkContext.parallelize(
+      s"""{"id": ${Long.MaxValue}, "price": -1000.000001, "order": { "orderid": 1, "items": 1 } } """ ::
+        s"""{"id": ${Long.MinValue}, "price": 1000.9, "order": { "orderid": -1, "items": -1 } } """ ::
+        s"""{"id": ${Long.MinValue}, "price": 999.999999, "order": { "orderid": -1, "items": -1 } } """ ::Nil)
+    val df = spark.read
+      .schema(schema)
+      .json(inputDataJson.toDS)
+
+    val processor = new MeasurementProcessor(measurementsAggregatedTruncTotal)
+    val newMeasurements = processor.measureDataset(df)
+
+    assert(newMeasurements == measurementsAggregatedTruncTotal)
   }
 
 }
