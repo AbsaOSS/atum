@@ -61,6 +61,16 @@ object MeasurementProcessor {
             .agg(sum(col(aggColName))).collect()(0)(0)
           if (v == null) "" else v.toString
         }
+      case AggregatedTruncTotal =>
+        (ds: Dataset[Row]) => {
+          val aggCol = sum(col(valueColumnName).cast(LongType))
+          aggregateColumn(ds, controlCol, aggCol)
+        }
+      case AbsAggregatedTruncTotal =>
+        (ds: Dataset[Row]) => {
+          val aggCol = sum(abs(col(valueColumnName).cast(LongType)))
+          aggregateColumn(ds, controlCol, aggCol)
+        }
     }
   }
 

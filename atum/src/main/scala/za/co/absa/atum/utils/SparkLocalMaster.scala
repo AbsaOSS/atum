@@ -22,4 +22,5 @@ trait SparkLocalMaster {
   // in order to runSampleMeasuremts as tests, otherwise
   // java.lang.IllegalArgumentException: System memory 259522560 must be at least 471859200... is thrown
   System.getProperties.setProperty("spark.testing.memory", (1024*1024*1024).toString) // 1g
+  System.getProperties.setProperty("spark.app.name", "unit-test")
 }

@@ -22,9 +22,12 @@ object ControlType {
   case object DistinctCount extends ControlType("distinctCount", false)
   case object AggregatedTotal extends ControlType("aggregatedTotal", true)
   case object AbsAggregatedTotal extends ControlType("absAggregatedTotal", true)
+  case object AggregatedTruncTotal extends ControlType("aggregatedTruncTotal", true)
+  case object AbsAggregatedTruncTotal extends ControlType("absAggregatedTruncTotal", true)
   case object HashCrc32 extends ControlType("hashCrc32", false)
 
-  val values: Seq[ControlType] = Seq(Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal, HashCrc32)
+  val values: Seq[ControlType] = Seq(Count, DistinctCount, AggregatedTotal, AbsAggregatedTotal,
+    AggregatedTruncTotal, AbsAggregatedTruncTotal, HashCrc32)
   val valueNames: Seq[String] = values.map(_.value)
 
   def getNormalizedValueName(input: String): String = {
