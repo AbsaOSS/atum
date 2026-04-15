@@ -37,6 +37,11 @@ jobs:
             spark: 3.2.2
             overall: 0.0
             changed: 80.0
+          - scala: 2.13.14
+            scala_short: 2.13
+            spark: 3.2.2
+            overall: 0.0
+            changed: 80.0
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
