@@ -20,20 +20,23 @@ object Dependencies {
   object Versions {
     val spark2 = "2.4.8"
     val spark3 = "3.2.2"
+    val spark3_213 = "3.5.1"
 
     val json4s_spark2 = "3.5.3"
     val json4s_spark3 = "3.7.0-M11"
+    val json4s_spark3_213 = json4s_spark3
 
     val jacksonModuleScala_spark2 = "2.12.7"
     val jacksonModuleScala_spark3 = "2.14.1"
+    val jacksonModuleScala_spark3_213 = jacksonModuleScala_spark3
     val jacksonDatabind_spark2 = "2.12.7.1" // databind has extra extra patch for this version - for Spark2
     val jacksonDatabind_spark3 = jacksonModuleScala_spark3 // for Spark3 - latest version is ok
+    val jacksonDatabind_spark3_213 = jacksonModuleScala_spark3_213
 
-    val absaCommons = "0.0.27"
+    val absaCommons = "2.0.4"
     val typesafeConfig = "1.4.1"
     val mockitoScala = "1.17.12"
     val scalatest = "3.2.9"
-    val specs2 = "2.5"
     val aws = "2.17.85"
 
     val apacheCommonsLang3 = "3.12.0"
@@ -47,33 +50,34 @@ object Dependencies {
     scalaVersion match {
       case _ if scalaVersion.startsWith("2.11") => Versions.spark2
       case _ if scalaVersion.startsWith("2.12") => Versions.spark3
-      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+      case _ if scalaVersion.startsWith("2.13") => Versions.spark3_213
+      case _ => throw new IllegalArgumentException("Only Scala 2.11, 2.12 and 2.13 are currently supported.")
     }
   }
 
-  // general wrapper to simplify s2.11/2.12 version assigning
+  // general wrapper to simplify s2.11/2.12/2.13 version assigning
   def moduleByScala(moduleIdWithoutVersion: String => ModuleID)
-                   (scala211Version: String, scala212Version: String)
+                   (scala211Version: String, scala212Version: String, scala213Version: String)
                    (actualScalaVersion: String): ModuleID = {
     actualScalaVersion match {
-      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersion.apply(scala211Version)
-      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersion.apply(scala212Version)
-      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersion(scala211Version)
+      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersion(scala212Version)
+      case _ if actualScalaVersion.startsWith("2.13") => moduleIdWithoutVersion(scala213Version)
+      case _ => throw new IllegalArgumentException("Only Scala 2.11, 2.12 and 2.13 are currently supported.")
     }
   }
-
 
   // extended version where to moduleId Fn takes 2 params: module version and scala version (to pass along)
   def moduleByScalaUsingScalaVersion(moduleIdWithoutVersionNeedsScalaVersion: (String, String) => ModuleID)
-                                    (scala211Version: String, scala212Version: String)
+                                    (scala211Version: String, scala212Version: String, scala213Version: String)
                                     (actualScalaVersion: String): ModuleID = {
     actualScalaVersion match {
-      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersionNeedsScalaVersion.apply(scala211Version, actualScalaVersion)
-      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersionNeedsScalaVersion.apply(scala212Version, actualScalaVersion)
-      case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+      case _ if actualScalaVersion.startsWith("2.11") => moduleIdWithoutVersionNeedsScalaVersion(scala211Version, actualScalaVersion)
+      case _ if actualScalaVersion.startsWith("2.12") => moduleIdWithoutVersionNeedsScalaVersion(scala212Version, actualScalaVersion)
+      case _ if actualScalaVersion.startsWith("2.13") => moduleIdWithoutVersionNeedsScalaVersion(scala213Version, actualScalaVersion)
+      case _ => throw new IllegalArgumentException("Only Scala 2.11, 2.12 and 2.13 are currently supported.")
     }
   }
-
 
   lazy val sparkCore = {
     def coreWithExcludes(version: String, scalaVersion: String): ModuleID = "org.apache.spark" %% "spark-core" % version % Provided exclude(
@@ -81,20 +85,20 @@ object Dependencies {
     ) exclude(
       "com.fasterxml.jackson.module", "jackson-module-scala_" + scalaVersion.substring(0, 4)  // e.g. 2.11
     )
-    moduleByScalaUsingScalaVersion(coreWithExcludes)(Versions.spark2, Versions.spark3) _
+    moduleByScalaUsingScalaVersion(coreWithExcludes)(Versions.spark2, Versions.spark3, Versions.spark3_213) _
   }
 
-  lazy val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3) _
+  lazy val sparkSql = moduleByScala("org.apache.spark" %% "spark-sql" % _ % Provided)(Versions.spark2, Versions.spark3, Versions.spark3_213) _
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalatest % Test
 
-  lazy val json4sExt = moduleByScala("org.json4s" %% "json4s-ext" % _)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  lazy val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  lazy val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
-  lazy val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3) _
+  lazy val json4sExt = moduleByScala("org.json4s" %% "json4s-ext" % _)(Versions.json4s_spark2, Versions.json4s_spark3, Versions.json4s_spark3_213) _
+  lazy val json4sCore = moduleByScala("org.json4s" %% "json4s-core" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3, Versions.json4s_spark3_213) _
+  lazy val json4sJackson = moduleByScala("org.json4s" %% "json4s-jackson" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3, Versions.json4s_spark3_213) _
+  lazy val json4sNative = moduleByScala("org.json4s" %% "json4s-native" % _ % Provided)(Versions.json4s_spark2, Versions.json4s_spark3, Versions.json4s_spark3_213) _
 
-  lazy val jacksonModuleScala = moduleByScala("com.fasterxml.jackson.module" %% "jackson-module-scala" % _)(Versions.jacksonModuleScala_spark2, Versions.jacksonModuleScala_spark3) _
-  lazy val jacksonDatabind = moduleByScala("com.fasterxml.jackson.core" % "jackson-databind" % _)(Versions.jacksonDatabind_spark2, Versions.jacksonDatabind_spark3) _
+  lazy val jacksonModuleScala = moduleByScala("com.fasterxml.jackson.module" %% "jackson-module-scala" % _)(Versions.jacksonModuleScala_spark2, Versions.jacksonModuleScala_spark3, Versions.jacksonModuleScala_spark3_213) _
+  lazy val jacksonDatabind = moduleByScala("com.fasterxml.jackson.core" % "jackson-databind" % _)(Versions.jacksonDatabind_spark2, Versions.jacksonDatabind_spark3, Versions.jacksonDatabind_spark3_213) _
 
   lazy val absaCommons = "za.co.absa.commons" %% "commons" % Versions.absaCommons
   lazy val commonsConfiguration = "commons-configuration" % "commons-configuration" % Versions.commonsConfiguration
@@ -105,8 +109,6 @@ object Dependencies {
   lazy val mockitoScalaScalatest = "org.mockito" %% "mockito-scala-scalatest" % Versions.mockitoScala % Test
 
   lazy val scalaTestProvided = "org.scalatest" %% "scalatest" % Versions.scalatest % Provided
-  lazy val specs2core = "org.specs2" %% "specs2-core" % Versions.specs2 % Test
-
   lazy val sdkS3 = "software.amazon.awssdk" % "s3" % Versions.aws
 
   def rootDependencies(scalaVersion: String): Seq[ModuleID] = Seq(
@@ -135,7 +137,6 @@ object Dependencies {
   )
 
   lazy val examplesDependencies: Seq[ModuleID] = Seq(
-    specs2core,
     scalaTestProvided
   )
 

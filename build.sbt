@@ -22,9 +22,10 @@ import com.github.sbt.jacoco.report.JacocoReportSettings
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.15"
+lazy val scala213 = "2.13.14"
 
 ThisBuild / scalaVersion := scala211  // default version
-ThisBuild / crossScalaVersions := Seq(scala211, scala212)
+ThisBuild / crossScalaVersions := Seq(scala211, scala212, scala213)
 
 lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions that Atum is being built for.")
 ThisBuild / printSparkScalaVersion := {

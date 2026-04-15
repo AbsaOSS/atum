@@ -34,6 +34,6 @@ class BuildPropertiesSpec extends AnyFlatSpec  {
   }
 
   "Project Name" should "start with atum and scala version" in {
-    assert(name.matches("""^atum_(2\.11|2\.12)$"""))
+    assert(name.matches("""^atum_(2\.11|2\.12|2\.13)$"""))
   }
 }

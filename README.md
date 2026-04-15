@@ -105,6 +105,14 @@ For project using Scala 2.12
     <version>ATUM_VERSION_HERE</version>
 </dependency>
 ```
+For project using Scala 2.13
+```xml
+<dependency>
+    <groupId>za.co.absa</groupId>
+    <artifactId>atum_2.13</artifactId>
+    <version>ATUM_VERSION_HERE</version>
+</dependency>
+```
 
 ### Initial info file generation example
 
@@ -305,7 +313,7 @@ Starting with version 3.3.0, there is also persistence support for AWS S3 via AW
 ```xml
 <dependency>
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-s3-sdk-extension_2.11</artifactId> <!-- or 2.12 -->
+    <artifactId>atum-s3-sdk-extension_2.11</artifactId> <!-- or 2.12 / 2.13 -->
     <version>${project.version}</version> <!-- e.g. 3.3.0 -->
 </dependency>
 ```
@@ -361,13 +369,13 @@ with `3.5.3` and `3.7.0-M15`.
 ```xml
 <dependency>
     <groupId>org.json4s</groupId>
-    <artifactId>json4s-core_2.11</artifactId> <!-- or 2.12 -->
+    <artifactId>json4s-core_2.11</artifactId> <!-- or 2.12 / 2.13 -->
     <version>${json4s.version}</version>
     <scope>provided</scope>
 </dependency>
 <dependency>
     <groupId>org.json4s</groupId>
-    <artifactId>json4s-jackson_2.11</artifactId> <!-- or 2.12 -->
+    <artifactId>json4s-jackson_2.11</artifactId> <!-- or 2.12 / 2.13 -->
     <version>${json4s.version}</version>
     <scope>provided</scope>
 </dependency>
@@ -377,7 +385,7 @@ Then, just include the model library
 ```xml
 <dependency>
     <groupId>za.co.absa</groupId>
-    <artifactId>atum-model_2.11</artifactId> <!-- or 2.12 -->
+    <artifactId>atum-model_2.11</artifactId> <!-- or 2.12 / 2.13 -->
     <version>3.5.1</version>
 </dependency>
 ```

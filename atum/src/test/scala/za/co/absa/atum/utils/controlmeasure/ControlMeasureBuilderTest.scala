@@ -58,7 +58,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
     // prior to stabilization, let's check the actual by-default generated software fields:
     defaultCm.checkpoints.map(_.software).foreach { swName =>
       swName shouldBe defined
-      swName.get should fullyMatch regex ("""^atum_(2\.11|2\.12)$""")
+      swName.get should fullyMatch regex ("""^atum_(2\.11|2\.12|2\.13)$""")
     }
 
     defaultCm.stabilizeTestingControlMeasure shouldBe expectedDefaultControlMeasure
@@ -101,7 +101,7 @@ class ControlMeasureBuilderTest extends AnyFlatSpec with ControlMeasureBaseTestS
     // prior to stabilization, let's check the actual by-default generated software fields:
     customCm.checkpoints.map(_.software).foreach { swName =>
       swName shouldBe defined
-      swName.get should fullyMatch regex ("""^atum_(2\.11|2\.12)$""")
+      swName.get should fullyMatch regex ("""^atum_(2\.11|2\.12|2\.13)$""")
     }
 
     customCm.stabilizeTestingControlMeasure shouldBe expectedCustomControlMeasure
