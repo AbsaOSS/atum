@@ -7,7 +7,7 @@ The actual deployments are triggered manually by the maintainers of this reposit
 trigger.
 
 Once changes from a PR were reviewed and merged into the master branch, follow these steps:
-1. Create a new Git Tag and push it to the repository, to the master branch. For example,
+1. Create a new Git Tag at the desired commit on `master`, and push the tag to the repository. For example,
    if you want to release a version 0.4.0 (note that we are using [Semantic Versioning](https://semver.org/)):
 
     ```shell
