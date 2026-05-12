@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-// to successfully publish to Sonatype OSS (using sbt publishSigned), setup outline at
-// https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html is expected
-
-ThisBuild / organizationName := "ABSA Group Limited"
 ThisBuild / organizationHomepage := Some(url("https://www.absa.africa"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -44,16 +40,7 @@ ThisBuild / developers := List(
 
 ThisBuild / homepage := Some(url("https://github.com/AbsaOSS/atum"))
 ThisBuild / description := "Dynamic data completeness and accuracy at enterprise scale in Apache Spark"
+
+ThisBuild / organizationName := "ABSA Group Limited"
 ThisBuild / startYear := Some(2018)
 ThisBuild / licenses += "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")
-
-ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) {
-    Some("snapshots" at s"${nexus}content/repositories/snapshots")
-  } else {
-    Some("releases" at s"${nexus}service/local/staging/deploy/maven2")
-  }
-}
-ThisBuild / publishMavenStyle := true

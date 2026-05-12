@@ -27,6 +27,8 @@ lazy val scala213 = "2.13.14"
 ThisBuild / scalaVersion := scala211  // default version
 ThisBuild / crossScalaVersions := Seq(scala211, scala212, scala213)
 
+ThisBuild / versionScheme := Some("early-semver")
+
 lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions that Atum is being built for.")
 ThisBuild / printSparkScalaVersion := {
   val log = streams.value.log

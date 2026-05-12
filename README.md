@@ -1,6 +1,6 @@
 # About Atum
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/atum_2.11/badge.svg)](https://central.sonatype.com/artifact/za.co.absa/atum_2.12/)
 
 Atum is a data completeness and accuracy library for Apache Spark.
 
