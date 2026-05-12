@@ -22,17 +22,14 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
-import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.specs2.matcher.Matchers.concurrentExecutionContext
 import za.co.absa.atum.model.{Checkpoint, Measurement}
 import za.co.absa.atum.persistence.ControlMeasuresParser
 import za.co.absa.atum.utils.SparkTestBase
 import za.co.absa.atum.AtumImplicits._
 
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.DurationInt
 
 class HdfsInfoIntegrationSuite extends AnyFlatSpec with SparkTestBase with Matchers with BeforeAndAfterAll with Eventually {
 
