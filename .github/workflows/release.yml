@@ -4,6 +4,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
@@ -13,30 +14,13 @@
 # limitations under the License.
 #
 
-name: SBT AutoBuild
-
+name: Release
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  build-sbt:
+  publish:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        scala: [ 2.11.12, 2.12.15, 2.13.14 ]
-        spark: [ 2.4.8, 3.2.2 ]
-        exclude:
-          - scala: 2.11.12
-            spark: 3.2.2
-          - scala: 2.12.15
-            spark: 2.4.8
-          - scala: 2.13.14
-            spark: 2.4.8
-    name: SBT Spark ${{matrix.spark}} on Scala ${{matrix.scala}}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
@@ -44,14 +28,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 #v8.1.0
       - name: Setup Scala
         uses: olafurpg/setup-scala@32ffa16635ff8f19cc21ea253a987f0fdf29844c #v14
         with:
           java-version: "adopt@1.8"
-      - name: Build and run tests
-        if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
-        run: sbt ++${{matrix.scala}} test
-      - name: Build and run examples
-        if: ${{ ! contains( github.event.pull_request.labels.*.name, 'NoTestNeeded') }}
-        run: sbt ++${{matrix.scala}} examples/test s3sdkExamples/compile
+
+      - run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}

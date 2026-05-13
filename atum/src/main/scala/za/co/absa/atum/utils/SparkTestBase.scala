@@ -34,6 +34,8 @@ trait SparkTestBase {
     .config("spark.driver.host", "127.0.0.1")
     .config("spark.ui.enabled", "false")
     .config("spark.testing.memory", 1024*1024*1024) // otherwise may fail based on local machine settings
+    // Spark 3.2+ fires listeners async by default; sync needed for _INFO file tests
+    .config("spark.sql.queryExecutionListeners.async", value = false)
     .getOrCreate()
 
 }

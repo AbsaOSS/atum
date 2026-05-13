@@ -36,7 +36,7 @@ trait ControlMeasureBaseTestSuite {
       .replaceFirst("""(?<="informationDate"\s?:\s?")(\d{2}-\d{2}-\d{4})""", testingDate)
       .replaceAll("""(?<="processStartTime"\s?:\s?")([-+: \d]+)""", testingDateTime1)
       .replaceAll("""(?<="processEndTime"\s?:\s?")([-+: \d]+)""", testingDateTime2)
-      .replaceAll("""(?<="version"\s?:\s?")([-\d\.A-z]+)""", testingVersion)
+      .replaceAll("""(?<="version"\s?:\s?")([-+\d\.A-z]+)""", testingVersion)
       .replaceAll("""(?<="software"\s?:\s?")([\d\.A-z_]+)""", testingSoftware)
       .replaceAll("\r\n", "\n") // Windows guard
   }
